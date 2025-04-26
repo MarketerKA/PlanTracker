@@ -1,0 +1,30 @@
+.button {
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  transition: border-color 0.25s;
+  
+  &:hover {
+    border-color: #646cff;
+  }
+  
+  &:focus,
+  &:focus-visible {
+    outline: 4px auto -webkit-focus-ring-color;
+  }
+}
+
+.primary {
+  background-color: #1a1a1a;
+  color: white;
+}
+
+.secondary {
+  background-color: white;
+  color: #1a1a1a;
+  border: 1px solid #1a1a1a;
+} 
