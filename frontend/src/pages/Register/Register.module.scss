@@ -2,30 +2,14 @@
   width: 100%;
 }
 
-.emailContainer {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-  position: relative;
-  
-  > div:first-child {
-    flex: 1;
-    margin-bottom: 0;
-  }
-}
-
-.sendCodeButton {
-  white-space: nowrap;
-  min-width: 110px;
-  padding: 11px 12px;
-  margin-top: 28px; /* Отступ, равный (label + примерно отступ) */
-  height: fit-content;
-  
-  @media (max-width: 425px) {
-    min-width: auto;
-    padding: 11px 8px;
-    font-size: 12px;
-  }
+.serverError {
+  padding: 12px;
+  margin-bottom: 16px;
+  background-color: var(--error-light);
+  color: var(--error);
+  border-radius: 8px;
+  font-size: 14px;
+  text-align: center;
 }
 
 .submitButton {
@@ -65,4 +49,4 @@
     color: var(--accent-primary-hover);
     text-decoration: underline;
   }
-} 
+}

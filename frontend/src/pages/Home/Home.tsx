@@ -1,7 +1,10 @@
 import { FC, useState, useEffect } from 'react';
 import styles from './Home.module.scss';
-import { Header, TaskForm, TaskList, TaskType } from '../../components';
+import { Header, TaskForm, TaskList, TaskType, Button } from '../../components';
 import { v4 as uuidv4 } from 'uuid';
+import { useAppDispatch, useAppSelector } from '../../redux/hooks';
+import { logout } from '../../redux/auth';
+import { RootState } from '../../redux/store';
 
 // Демо-задачи для тестирования
 const demoTasks: TaskType[] = [
@@ -63,6 +66,9 @@ const demoTasks: TaskType[] = [
 export interface HomeProps {}
 
 export const Home: FC<HomeProps> = () => {
+  const dispatch = useAppDispatch();
+  // @ts-ignore
+  const { user } = useAppSelector((state: RootState) => state.auth);
   const [tasks, setTasks] = useState<TaskType[]>([]);
 
   // Загрузка задач из localStorage при инициализации
@@ -107,11 +113,22 @@ export const Home: FC<HomeProps> = () => {
     setTasks(prev => prev.filter(task => task.id !== id));
   };
 
+  const handleLogout = () => {
+    dispatch(logout());
+  };
+
   return (
     <div className={styles.pageWrapper}>
       <Header />
       <main className={styles.main}>
         <div className={styles.container}>
+          <div className={styles.userInfo}>
+            <div className={styles.userEmail}>{user?.email}</div>
+            <Button onClick={handleLogout} variant="secondary" className={styles.logoutButton}>
+              Выйти
+            </Button>
+          </div>
+          
           <h1 className={styles.title}>Мои задачи</h1>
           
           <div className={styles.content}>

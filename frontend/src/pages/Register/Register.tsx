@@ -1,4 +1,4 @@
-import { FC, useState, FormEvent } from 'react';
+import { FC, useState, FormEvent, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './Register.module.scss';
 import { 
@@ -11,26 +11,40 @@ import {
   EyeOffIcon
 } from '../../components';
 import { ROUTES } from '../../routes';
+import { useAppDispatch, useAppSelector } from '../../redux/hooks';
+import { register, clearError } from '../../redux/auth';
 
 export interface RegisterProps {}
 
 export const Register: FC<RegisterProps> = () => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const { loading, error, isAuthenticated } = useAppSelector(state => state.auth);
+  
   const [email, setEmail] = useState('');
-  const [verificationCode, setVerificationCode] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [errors, setErrors] = useState<{
+  const [formErrors, setFormErrors] = useState<{
     email?: string;
-    verificationCode?: string;
     password?: string;
     confirmPassword?: string;
   }>({});
-  const [isLoading, setIsLoading] = useState(false);
-  const [codeSent, setCodeSent] = useState(false);
-  const [isVerifying, setIsVerifying] = useState(false);
+
+  // Если пользователь уже авторизован, перенаправляем на главную страницу
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate(ROUTES.HOME);
+    }
+  }, [isAuthenticated, navigate]);
+
+  // Сбрасываем ошибки с сервера при изменении полей ввода
+  useEffect(() => {
+    if (error) {
+      dispatch(clearError());
+    }
+  }, [email, password, confirmPassword, dispatch, error]);
 
   const togglePasswordVisibility = () => {
     setShowPassword(prev => !prev);
@@ -40,10 +54,9 @@ export const Register: FC<RegisterProps> = () => {
     setShowConfirmPassword(prev => !prev);
   };
 
-  const validateForm = () => {
+  const validateForm = (): boolean => {
     const newErrors: {
       email?: string;
-      verificationCode?: string;
       password?: string;
       confirmPassword?: string;
     } = {};
@@ -52,10 +65,6 @@ export const Register: FC<RegisterProps> = () => {
       newErrors.email = 'Email обязателен';
     } else if (!/\S+@\S+\.\S+/.test(email)) {
       newErrors.email = 'Некорректный email';
-    }
-    
-    if (codeSent && !verificationCode) {
-      newErrors.verificationCode = 'Введите код подтверждения';
     }
     
     if (!password) {
@@ -68,33 +77,8 @@ export const Register: FC<RegisterProps> = () => {
       newErrors.confirmPassword = 'Пароли не совпадают';
     }
     
-    setErrors(newErrors);
+    setFormErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  };
-
-  const sendVerificationCode = async () => {
-    // Проверка только email
-    const emailError = email ? (!/\S+@\S+\.\S+/.test(email) ? 'Некорректный email' : '') : 'Email обязателен';
-    
-    if (emailError) {
-      setErrors(prev => ({ ...prev, email: emailError }));
-      return;
-    }
-    
-    setIsVerifying(true);
-    
-    try {
-      // Имитация отправки кода на email
-      console.log('Отправка кода подтверждения на:', email);
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      setCodeSent(true);
-      alert(`Код подтверждения отправлен на ${email}. (В демо версии используйте код: 123456)`);
-    } catch (error) {
-      console.error('Ошибка при отправке кода:', error);
-    } finally {
-      setIsVerifying(false);
-    }
   };
 
   const handleSubmit = async (e: FormEvent) => {
@@ -102,32 +86,8 @@ export const Register: FC<RegisterProps> = () => {
     
     if (!validateForm()) return;
     
-    setIsLoading(true);
-    
-    try {
-      // Проверим код подтверждения (в реальном приложении это будет API-запрос)
-      if (verificationCode !== '123456') {
-        setErrors(prev => ({ ...prev, verificationCode: 'Неверный код подтверждения' }));
-        setIsLoading(false);
-        return;
-      }
-      
-      // Здесь будет запрос на регистрацию
-      console.log('Регистрация с данными:', { email, password });
-      
-      // Имитация API-запроса
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // В реальном приложении здесь будет обработка ответа от API
-      console.log('Успешная регистрация');
-      
-      // Перенаправление на страницу входа
-      navigate(ROUTES.LOGIN);
-    } catch (error) {
-      console.error('Ошибка при регистрации:', error);
-    } finally {
-      setIsLoading(false);
-    }
+    // Отправляем запрос на регистрацию через Redux
+    dispatch(register({ email, password }));
   };
 
   const goToLogin = () => {
@@ -140,42 +100,22 @@ export const Register: FC<RegisterProps> = () => {
       subtitle="Создайте аккаунт для доступа к сервису"
     >
       <form className={styles.form} onSubmit={handleSubmit}>
-        <div className={styles.emailContainer}>
-          <InputField
-            label="Email"
-            icon={<EmailIcon />}
-            type="email"
-            placeholder="your@email.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            error={errors.email}
-            disabled={codeSent}
-          />
-          {!codeSent && (
-            <Button 
-              type="button" 
-              variant="secondary"
-              onClick={sendVerificationCode}
-              disabled={isVerifying}
-              className={styles.sendCodeButton}
-            >
-              {isVerifying ? 'Отправка...' : 'Отправить код'}
-            </Button>
-          )}
-        </div>
-        
-        {codeSent && (
-          <InputField
-            label="Код подтверждения"
-            type="text"
-            placeholder="Введите код из письма"
-            value={verificationCode}
-            onChange={(e) => setVerificationCode(e.target.value)}
-            required
-            error={errors.verificationCode}
-          />
+        {error && (
+          <div className={styles.serverError}>
+            {error}
+          </div>
         )}
+        
+        <InputField
+          label="Email"
+          icon={<EmailIcon />}
+          type="email"
+          placeholder="your@email.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          error={formErrors.email}
+        />
         
         <InputField
           label="Пароль"
@@ -185,7 +125,7 @@ export const Register: FC<RegisterProps> = () => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-          error={errors.password}
+          error={formErrors.password}
           rightIcon={showPassword ? <EyeOffIcon /> : <EyeIcon />}
           onRightIconClick={togglePasswordVisibility}
         />
@@ -198,17 +138,17 @@ export const Register: FC<RegisterProps> = () => {
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
           required
-          error={errors.confirmPassword}
+          error={formErrors.confirmPassword}
           rightIcon={showConfirmPassword ? <EyeOffIcon /> : <EyeIcon />}
           onRightIconClick={toggleConfirmPasswordVisibility}
         />
         
         <Button
           type="submit"
-          disabled={isLoading || !codeSent}
+          disabled={loading}
           className={styles.submitButton}
         >
-          {isLoading ? 'Регистрация...' : 'Зарегистрироваться'}
+          {loading ? 'Регистрация...' : 'Зарегистрироваться'}
         </Button>
         
         <div className={styles.loginPrompt}>

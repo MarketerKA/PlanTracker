@@ -1,4 +1,4 @@
-import { FC, useState, FormEvent } from 'react';
+import { FC, useState, FormEvent, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './Login.module.scss';
 import { 
@@ -11,22 +11,40 @@ import {
   EyeOffIcon
 } from '../../components';
 import { ROUTES } from '../../routes';
+import { useAppDispatch, useAppSelector } from '../../redux/hooks';
+import { login, clearError } from '../../redux/auth';
 
 export interface LoginProps {}
 
 export const Login: FC<LoginProps> = () => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const { loading, error, isAuthenticated } = useAppSelector(state => state.auth);
+  
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [errors, setErrors] = useState<{email?: string; password?: string}>({});
-  const [isLoading, setIsLoading] = useState(false);
+  const [formErrors, setFormErrors] = useState<{email?: string; password?: string}>({});
+
+  // Если пользователь уже авторизован, перенаправляем на главную страницу
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate(ROUTES.HOME);
+    }
+  }, [isAuthenticated, navigate]);
+
+  // Сбрасываем ошибки с сервера при изменении полей ввода
+  useEffect(() => {
+    if (error) {
+      dispatch(clearError());
+    }
+  }, [email, password, dispatch, error]);
 
   const togglePasswordVisibility = () => {
     setShowPassword(prev => !prev);
   };
 
-  const validateForm = () => {
+  const validateForm = (): boolean => {
     const newErrors: {email?: string; password?: string} = {};
     
     if (!email) {
@@ -39,7 +57,7 @@ export const Login: FC<LoginProps> = () => {
       newErrors.password = 'Пароль обязателен';
     }
     
-    setErrors(newErrors);
+    setFormErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
@@ -47,27 +65,9 @@ export const Login: FC<LoginProps> = () => {
     e.preventDefault();
     
     if (!validateForm()) return;
-    
-    setIsLoading(true);
-    
-    try {
-      // Здесь будет запрос на авторизацию
-      console.log('Попытка входа с:', { email, password });
-      
-      // Имитация API-запроса
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // В реальном приложении здесь будет обработка ответа от API
-      // и сохранение токена/пользователя
-      console.log('Успешный вход');
-      
-      // Перенаправление на главную страницу
-      navigate(ROUTES.HOME);
-    } catch (error) {
-      console.error('Ошибка при авторизации:', error);
-    } finally {
-      setIsLoading(false);
-    }
+
+    // Отправляем запрос на авторизацию через Redux
+    dispatch(login({ email, password }));
   };
 
   const goToRegister = () => {
@@ -80,6 +80,12 @@ export const Login: FC<LoginProps> = () => {
       subtitle="Введите ваши данные для доступа к сервису"
     >
       <form className={styles.form} onSubmit={handleSubmit}>
+        {error && (
+          <div className={styles.serverError}>
+            {error}
+          </div>
+        )}
+        
         <InputField
           label="Email"
           icon={<EmailIcon />}
@@ -88,7 +94,7 @@ export const Login: FC<LoginProps> = () => {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          error={errors.email}
+          error={formErrors.email}
         />
         
         <InputField
@@ -99,7 +105,7 @@ export const Login: FC<LoginProps> = () => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-          error={errors.password}
+          error={formErrors.password}
           rightIcon={showPassword ? <EyeOffIcon /> : <EyeIcon />}
           onRightIconClick={togglePasswordVisibility}
         />
@@ -110,10 +116,10 @@ export const Login: FC<LoginProps> = () => {
         
         <Button
           type="submit"
-          disabled={isLoading}
+          disabled={loading}
           className={styles.submitButton}
         >
-          {isLoading ? 'Вход...' : 'Войти'}
+          {loading ? 'Вход...' : 'Войти'}
         </Button>
         
         <div className={styles.registerPrompt}>
