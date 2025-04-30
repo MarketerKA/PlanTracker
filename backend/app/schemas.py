@@ -26,12 +26,20 @@ class ActivityCreate(ActivityBase):
 class ActivityUpdate(ActivityBase):
     end_time: Optional[datetime] = None
     duration: Optional[int] = None
+    recorded_time: Optional[int] = None
+    timer_status: Optional[str] = None
+
+class TimerAction(BaseModel):
+    action: str  # start, pause, stop, save
 
 class Activity(ActivityBase):
     id: int
     start_time: datetime
     end_time: Optional[datetime] = None
     duration: Optional[int] = None
+    recorded_time: int
+    timer_status: str
+    last_timer_start: Optional[datetime] = None
     user_id: int
     tags: List[Tag] = []
 
