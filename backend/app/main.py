@@ -25,7 +25,7 @@ app = FastAPI(title="PlanTracker API")
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[config.FRONTEND_URL, "http://localhost:8000"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
