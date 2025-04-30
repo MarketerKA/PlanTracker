@@ -1,6 +1,7 @@
-from pydantic import BaseModel, EmailStr, constr
+from pydantic import BaseModel, EmailStr, constr, field_validator
 from typing import List, Optional
 from datetime import datetime
+from email_validator import validate_email, EmailNotValidError
 
 class TagBase(BaseModel):
     name: str
@@ -38,10 +39,35 @@ class Activity(ActivityBase):
         from_attributes = True
 
 class UserBase(BaseModel):
-    email: EmailStr
+    email: str  # Changed from EmailStr to str for custom validation
+    
+    @field_validator('email')
+    def validate_email_field(cls, v):
+        try:
+            # Strict validation with deliverability check
+            valid = validate_email(v, check_deliverability=True)
+            
+            # Check for common test domains
+            domain = v.split('@')[1].lower()
+            if domain in ['example.com', 'test.com', 'example.org']:
+                raise ValueError(f"Email domain {domain} is not allowed")
+                
+            # Return normalized email
+            return valid.normalized
+        except EmailNotValidError as e:
+            raise ValueError(f"Invalid email: {str(e)}")
 
 class UserCreate(UserBase):
     password: constr(min_length=8)  # Minimum password length of 8 characters
+    
+    class Config:
+        # This ensures error messages are properly shown
+        json_schema_extra = {
+            "example": {
+                "email": "user@gmail.com",
+                "password": "strongpassword123"
+            }
+        }
 
 class UserUpdate(UserBase):
     telegram_chat_id: Optional[str] = None
@@ -49,7 +75,6 @@ class UserUpdate(UserBase):
 class User(UserBase):
     id: int
     is_active: bool
-    is_verified: bool
     telegram_chat_id: Optional[str] = None
 
     class Config:

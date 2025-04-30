@@ -1,16 +1,16 @@
-import os
 import secrets
 from fastapi_mail import FastMail, MessageSchema, ConnectionConfig
 from pydantic import EmailStr
+from . import config
 
 # Email configuration
 email_config = ConnectionConfig(
-    MAIL_USERNAME=os.environ.get("MAIL_USERNAME", "youremail@example.com"),
-    MAIL_PASSWORD=os.environ.get("MAIL_PASSWORD", "your-password"),
-    MAIL_FROM=os.environ.get("MAIL_FROM", "youremail@example.com"),
-    MAIL_PORT=int(os.environ.get("MAIL_PORT", 587)),
-    MAIL_SERVER=os.environ.get("MAIL_SERVER", "smtp.gmail.com"),
-    MAIL_FROM_NAME=os.environ.get("MAIL_FROM_NAME", "Plan Tracker App"),
+    MAIL_USERNAME=config.MAIL_USERNAME,
+    MAIL_PASSWORD=config.MAIL_PASSWORD,
+    MAIL_FROM=config.MAIL_FROM,
+    MAIL_PORT=config.MAIL_PORT,
+    MAIL_SERVER=config.MAIL_SERVER,
+    MAIL_FROM_NAME=config.MAIL_FROM_NAME,
     MAIL_STARTTLS=True,
     MAIL_SSL_TLS=False,
     USE_CREDENTIALS=True,
@@ -22,7 +22,7 @@ async def send_verification_email(email: EmailStr, verification_code: str):
     Send verification email to the user
     """
     # Configure email contents
-    verification_url = f"http://localhost:8000/verify-email?code={verification_code}&email={email}"
+    verification_url = f"{config.VERIFICATION_URL_BASE}/verify-email?code={verification_code}&email={email}"
     
     message = MessageSchema(
         subject="Plan Tracker - Email Verification",

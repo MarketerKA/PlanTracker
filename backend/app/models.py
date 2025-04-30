@@ -18,8 +18,6 @@ class User(Base):
     email = Column(String, unique=True, index=True)
     hashed_password = Column(String)
     is_active = Column(Boolean, default=True)
-    is_verified = Column(Boolean, default=False)
-    verification_code = Column(String, nullable=True)
     telegram_chat_id = Column(String, nullable=True)
     activities = relationship("Activity", back_populates="user")
 
