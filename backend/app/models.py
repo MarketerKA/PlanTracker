@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, DateTime, Table
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, DateTime, Table, Float
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from .database import Base
@@ -30,6 +30,12 @@ class Activity(Base):
     start_time = Column(DateTime(timezone=True), server_default=func.now())
     end_time = Column(DateTime(timezone=True), nullable=True)
     duration = Column(Integer, nullable=True)  # Duration in seconds
+    
+    # Timer related fields
+    recorded_time = Column(Integer, default=0)  # Total recorded time in seconds
+    timer_status = Column(String, default="stopped")  # stopped, running, paused
+    last_timer_start = Column(DateTime(timezone=True), nullable=True)  # When timer was last started
+    
     user_id = Column(Integer, ForeignKey("users.id"))
     user = relationship("User", back_populates="activities")
     tags = relationship("Tag", secondary=activity_tags, back_populates="activities")
