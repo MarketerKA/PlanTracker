@@ -1,30 +1,35 @@
 .button {
-  padding: 0.6em 1.2em;
-  font-size: 1em;
+  padding: 0.5em 1em;
+  font-size: 0.9em;
   font-weight: 500;
   font-family: inherit;
   cursor: pointer;
-  border-radius: 8px;
+  border-radius: 4px;
   border: 1px solid transparent;
-  transition: border-color 0.25s;
+  transition: all 0.2s ease;
   
   &:hover {
-    border-color: #646cff;
+    opacity: 0.9;
   }
   
   &:focus,
   &:focus-visible {
-    outline: 4px auto -webkit-focus-ring-color;
+    outline: 2px solid #8e96ff;
+    outline-offset: 2px;
   }
 }
 
 .primary {
-  background-color: #1a1a1a;
-  color: white;
+  background-color: #8e96ff;
+  color: #121212;
 }
 
 .secondary {
-  background-color: white;
-  color: #1a1a1a;
-  border: 1px solid #1a1a1a;
+  background-color: transparent;
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  
+  &:hover {
+    border-color: rgba(255, 255, 255, 0.4);
+  }
 } 
