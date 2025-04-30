@@ -10,6 +10,7 @@ import {
   EyeIcon,
   EyeOffIcon
 } from '../../components';
+import { ROUTES } from '../../routes';
 
 export interface RegisterProps {}
 
@@ -121,7 +122,7 @@ export const Register: FC<RegisterProps> = () => {
       console.log('Успешная регистрация');
       
       // Перенаправление на страницу входа
-      navigate('/login');
+      navigate(ROUTES.LOGIN);
     } catch (error) {
       console.error('Ошибка при регистрации:', error);
     } finally {
@@ -130,7 +131,7 @@ export const Register: FC<RegisterProps> = () => {
   };
 
   const goToLogin = () => {
-    navigate('/login');
+    navigate(ROUTES.LOGIN);
   };
 
   return (

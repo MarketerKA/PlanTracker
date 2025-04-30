@@ -10,6 +10,7 @@ import {
   EyeIcon,
   EyeOffIcon
 } from '../../components';
+import { ROUTES } from '../../routes';
 
 export interface LoginProps {}
 
@@ -61,7 +62,7 @@ export const Login: FC<LoginProps> = () => {
       console.log('Успешный вход');
       
       // Перенаправление на главную страницу
-      navigate('/');
+      navigate(ROUTES.HOME);
     } catch (error) {
       console.error('Ошибка при авторизации:', error);
     } finally {
@@ -70,7 +71,7 @@ export const Login: FC<LoginProps> = () => {
   };
 
   const goToRegister = () => {
-    navigate('/register');
+    navigate(ROUTES.REGISTER);
   };
 
   return (

@@ -2,6 +2,7 @@ import { FC } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './Header.module.scss';
 import { Button } from '../Button';
+import { ROUTES } from '../../routes';
 
 export interface HeaderProps {}
 
@@ -9,7 +10,7 @@ export const Header: FC<HeaderProps> = () => {
   const navigate = useNavigate();
 
   const handleLoginClick = () => {
-    navigate('/login');
+    navigate(ROUTES.LOGIN);
   };
 
   return (
