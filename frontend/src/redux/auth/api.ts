@@ -17,7 +17,8 @@ const api = axios.create({
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
-    config.headers['Authorization'] = `Bearer ${token}`;
+    const tokenType = localStorage.getItem('token_type') || 'Bearer';
+    config.headers['Authorization'] = `${tokenType} ${token}`;
   }
   return config;
 });
@@ -84,6 +85,7 @@ export const authApi = {
    */
   logout: (): void => {
     localStorage.removeItem('token');
+    localStorage.removeItem('token_type');
   },
 };
 

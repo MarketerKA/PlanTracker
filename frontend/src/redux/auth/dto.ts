@@ -21,9 +21,12 @@ export const authDto = {
    * Обработка ответа авторизации и сохранение токена
    */
   processAuthResponse: (response: AuthResponse): string => {
-    const { access_token } = response;
-    // Сохраняем токен в localStorage
+    const { access_token, token_type } = response;
+    
+    // Сохраняем токен и его тип в localStorage, если требуется
     localStorage.setItem('token', access_token);
+    localStorage.setItem('token_type', token_type); // сохраняем тип токена
+    
     return access_token;
   },
 
