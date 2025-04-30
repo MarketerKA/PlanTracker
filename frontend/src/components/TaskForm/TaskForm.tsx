@@ -1,6 +1,6 @@
 import { FC, useState, FormEvent } from 'react';
 import styles from './TaskForm.module.scss';
-import { TaskType } from '../Task';
+import { TaskType } from '../Task/types';
 
 export interface TaskFormProps {
   onAddTask: (task: Omit<TaskType, 'id'>) => void;
@@ -9,7 +9,8 @@ export interface TaskFormProps {
 export const TaskForm: FC<TaskFormProps> = ({ onAddTask }) => {
   const [title, setTitle] = useState('');
   const [dueDate, setDueDate] = useState('');
-  const [priority, setPriority] = useState<TaskType['priority']>('medium');
+  const [tags, setTags] = useState<string[]>([]);
+  const [newTag, setNewTag] = useState('');
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -19,7 +20,7 @@ export const TaskForm: FC<TaskFormProps> = ({ onAddTask }) => {
     const newTask: Omit<TaskType, 'id'> = {
       title: title.trim(),
       completed: false,
-      priority,
+      tags,
       ...(dueDate && { dueDate })
     };
     
@@ -28,7 +29,19 @@ export const TaskForm: FC<TaskFormProps> = ({ onAddTask }) => {
     // Сброс формы
     setTitle('');
     setDueDate('');
-    setPriority('medium');
+    setTags([]);
+    setNewTag('');
+  };
+
+  const handleAddTag = () => {
+    if (newTag.trim() && !tags.includes(newTag.trim())) {
+      setTags([...tags, newTag.trim()]);
+      setNewTag('');
+    }
+  };
+
+  const handleRemoveTag = (tagToRemove: string) => {
+    setTags(tags.filter(tag => tag !== tagToRemove));
   };
 
   return (
@@ -57,16 +70,43 @@ export const TaskForm: FC<TaskFormProps> = ({ onAddTask }) => {
         </div>
         
         <div className={styles.inputGroup}>
-          <label className={styles.label}>Приоритет</label>
-          <select
-            value={priority}
-            onChange={(e) => setPriority(e.target.value as TaskType['priority'])}
-            className={styles.select}
-          >
-            <option value="low">Низкий</option>
-            <option value="medium">Средний</option>
-            <option value="high">Высокий</option>
-          </select>
+          <label className={styles.label}>Теги</label>
+          <div className={styles.tagsInput}>
+            <input
+              type="text"
+              value={newTag}
+              onChange={(e) => setNewTag(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleAddTag();
+                }
+              }}
+              placeholder="Введите тег..."
+              className={styles.input}
+            />
+            <button
+              type="button"
+              onClick={handleAddTag}
+              className={styles.addTagButton}
+            >
+              +
+            </button>
+          </div>
+          <div className={styles.tagsList}>
+            {tags.map(tag => (
+              <span key={tag} className={styles.tag}>
+                {tag}
+                <button
+                  type="button"
+                  onClick={() => handleRemoveTag(tag)}
+                  className={styles.removeTag}
+                >
+                  ×
+                </button>
+              </span>
+            ))}
+          </div>
         </div>
       </div>
       
@@ -75,4 +115,4 @@ export const TaskForm: FC<TaskFormProps> = ({ onAddTask }) => {
       </button>
     </form>
   );
-}; 
+};

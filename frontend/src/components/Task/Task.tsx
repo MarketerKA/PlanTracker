@@ -1,23 +1,27 @@
 import { FC } from 'react';
+import { TaskType } from './types';
 import styles from './Task.module.scss';
-
-export interface TaskType {
-  id: string;
-  title: string;
-  completed: boolean;
-  dueDate?: string;
-  priority: 'low' | 'medium' | 'high';
-}
 
 export interface TaskProps {
   task: TaskType;
   onToggleComplete: (id: string) => void;
   onDelete: (id: string) => void;
+  isSelected?: boolean;
+  onSelect?: () => void;
 }
 
-export const Task: FC<TaskProps> = ({ task, onToggleComplete, onDelete }) => {
+export const Task: FC<TaskProps> = ({ 
+  task, 
+  onToggleComplete, 
+  onDelete,
+  isSelected,
+  onSelect
+}) => {
   return (
-    <div className={`${styles.task} ${task.completed ? styles.completed : ''}`}>
+    <div 
+      className={`${styles.task} ${task.completed ? styles.completed : ''} ${isSelected ? styles.selected : ''}`}
+      onClick={onSelect}
+    >
       <div className={styles.checkbox}>
         <input 
           type="checkbox" 
@@ -27,14 +31,22 @@ export const Task: FC<TaskProps> = ({ task, onToggleComplete, onDelete }) => {
       </div>
       <div className={styles.content}>
         <div className={styles.title}>{task.title}</div>
-        {task.dueDate && (
-          <div className={styles.dueDate}>
-            {new Date(task.dueDate).toLocaleDateString()}
-          </div>
-        )}
-      </div>
-      <div className={`${styles.priority} ${styles[task.priority]}`}>
-        {task.priority}
+        <div className={styles.details}>
+          {task.dueDate && (
+            <div className={styles.dueDate}>
+              {new Date(task.dueDate).toLocaleDateString()}
+            </div>
+          )}
+          {task.tags.length > 0 && (
+            <div className={styles.tags}>
+              {task.tags.map(tag => (
+                <span key={tag} className={styles.tag}>
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
       <button 
         className={styles.deleteBtn}
@@ -44,4 +56,4 @@ export const Task: FC<TaskProps> = ({ task, onToggleComplete, onDelete }) => {
       </button>
     </div>
   );
-}; 
+};

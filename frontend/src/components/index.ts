@@ -7,3 +7,4 @@ export * from './TaskList';
 export * from './InputField';
 export * from './Icons';
 export * from './AuthLayout'; 
+export * from './Timer';

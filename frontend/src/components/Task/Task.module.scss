@@ -15,18 +15,23 @@
   }
 
   &.completed {
-    opacity: 0.7;
-    
+    opacity: 0.6;
+
     .title {
       text-decoration: line-through;
       color: var(--text-muted);
     }
   }
+
+  &.selected {
+    border: 2px solid var(--accent-primary);
+    background-color: var(--element-hover);
+  }
 }
 
 .checkbox {
   margin-right: 16px;
-  
+
   input {
     width: 18px;
     height: 18px;
@@ -36,7 +41,7 @@
 }
 
 .content {
-  flex: 1;
+  flex-grow: 1;
 }
 
 .title {
@@ -46,8 +51,29 @@
   color: var(--text-primary);
 }
 
+.details {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-top: 4px;
+}
+
 .dueDate {
   font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.tag {
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background-color: var(--element-secondary);
   color: var(--text-secondary);
 }
 
@@ -57,17 +83,17 @@
   font-size: 12px;
   margin-right: 16px;
   text-transform: capitalize;
-  
+
   &.low {
     background-color: var(--priority-low-bg);
     color: var(--priority-low);
   }
-  
+
   &.medium {
     background-color: var(--priority-medium-bg);
     color: var(--priority-medium);
   }
-  
+
   &.high {
     background-color: var(--priority-high-bg);
     color: var(--priority-high);
@@ -81,8 +107,8 @@
   font-size: 16px;
   cursor: pointer;
   padding: 4px;
-  
+
   &:hover {
     color: var(--priority-high);
   }
-} 
+}

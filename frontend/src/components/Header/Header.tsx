@@ -17,7 +17,7 @@ export const Header: FC<HeaderProps> = () => {
     <header className={styles.header}>
       <div className={styles.container}>
         <div className={styles.logo}>
-          <h1>Plan<span>Treker</span></h1>
+          <h1>Plan<span>Tracker</span></h1>
         </div>
         <nav className={styles.nav}>
           <ul>
