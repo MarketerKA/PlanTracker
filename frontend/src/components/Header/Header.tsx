@@ -1,6 +1,5 @@
 import { FC } from 'react';
 import styles from './Header.module.scss';
-import Button from '../Button';
 
 const Header: FC = () => {
   return (
@@ -11,15 +10,9 @@ const Header: FC = () => {
         </div>
         <nav className={styles.nav}>
           <ul>
-            <li><a href="#" className={styles.active}>Главная</a></li>
-            <li><a href="#">Задачи</a></li>
-            <li><a href="#">Таймер</a></li>
-            <li><a href="#">Отчеты</a></li>
+            <li><a href="#" className={styles.active}>Задачи</a></li>
           </ul>
         </nav>
-        <div className={styles.actions}>
-          <Button variant="secondary">Войти</Button>
-        </div>
       </div>
     </header>
   );

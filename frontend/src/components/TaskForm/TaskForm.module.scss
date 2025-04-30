@@ -1,0 +1,86 @@
+.form {
+  background-color: var(--element-primary);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-small);
+  border: 1px solid var(--border-color);
+}
+
+.formRow {
+  display: flex;
+  gap: 16px;
+  margin-top: 16px;
+  
+  @media (max-width: 600px) {
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+
+.inputGroup {
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+.label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: var(--element-secondary);
+  color: var(--text-primary);
+  transition: border-color 0.2s ease;
+  
+  &:focus {
+    border-color: var(--accent-primary);
+    outline: none;
+  }
+}
+
+.select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: var(--element-secondary);
+  color: var(--text-primary);
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23aaaaaa' d='M6 8.825l-4.6-4.6 1.4-1.4L6 6.025l3.2-3.2 1.4 1.4z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  
+  &:focus {
+    border-color: var(--accent-primary);
+    outline: none;
+  }
+}
+
+.submitButton {
+  display: inline-block;
+  margin-top: 16px;
+  padding: 10px 16px;
+  background-color: var(--accent-primary);
+  color: var(--text-primary);
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  
+  &:hover {
+    background-color: var(--accent-primary-hover);
+  }
+} 

@@ -1,0 +1,37 @@
+:root {
+  // Основные цвета
+  --bg-primary: #121212;
+  --bg-secondary: #1e1e1e;
+  --bg-tertiary: #2c2c2c;
+  
+  // Цвета элементов
+  --element-primary: #1e1e1e;
+  --element-secondary: #2c2c2c;
+  --element-hover: #383838;
+  --element-active: #3f3f3f;
+  
+  // Цвета границ
+  --border-color: rgba(255, 255, 255, 0.1);
+  
+  // Цвета текста
+  --text-primary: #ffffff;
+  --text-secondary: #aaaaaa;
+  --text-muted: #777777;
+  
+  // Акцентные цвета
+  --accent-primary: #8e96ff;
+  --accent-primary-hover: #7a82ea;
+  
+  // Цвета статусов
+  --priority-low: #4caf50;
+  --priority-low-bg: rgba(76, 175, 80, 0.15);
+  --priority-medium: #ff9800;
+  --priority-medium-bg: rgba(255, 152, 0, 0.15);
+  --priority-high: #f44336;
+  --priority-high-bg: rgba(244, 67, 54, 0.15);
+  
+  // Цвета для компонентов
+  --shadow-color: rgba(0, 0, 0, 0.3);
+  --shadow-small: 0 2px 5px var(--shadow-color);
+  --shadow-medium: 0 4px 10px var(--shadow-color);
+} 

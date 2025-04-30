@@ -14,22 +14,22 @@
   
   &:focus,
   &:focus-visible {
-    outline: 2px solid #8e96ff;
+    outline: 2px solid var(--accent-primary);
     outline-offset: 2px;
   }
 }
 
 .primary {
-  background-color: #8e96ff;
-  color: #121212;
+  background-color: var(--accent-primary);
+  color: var(--bg-primary);
 }
 
 .secondary {
   background-color: transparent;
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
   
   &:hover {
-    border-color: rgba(255, 255, 255, 0.4);
+    border-color: var(--text-secondary);
   }
 } 
