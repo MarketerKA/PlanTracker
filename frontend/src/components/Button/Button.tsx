@@ -1,11 +1,11 @@
 import { FC, ButtonHTMLAttributes } from 'react';
 import styles from './Button.module.scss';
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary';
 }
 
-const Button: FC<ButtonProps> = ({ 
+export const Button: FC<ButtonProps> = ({ 
   children, 
   variant = 'primary', 
   className, 
@@ -19,6 +19,4 @@ const Button: FC<ButtonProps> = ({
       {children}
     </button>
   );
-};
-
-export default Button; 
+}; 

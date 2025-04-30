@@ -1,7 +1,9 @@
 import { FC } from 'react';
 import styles from './Header.module.scss';
 
-const Header: FC = () => {
+export interface HeaderProps {}
+
+export const Header: FC<HeaderProps> = () => {
   return (
     <header className={styles.header}>
       <div className={styles.container}>
@@ -16,6 +18,4 @@ const Header: FC = () => {
       </div>
     </header>
   );
-};
-
-export default Header; 
+}; 

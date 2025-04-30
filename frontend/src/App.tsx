@@ -1,8 +1,6 @@
 import { FC } from 'react';
-import Home from './pages/Home';
+import { Home } from './pages';
 
-const App: FC = () => {
+export const App: FC = () => {
   return <Home />;
 };
-
-export default App;

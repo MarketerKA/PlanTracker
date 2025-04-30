@@ -1,15 +1,15 @@
 import { FC, useMemo, useState } from 'react';
-import Task, { TaskType } from '../Task';
+import { Task, TaskType } from '../Task';
 import styles from './TaskList.module.scss';
 
-interface TaskListProps {
+export interface TaskListProps {
   tasks: TaskType[];
   onToggleComplete: (id: string) => void;
   onDelete: (id: string) => void;
   itemsPerPage?: number;
 }
 
-const TaskList: FC<TaskListProps> = ({ 
+export const TaskList: FC<TaskListProps> = ({ 
   tasks, 
   onToggleComplete, 
   onDelete,
@@ -77,6 +77,4 @@ const TaskList: FC<TaskListProps> = ({
       )}
     </div>
   );
-};
-
-export default TaskList; 
+}; 

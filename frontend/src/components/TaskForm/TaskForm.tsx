@@ -2,11 +2,11 @@ import { FC, useState, FormEvent } from 'react';
 import styles from './TaskForm.module.scss';
 import { TaskType } from '../Task';
 
-interface TaskFormProps {
+export interface TaskFormProps {
   onAddTask: (task: Omit<TaskType, 'id'>) => void;
 }
 
-const TaskForm: FC<TaskFormProps> = ({ onAddTask }) => {
+export const TaskForm: FC<TaskFormProps> = ({ onAddTask }) => {
   const [title, setTitle] = useState('');
   const [dueDate, setDueDate] = useState('');
   const [priority, setPriority] = useState<TaskType['priority']>('medium');
@@ -75,6 +75,4 @@ const TaskForm: FC<TaskFormProps> = ({ onAddTask }) => {
       </button>
     </form>
   );
-};
-
-export default TaskForm; 
+}; 

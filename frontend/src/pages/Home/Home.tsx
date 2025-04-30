@@ -1,9 +1,6 @@
 import { FC, useState, useEffect } from 'react';
 import styles from './Home.module.scss';
-import Header from '../../components/Header';
-import TaskForm from '../../components/TaskForm';
-import TaskList from '../../components/TaskList';
-import { TaskType } from '../../components/Task';
+import { Header, TaskForm, TaskList, TaskType } from '../../components';
 import { v4 as uuidv4 } from 'uuid';
 
 // Демо-задачи для тестирования
@@ -63,7 +60,9 @@ const demoTasks: TaskType[] = [
   }
 ];
 
-const Home: FC = () => {
+export interface HomeProps {}
+
+export const Home: FC<HomeProps> = () => {
   const [tasks, setTasks] = useState<TaskType[]>([]);
 
   // Загрузка задач из localStorage при инициализации
@@ -128,6 +127,4 @@ const Home: FC = () => {
       </main>
     </div>
   );
-};
-
-export default Home; 
+}; 

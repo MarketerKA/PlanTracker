@@ -9,13 +9,13 @@ export interface TaskType {
   priority: 'low' | 'medium' | 'high';
 }
 
-interface TaskProps {
+export interface TaskProps {
   task: TaskType;
   onToggleComplete: (id: string) => void;
   onDelete: (id: string) => void;
 }
 
-const Task: FC<TaskProps> = ({ task, onToggleComplete, onDelete }) => {
+export const Task: FC<TaskProps> = ({ task, onToggleComplete, onDelete }) => {
   return (
     <div className={`${styles.task} ${task.completed ? styles.completed : ''}`}>
       <div className={styles.checkbox}>
@@ -44,6 +44,4 @@ const Task: FC<TaskProps> = ({ task, onToggleComplete, onDelete }) => {
       </button>
     </div>
   );
-};
-
-export default Task; 
+}; 
