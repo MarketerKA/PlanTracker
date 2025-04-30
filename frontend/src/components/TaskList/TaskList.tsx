@@ -1,5 +1,6 @@
 import { FC, useMemo, useState } from 'react';
-import { Task, TaskType } from '../Task';
+import { Task } from '../Task';
+import { TaskType } from '../Task/types';
 import styles from './TaskList.module.scss';
 
 export interface TaskListProps {
@@ -7,16 +8,20 @@ export interface TaskListProps {
   onToggleComplete: (id: string) => void;
   onDelete: (id: string) => void;
   itemsPerPage?: number;
+  selectedTaskId: string | null;
+  onTaskSelect: (id: string) => void;
 }
 
 export const TaskList: FC<TaskListProps> = ({ 
   tasks, 
   onToggleComplete, 
   onDelete,
-  itemsPerPage = 5
+  itemsPerPage = 5,
+  selectedTaskId,
+  onTaskSelect
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
-  
+
   const totalPages = Math.ceil(tasks.length / itemsPerPage);
   
   const currentTasks = useMemo(() => {
@@ -39,6 +44,8 @@ export const TaskList: FC<TaskListProps> = ({
               task={task}
               onToggleComplete={onToggleComplete}
               onDelete={onDelete}
+              isSelected={task.id === selectedTaskId}
+              onSelect={() => onTaskSelect(task.id)}
             />
           ))
         ) : (
@@ -77,4 +84,4 @@ export const TaskList: FC<TaskListProps> = ({
       )}
     </div>
   );
-}; 
+};
