@@ -1,11 +1,8 @@
 import { FC, useState, useEffect } from 'react';
 import styles from './Home.module.scss';
-import { Header, TaskForm, TaskList, Timer, Button } from '../../components';
+import { Header, TaskForm, TaskList, Timer } from '../../components';
 import { TaskType } from '../../components/Task/types';
 import { v4 as uuidv4 } from 'uuid';
-import { useAppDispatch, useAppSelector } from '../../redux/hooks';
-import { logout } from '../../redux/auth';
-import { RootState } from '../../redux/store';
 
 // Демо-задачи для тестирования
 const demoTasks: TaskType[] = [
@@ -67,9 +64,6 @@ const demoTasks: TaskType[] = [
 export interface HomeProps {}
 
 export const Home: FC<HomeProps> = () => {
-  const dispatch = useAppDispatch();
-  // @ts-ignore
-  const { user } = useAppSelector((state: RootState) => state.auth);
   const [tasks, setTasks] = useState<TaskType[]>(demoTasks);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
@@ -140,22 +134,11 @@ export const Home: FC<HomeProps> = () => {
     }
   };
 
-  const handleLogout = () => {
-    dispatch(logout());
-  };
-
   return (
     <div className={styles.pageWrapper}>
       <Header />
       <main className={styles.main}>
         <div className={styles.container}>
-          <div className={styles.userInfo}>
-            <div className={styles.userEmail}>{user?.email}</div>
-            <Button onClick={handleLogout} variant="secondary" className={styles.logoutButton}>
-              Выйти
-            </Button>
-          </div>
-          
           <h1 className={styles.title}>Мои задачи</h1>
           
           <div className={styles.content}>

@@ -26,18 +26,10 @@ export const login = createAsyncThunk(
       const response = await authApi.login(credentials);
       const token = authDto.processAuthResponse(response);
       
-      // Предполагаем, что бэкенд возвращает информацию о пользователе
-      // вместе с токеном, или она может быть извлечена из JWT
-      // Если это не так, можно вернуть заглушку и обновить данные позже
-      return { 
-        token, 
-        user: {
-          id: 0, // Будет обновлено при следующем запросе
-          email: credentials.email,
-          is_active: true,
-          telegram_chat_id: null
-        } 
-      };
+      // После входа запрашиваем данные пользователя
+      const user = await authApi.getCurrentUser();
+      
+      return { token, user };
     } catch (error) {
       if (error instanceof Error) {
         return rejectWithValue(error.message);
@@ -49,23 +41,17 @@ export const login = createAsyncThunk(
 
 export const register = createAsyncThunk(
   'auth/register',
-  async ({ email, password }: RegisterCredentials, { rejectWithValue }) => {
+  async ({ email, password }: RegisterCredentials, { dispatch, rejectWithValue }) => {
     try {
       // Регистрация пользователя
-      const user = await authApi.register({ email, password });
+      await authApi.register({ email, password });
       
-      // Сразу входим без отдельного запроса
-      try {
-        const response = await authApi.login({ email, password });
-        const token = authDto.processAuthResponse(response);
-        
-        return { user, token };
-      } catch (loginError) {
-        // Если не удалось войти после регистрации, просто возвращаем пользователя
-        // и перенаправляем на страницу входа
-        console.error('Не удалось войти после регистрации:', loginError);
-        return rejectWithValue('Регистрация успешна, но не удалось выполнить вход автоматически');
-      }
+      // После успешной регистрации выполняем вход
+      // Будет отдельный запрос login, что даст пользователю понять,
+      // что регистрация прошла успешно, а затем происходит вход
+      await dispatch(login({ email, password }));
+      
+      return { success: true };
     } catch (error) {
       if (error instanceof Error) {
         return rejectWithValue(error.message);
@@ -142,11 +128,9 @@ const authSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(register.fulfilled, (state, action: PayloadAction<{ user: User; token: string }>) => {
+      .addCase(register.fulfilled, (state) => {
+        // Данные пользователя установятся в login.fulfilled
         state.loading = false;
-        state.isAuthenticated = true;
-        state.token = action.payload.token;
-        state.user = action.payload.user;
       })
       .addCase(register.rejected, (state, action) => {
         state.loading = false;
@@ -161,6 +145,7 @@ const authSlice = createSlice({
       .addCase(getCurrentUser.fulfilled, (state, action: PayloadAction<User>) => {
         state.loading = false;
         state.user = action.payload;
+        state.isAuthenticated = true;
       })
       .addCase(getCurrentUser.rejected, (state, action) => {
         state.loading = false;

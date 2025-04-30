@@ -10,9 +10,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
-  },
-  // Добавляем таймаут для запросов, чтобы они не висели слишком долго
-  timeout: 5000
+  }
 });
 
 // Интерцептор для добавления токена к запросам

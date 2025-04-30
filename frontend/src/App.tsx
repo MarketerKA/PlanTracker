@@ -3,15 +3,15 @@ import { BrowserRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { AppRoutes } from './routes';
 import { store } from './redux/store';
-import { getCurrentUser } from './redux/auth';
+import { getCurrentUser, authDto } from './redux/auth';
 
 export const App: FC = () => {
   useEffect(() => {
-    // Проверяем, есть ли токен и нет ли данных пользователя
-    const { auth } = store.getState();
-    if (auth.token && !auth.user?.id) {
-      // Загружаем данные пользователя только если есть токен, но нет ID пользователя
-      store.dispatch(getCurrentUser());
+    // Если есть токен, загружаем данные пользователя
+    if (authDto.hasToken()) {
+      store.dispatch(getCurrentUser())
+        .then(() => console.log('Пользователь загружен'))
+        .catch(() => console.log('Ошибка при загрузке пользователя'));
     }
   }, []);
 
