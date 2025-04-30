@@ -7,8 +7,12 @@ import { getCurrentUser } from './redux/auth';
 
 export const App: FC = () => {
   useEffect(() => {
-    // Пытаемся получить данные пользователя если есть токен
-    store.dispatch(getCurrentUser());
+    // Проверяем, есть ли токен и нет ли данных пользователя
+    const { auth } = store.getState();
+    if (auth.token && !auth.user?.id) {
+      // Загружаем данные пользователя только если есть токен, но нет ID пользователя
+      store.dispatch(getCurrentUser());
+    }
   }, []);
 
   return (

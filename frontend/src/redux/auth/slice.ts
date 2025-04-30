@@ -25,9 +25,19 @@ export const login = createAsyncThunk(
     try {
       const response = await authApi.login(credentials);
       const token = authDto.processAuthResponse(response);
-      // После успешного входа получаем информацию о пользователе
-      const user = await authApi.getCurrentUser();
-      return { token, user };
+      
+      // Предполагаем, что бэкенд возвращает информацию о пользователе
+      // вместе с токеном, или она может быть извлечена из JWT
+      // Если это не так, можно вернуть заглушку и обновить данные позже
+      return { 
+        token, 
+        user: {
+          id: 0, // Будет обновлено при следующем запросе
+          email: credentials.email,
+          is_active: true,
+          telegram_chat_id: null
+        } 
+      };
     } catch (error) {
       if (error instanceof Error) {
         return rejectWithValue(error.message);
@@ -39,12 +49,23 @@ export const login = createAsyncThunk(
 
 export const register = createAsyncThunk(
   'auth/register',
-  async ({ email, password }: RegisterCredentials, { rejectWithValue, dispatch }) => {
+  async ({ email, password }: RegisterCredentials, { rejectWithValue }) => {
     try {
+      // Регистрация пользователя
       const user = await authApi.register({ email, password });
-      // После регистрации автоматически выполняем вход
-      await dispatch(login({ email, password }));
-      return user;
+      
+      // Сразу входим без отдельного запроса
+      try {
+        const response = await authApi.login({ email, password });
+        const token = authDto.processAuthResponse(response);
+        
+        return { user, token };
+      } catch (loginError) {
+        // Если не удалось войти после регистрации, просто возвращаем пользователя
+        // и перенаправляем на страницу входа
+        console.error('Не удалось войти после регистрации:', loginError);
+        return rejectWithValue('Регистрация успешна, но не удалось выполнить вход автоматически');
+      }
     } catch (error) {
       if (error instanceof Error) {
         return rejectWithValue(error.message);
@@ -121,9 +142,11 @@ const authSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(register.fulfilled, (state) => {
+      .addCase(register.fulfilled, (state, action: PayloadAction<{ user: User; token: string }>) => {
         state.loading = false;
-        // Данные о пользователе и токен устанавливаются в login.fulfilled
+        state.isAuthenticated = true;
+        state.token = action.payload.token;
+        state.user = action.payload.user;
       })
       .addCase(register.rejected, (state, action) => {
         state.loading = false;

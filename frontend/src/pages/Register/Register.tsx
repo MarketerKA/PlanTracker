@@ -69,8 +69,8 @@ export const Register: FC<RegisterProps> = () => {
     
     if (!password) {
       newErrors.password = 'Пароль обязателен';
-    } else if (password.length < 6) {
-      newErrors.password = 'Пароль должен содержать минимум 6 символов';
+    } else if (password.length < 8) {
+      newErrors.password = 'Пароль должен содержать минимум 8 символов';
     }
     
     if (password !== confirmPassword) {
@@ -121,7 +121,7 @@ export const Register: FC<RegisterProps> = () => {
           label="Пароль"
           icon={<LockIcon />}
           type={showPassword ? 'text' : 'password'}
-          placeholder="Минимум 6 символов"
+          placeholder="Минимум 8 символов"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required

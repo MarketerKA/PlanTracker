@@ -11,6 +11,8 @@ const api = axios.create({
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   },
+  // Добавляем таймаут для запросов, чтобы они не висели слишком долго
+  timeout: 5000
 });
 
 // Интерцептор для добавления токена к запросам
@@ -46,11 +48,19 @@ export const authApi = {
    */
   register: async (userData: RegisterCredentials): Promise<User> => {
     try {
+      // Проверка минимальной длины пароля
+      if (userData.password.length < 8) {
+        throw new Error('Пароль должен содержать минимум 8 символов');
+      }
+      
       const response = await api.post<User>('/users/', userData);
       return response.data;
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
         throw new Error(error.response.data.detail || 'Ошибка регистрации');
+      }
+      if (error instanceof Error) {
+        throw error;
       }
       throw new Error('Ошибка соединения с сервером');
     }
