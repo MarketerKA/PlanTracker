@@ -1,0 +1,60 @@
+.form {
+  width: 100%;
+}
+
+.forgotPassword {
+  display: flex;
+  justify-content: flex-end;
+  margin: -8px 0 24px;
+}
+
+.link {
+  font-size: 13px;
+  color: var(--accent-primary);
+  text-decoration: none;
+  transition: color 0.2s;
+  
+  &:hover {
+    color: var(--accent-primary-hover);
+    text-decoration: underline;
+  }
+}
+
+.submitButton {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 20px;
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.registerPrompt {
+  text-align: center;
+  margin-top: 16px;
+  font-size: 14px;
+  color: var(--text-secondary);
+  
+  span {
+    margin-right: 8px;
+  }
+}
+
+.registerLink {
+  background: none;
+  border: none;
+  color: var(--accent-primary);
+  font-size: 14px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: color 0.2s;
+  
+  &:hover {
+    color: var(--accent-primary-hover);
+    text-decoration: underline;
+  }
+} 
