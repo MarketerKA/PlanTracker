@@ -1,137 +1,44 @@
 import { FC, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styles from './Home.module.scss';
-import { Header, TaskForm, TaskList, Timer } from '../../components';
-import { TaskType } from '../../components/Task/types';
-import { v4 as uuidv4 } from 'uuid';
-
-// Демо-задачи для тестирования
-const demoTasks: TaskType[] = [
-  {
-    id: uuidv4(),
-    title: 'Изучить React',
-    completed: true,
-    tags: ['обучение', 'важное'],
-    dueDate: '2023-10-01'
-  },
-  {
-    id: uuidv4(),
-    title: 'Разработать компоненты',
-    completed: false,
-    tags: ['разработка', 'фронтенд'],
-    dueDate: '2023-10-10'
-  },
-  {
-    id: uuidv4(),
-    title: 'Добавить стили',
-    completed: false,
-    tags: ['UI/UX', 'дизайн'],
-    dueDate: '2023-10-15'
-  },
-  {
-    id: uuidv4(),
-    title: 'Создать систему маршрутизации',
-    completed: false,
-    tags: ['разработка']
-  },
-  {
-    id: uuidv4(),
-    title: 'Интегрировать API',
-    completed: false,
-    tags: ['бэкенд', 'важное'],
-    dueDate: '2023-11-01'
-  },
-  {
-    id: uuidv4(),
-    title: 'Написать тесты',
-    completed: false,
-    tags: ['тестирование'],
-    dueDate: '2023-11-15'
-  },
-  {
-    id: uuidv4(),
-    title: 'Оптимизировать производительность',
-    completed: false,
-    tags: ['оптимизация']
-  },
-  {
-    id: uuidv4(),
-    title: 'Проверить кроссбраузерность',
-    completed: false,
-    tags: ['тестирование', 'UI/UX']
-  }
-];
+import { Header, Button, TaskStats } from '../../components';
+import { useActivities } from '../../hooks/useActivities';
+import { ROUTES } from '../../routes';
 
 export interface HomeProps {}
 
 export const Home: FC<HomeProps> = () => {
-  const [tasks, setTasks] = useState<TaskType[]>(demoTasks);
-  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
-  const [isTimerRunning, setIsTimerRunning] = useState(false);
+  const navigate = useNavigate();
+  const { tasks, loading, fetchTasks } = useActivities();
+  const [stats, setStats] = useState({
+    total: 0,
+    completed: 0,
+    inProgress: 0,
+    withTimer: 0
+  });
 
-  // Загрузка задач из localStorage при инициализации
   useEffect(() => {
-    const savedTasks = localStorage.getItem('tasks');
-    if (savedTasks) {
-      try {
-        setTasks(JSON.parse(savedTasks));
-      } catch (e) {
-        console.error('Ошибка при загрузке задач:', e);
-        // Если произошла ошибка, загружаем демо-задачи
-        setTasks(demoTasks);
-      }
-    } else {
-      // Если задач в localStorage нет, загружаем демо-задачи
-      setTasks(demoTasks);
+    // Загрузка всех задач для статистики
+    fetchTasks();
+  }, [fetchTasks]);
+
+  useEffect(() => {
+    // Подсчет статистики
+    if (tasks.length > 0) {
+      const completedTasks = tasks.filter(task => task.completed).length;
+      const tasksWithTimer = tasks.filter(task => task.timerStatus === 'running' || task.timerStatus === 'paused').length;
+      
+      setStats({
+        total: tasks.length,
+        completed: completedTasks,
+        inProgress: tasks.length - completedTasks,
+        withTimer: tasksWithTimer
+      });
     }
-  }, []);
-
-  // Сохранение задач в localStorage при изменении
-  useEffect(() => {
-    localStorage.setItem('tasks', JSON.stringify(tasks));
   }, [tasks]);
 
-  const handleAddTask = (task: Omit<TaskType, 'id'>) => {
-    const newTask: TaskType = {
-      ...task,
-      id: uuidv4(),
-    };
-    setTasks(prev => [newTask, ...prev]);
-  };
-
-  const handleToggleComplete = (id: string) => {
-    setTasks(prev => 
-      prev.map(task => 
-        task.id === id ? { ...task, completed: !task.completed } : task
-      )
-    );
-  };
-
-  const handleDeleteTask = (id: string) => {
-    setTasks(prev => prev.filter(task => task.id !== id));
-  };
-
-  const handleTimerStart = () => {
-    setIsTimerRunning(true);
-  };
-
-  const handleTimerPause = () => {
-    setIsTimerRunning(false);
-  };
-
-  const handleTimerStop = () => {
-    if (selectedTaskId) {
-      handleToggleComplete(selectedTaskId);
-      setSelectedTaskId(null);
-      setIsTimerRunning(false);
-    }
-  };
-
-  const selectedTask = tasks.find(task => task.id === selectedTaskId);
-
-  const handleTaskSelect = (taskId: string) => {
-    if (!isTimerRunning) {
-      setSelectedTaskId(task => task === taskId ? null : taskId);
-    }
+  const handleGoToTasks = () => {
+    navigate(ROUTES.TASKS);
   };
 
   return (
@@ -139,26 +46,39 @@ export const Home: FC<HomeProps> = () => {
       <Header />
       <main className={styles.main}>
         <div className={styles.container}>
-          <h1 className={styles.title}>Мои задачи</h1>
-          
-          <div className={styles.content}>
-            <Timer 
-              isRunning={isTimerRunning} 
-              onStart={handleTimerStart} 
-              onPause={handleTimerPause} 
-              onStop={handleTimerStop}
-              selectedTaskTitle={selectedTask?.title}
-            />
-            <TaskForm onAddTask={handleAddTask} />
-            <TaskList 
-              tasks={tasks} 
-              onToggleComplete={handleToggleComplete} 
-              onDelete={handleDeleteTask}
-              itemsPerPage={5}
-              selectedTaskId={selectedTaskId}
-              onTaskSelect={handleTaskSelect}
-            />
-          </div>
+          <h1 className={styles.title}>План <span>Трекер</span></h1>
+          <p className={styles.subtitle}>
+            Удобный инструмент для управления задачами и отслеживания времени
+          </p>
+
+          {loading ? (
+            <div className={styles.loading}>Загрузка данных...</div>
+          ) : (
+            <>
+              {tasks.length > 0 ? (
+                <div className={styles.statsSection}>
+                  <TaskStats 
+                    total={stats.total}
+                    completed={stats.completed}
+                    inProgress={stats.inProgress}
+                    withTimer={stats.withTimer}
+                  />
+                </div>
+              ) : (
+                <div className={styles.emptyState}>
+                  <div className={styles.emptyIcon}>📋</div>
+                  <h2>У вас пока нет задач</h2>
+                  <p>Создайте свою первую задачу, чтобы начать планировать время эффективно</p>
+                </div>
+              )}
+
+              <div className={styles.actions}>
+                <Button onClick={handleGoToTasks} variant="primary">
+                  {tasks.length > 0 ? 'Перейти к задачам' : 'Создать задачу'}
+                </Button>
+              </div>
+            </>
+          )}
         </div>
       </main>
     </div>

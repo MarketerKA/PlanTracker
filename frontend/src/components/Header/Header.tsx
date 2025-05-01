@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, NavLink, useLocation } from 'react-router-dom';
 import styles from './Header.module.scss';
 import { Button } from '../Button';
 import { ROUTES } from '../../routes';
@@ -11,6 +11,7 @@ export interface HeaderProps {}
 
 export const Header: FC<HeaderProps> = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useAppDispatch();
   // @ts-ignore
   const { user, isAuthenticated } = useAppSelector((state: RootState) => state.auth);
@@ -26,12 +27,27 @@ export const Header: FC<HeaderProps> = () => {
   return (
     <header className={styles.header}>
       <div className={styles.container}>
-        <div className={styles.logo}>
+        <div className={styles.logo} onClick={() => navigate(ROUTES.HOME)}>
           <h1>Plan<span>Tracker</span></h1>
         </div>
         <nav className={styles.nav}>
           <ul>
-            <li><a href="#" className={styles.active}>Задачи</a></li>
+            <li>
+              <NavLink 
+                to={ROUTES.HOME} 
+                className={({ isActive }) => isActive ? styles.active : ''}
+              >
+                Главная
+              </NavLink>
+            </li>
+            <li>
+              <NavLink 
+                to={ROUTES.TASKS} 
+                className={({ isActive }) => isActive ? styles.active : ''}
+              >
+                Задачи
+              </NavLink>
+            </li>
           </ul>
         </nav>
         <div className={styles.actions}>

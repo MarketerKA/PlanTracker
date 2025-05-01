@@ -5,6 +5,7 @@
   margin-bottom: 24px;
   box-shadow: var(--shadow-small);
   border: 1px solid var(--border-color);
+  transition: max-height 0.3s ease;
 }
 
 .formRow {
@@ -20,7 +21,7 @@
 
 .inputGroup {
   width: 100%;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
 }
 
 .label {
@@ -45,6 +46,13 @@
     border-color: var(--accent-primary);
     outline: none;
   }
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
+  line-height: 1.5;
 }
 
 .select {
@@ -93,14 +101,14 @@
 
 .addTagButton {
   padding: 0 12px;
-  background-color: #4CAF50;
+  background-color: var(--color-success, #4CAF50);
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   
   &:hover {
-    background-color: #45a049;
+    background-color: var(--color-success-hover, #45a049);
   }
 }
 
@@ -108,15 +116,18 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  margin-top: 8px;
 }
 
 .tag {
-  background-color: #e0e0e0;
+  background-color: var(--element-secondary);
   padding: 4px 8px;
   border-radius: 16px;
   display: flex;
   align-items: center;
   gap: 4px;
+  font-size: 13px;
+  color: var(--text-secondary);
   
   .removeTag {
     background: none;
@@ -124,10 +135,10 @@
     padding: 0 2px;
     cursor: pointer;
     font-size: 16px;
-    color: #666;
+    color: var(--text-muted);
     
     &:hover {
-      color: #ff4444;
+      color: var(--color-error, #ff4444);
     }
   }
 }

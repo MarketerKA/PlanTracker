@@ -1,6 +1,6 @@
 .task {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   background-color: var(--element-primary);
   border-radius: 8px;
   padding: 12px 16px;
@@ -8,6 +8,7 @@
   box-shadow: var(--shadow-small);
   transition: all 0.2s ease;
   border: 1px solid var(--border-color);
+  cursor: pointer;
 
   &:hover {
     box-shadow: var(--shadow-medium);
@@ -31,6 +32,7 @@
 
 .checkbox {
   margin-right: 16px;
+  padding-top: 3px;
 
   input {
     width: 18px;
@@ -44,11 +46,48 @@
   flex-grow: 1;
 }
 
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
 .title {
   font-size: 16px;
   font-weight: 500;
-  margin-bottom: 4px;
   color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.timerStatus {
+  font-size: 12px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  
+  &.running {
+    color: var(--color-success, #38a169);
+  }
+  
+  &.paused {
+    color: var(--color-warning, #dd6b20);
+  }
+}
+
+.recordedTime {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--accent-primary);
+  font-family: monospace;
+}
+
+.description {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin: 4px 0 8px;
+  line-height: 1.4;
 }
 
 .details {
@@ -107,6 +146,7 @@
   font-size: 16px;
   cursor: pointer;
   padding: 4px;
+  margin-left: 8px;
 
   &:hover {
     color: var(--priority-high);
