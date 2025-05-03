@@ -1,19 +1,5 @@
 # PlanTracker Backend
 
-env
-
-SECRET_KEY=09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7
-ALGORITHM=HS256
-ACCESS_TOKEN_EXPIRE_MINUTES=30
-MAIL_USERNAME=youremail@gmail.com
-MAIL_PASSWORD=your-app-password
-MAIL_FROM=youremail@gmail.com
-MAIL_PORT=587
-MAIL_SERVER=smtp.gmail.com
-MAIL_FROM_NAME=PlanTracker App
-FRONTEND_URL=http://localhost:3000
-VERIFICATION_URL_BASE=http://localhost:8000 
-
 This is the backend service for the PlanTracker application, built with FastAPI and SQLite.
 
 ## Features
@@ -46,14 +32,25 @@ cd backend
 poetry install
 ```
 
-4. Activate the virtual environment:
-```bash
-poetry shell
+4. Create a `.env` file with the following variables:
+```env
+SECRET_KEY=your-secret-key-here
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+MAIL_USERNAME=your-email@gmail.com
+MAIL_PASSWORD=your-app-password
+MAIL_FROM=your-email@gmail.com
+MAIL_PORT=587
+MAIL_SERVER=smtp.gmail.com
+MAIL_FROM_NAME=PlanTracker App
+FRONTEND_URL=http://localhost:3000
+VERIFICATION_URL_BASE=http://localhost:8000
 ```
 
-5. Run the application:
+5. Run the application using one of these methods:
+
 ```bash
-uvicorn app.main:app --reload
+poetry run uvicorn app.main:app --reload
 ```
 
 The API will be available at `http://localhost:8000`
@@ -68,12 +65,6 @@ poetry run pytest
 ### Linting
 ```bash
 poetry run flake8
-```
-
-### Adding New Dependencies
-```bash
-poetry add <package-name>  # For production dependencies
-poetry add --group dev <package-name>  # For development dependencies
 ```
 
 ## API Documentation
@@ -111,4 +102,4 @@ Authorization: Bearer <token>
 - Run flake8 for linting
 - Write tests for new features
 - Update API documentation when adding new endpoints
-- Use Poetry for dependency management 
+- Use Poetry for dependency management
