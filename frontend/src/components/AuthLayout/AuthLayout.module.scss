@@ -2,7 +2,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: calc(100vh - 70px); // Вычитаем примерную высоту хедера
+  min-height: calc(100vh - 70px); // Subtract approximate header height
   padding: 40px 16px;
   background-color: var(--bg-primary);
 }
