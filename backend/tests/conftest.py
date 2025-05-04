@@ -1,14 +1,12 @@
-import os
 import pytest
 from unittest.mock import patch
 from fastapi.testclient import TestClient
-from sqlalchemy import create_engine, event
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
 from app.database import Base, get_db
 from app.main import app
-from app import auth
 
 # Use an in-memory SQLite database for testing
 TEST_DATABASE_URL = "sqlite:///:memory:"
@@ -18,10 +16,14 @@ engine = create_engine(
     connect_args={"check_same_thread": False},
     poolclass=StaticPool,
 )
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+TestingSessionLocal = sessionmaker(
+    autocommit=False,
+    autoflush=False,
+    bind=engine)
 
 # Create test database and tables
 Base.metadata.create_all(bind=engine)
+
 
 @pytest.fixture(scope="function")
 def db_session():
@@ -39,6 +41,7 @@ def db_session():
     transaction.rollback()
     connection.close()
 
+
 @pytest.fixture(scope="function")
 def client(db_session):
     """
@@ -53,15 +56,17 @@ def client(db_session):
 
     # Apply the overrides
     app.dependency_overrides[get_db] = override_get_db
-    
+
     # Mock the Telegram bot functions to prevent them from being called
-    with patch("app.telegram_bot.start_bot"), patch("app.telegram_bot.stop_bot"):
+    with patch("app.telegram_bot.start_bot"), \
+            patch("app.telegram_bot.stop_bot"):
         # Create the test client
         with TestClient(app) as client:
             yield client
-    
+
     # Clean up
     app.dependency_overrides = {}
+
 
 @pytest.fixture(scope="function")
 def test_user(client):
@@ -72,12 +77,13 @@ def test_user(client):
         "email": "testuser@gmail.com",
         "password": "testpassword123"
     }
-    
+
     # Create test user
     response = client.post("/users/", json=user_data)
     assert response.status_code == 201
-    
+
     return {"email": user_data["email"], "password": user_data["password"]}
+
 
 @pytest.fixture(scope="function")
 def auth_headers(client, test_user):
@@ -92,22 +98,23 @@ def auth_headers(client, test_user):
     token = response.json()["access_token"]
     return {"Authorization": f"Bearer {token}"}
 
+
 @pytest.fixture(scope="function")
 def test_activity(client, auth_headers):
     """
     Create a test activity and return it
     """
     activity_data = {
-        "title": "Test Activity", 
-        "description": "Test Description", 
+        "title": "Test Activity",
+        "description": "Test Description",
         "tags": ["test", "pytest"]
     }
-    
+
     response = client.post(
         "/activities/",
         json=activity_data,
         headers=auth_headers
     )
-    
+
     assert response.status_code == 200
-    return response.json() 
+    return response.json()

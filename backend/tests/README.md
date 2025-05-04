@@ -13,7 +13,7 @@ poetry run pytest tests/ -v
 To run tests with coverage report:
 
 ```bash
-poetry run pytest tests/ --cov=app --cov-report=term --cov-report=pdf -v
+poetry run pytest tests/ --cov=app --cov-report=term --cov-report=html -v
 ```
 
 This will generate a coverage report in the terminal and a detailed HTML report in the `htmlcov` directory.
@@ -28,4 +28,4 @@ This will generate a coverage report in the terminal and a detailed HTML report 
 
 ## CI Integration
 
-These tests are designed to be run in a CI/CD environment, targeting the minimum 70% code coverage requirement specified in the project requirements. 
+These tests are designed to be run in a CI/CD environment, targeting the minimum 70% code coverage requirement specified in the project requirements.
