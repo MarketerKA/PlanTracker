@@ -34,17 +34,8 @@ poetry install
 
 4. Create a `.env` file with the following variables:
 ```env
-SECRET_KEY=your-secret-key-here
-ALGORITHM=HS256
-ACCESS_TOKEN_EXPIRE_MINUTES=30
-MAIL_USERNAME=your-email@gmail.com
-MAIL_PASSWORD=your-app-password
-MAIL_FROM=your-email@gmail.com
-MAIL_PORT=587
-MAIL_SERVER=smtp.gmail.com
-MAIL_FROM_NAME=PlanTracker App
-FRONTEND_URL=http://localhost:3000
-VERIFICATION_URL_BASE=http://localhost:8000
+SECRET_KEY=
+TELEGRAM_BOT_TOKEN=
 ```
 
 5. Run the application using one of these methods:
@@ -75,7 +66,7 @@ Once the server is running, you can access the interactive API documentation at:
 
 ### Authentication
 
-All endpoints except `/users/` and `/token` require authentication. Include the JWT token in the Authorization header:
+All endpoints except `/users/` and `/users/login` require authentication. Include the JWT token in the Authorization header:
 ```
 Authorization: Bearer <token>
 ```
@@ -83,8 +74,9 @@ Authorization: Bearer <token>
 ### Endpoints
 
 #### Users
-- `POST /users/` - Register a new user
-- `POST /token` - Get JWT token for authentication
+- `POST /users/` - Create a new user
+- `POST /users/login` - Login a user
+- `GET /users/me` - Get current user
 
 #### Activities
 - `POST /activities/` - Create a new activity
