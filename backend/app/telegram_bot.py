@@ -4,7 +4,6 @@ from aiogram.filters import Command
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from sqlalchemy.orm import Session
 from datetime import datetime
 import os
 from . import models, database, auth
@@ -12,9 +11,11 @@ from . import models, database, auth
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 class LinkStates(StatesGroup):
     waiting_for_email = State()
     waiting_for_password = State()
+
 
 BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 bot = Bot(token=BOT_TOKEN)
@@ -22,6 +23,8 @@ storage = MemoryStorage()
 dp = Dispatcher(storage=storage)
 
 # Create keyboard menu
+
+
 def get_main_keyboard():
     keyboard = types.ReplyKeyboardMarkup(
         keyboard=[
@@ -38,6 +41,7 @@ def get_main_keyboard():
     )
     return keyboard
 
+
 @dp.message(Command("start"))
 async def cmd_start(message: types.Message, state: FSMContext):
     await message.answer(
@@ -49,6 +53,7 @@ async def cmd_start(message: types.Message, state: FSMContext):
         "/current - current activity",
         reply_markup=get_main_keyboard()
     )
+
 
 @dp.message(Command("help"))
 async def cmd_help(message: types.Message):
@@ -68,6 +73,7 @@ async def cmd_help(message: types.Message):
         reply_markup=get_main_keyboard()
     )
 
+
 @dp.message(Command("link"))
 async def cmd_link(message: types.Message, state: FSMContext):
     await state.set_state(LinkStates.waiting_for_email)
@@ -76,20 +82,21 @@ async def cmd_link(message: types.Message, state: FSMContext):
         reply_markup=types.ReplyKeyboardRemove()
     )
 
+
 @dp.message(LinkStates.waiting_for_email)
 async def process_email(message: types.Message, state: FSMContext):
     email = message.text.strip()
-    
+
     db = next(database.get_db())
     user = db.query(models.User).filter(models.User.email == email).first()
-    
+
     if not user:
         await message.answer(
             "The user with this email was not found. Try again:",
             reply_markup=types.ReplyKeyboardRemove()
         )
         return
-    
+
     await state.update_data(email=email)
     await state.set_state(LinkStates.waiting_for_password)
     await message.answer(
@@ -97,63 +104,68 @@ async def process_email(message: types.Message, state: FSMContext):
         reply_markup=types.ReplyKeyboardRemove()
     )
 
+
 @dp.message(LinkStates.waiting_for_password)
 async def process_password(message: types.Message, state: FSMContext):
     password = message.text.strip()
     data = await state.get_data()
     email = data.get('email')
-    
+
     db = next(database.get_db())
     user = auth.authenticate_user(db, email, password)
-    
+
     if not user:
         await message.answer(
             "Invalid password. Try again:",
             reply_markup=types.ReplyKeyboardRemove()
         )
         return
-    
+
     user.telegram_chat_id = str(message.from_user.id)
     db.commit()
-    
+
     await state.clear()
     await message.answer(
-        "The account has been successfully linked! You will now receive notifications.",
+        "The account has been successfully linked! You will now receive "
+        "notifications.",
         reply_markup=get_main_keyboard()
     )
+
 
 @dp.message(Command("current"))
 async def cmd_current(message: types.Message):
     telegram_id = str(message.from_user.id)
     db = next(database.get_db())
-    
-    user = db.query(models.User).filter(models.User.telegram_chat_id == telegram_id).first()
+
+    user = db.query(
+        models.User).filter(
+        models.User.telegram_chat_id == telegram_id).first()
     if not user:
         await message.answer(
             "First, link the account with the /link command",
             reply_markup=get_main_keyboard()
         )
         return
-    
+
     current_activity = db.query(models.Activity).filter(
         models.Activity.user_id == user.id,
         models.Activity.timer_status == "running"
     ).first()
-    
+
     if not current_activity:
         await message.answer(
             "There are no active tasks with the timer running",
             reply_markup=get_main_keyboard()
         )
         return
-    
+
     elapsed_time = 0
     if current_activity.last_timer_start:
         elapsed = datetime.now() - current_activity.last_timer_start
         elapsed_time = int(elapsed.total_seconds())
-    
+
     total_time = current_activity.recorded_time + elapsed_time
-    
+
     await message.answer(
         f"Current activity: {current_activity.title}\n"
         f"Time: {format_time(total_time)}\n"
@@ -162,7 +174,14 @@ async def cmd_current(message: types.Message):
     )
 
 # Handle button clicks
-@dp.message(lambda message: message.text in ["🔗 Link Account", "⏱️ Current Activity", "❓ Help", "🏠 Start"])
+
+
+@dp.message(
+    lambda message: message.text in [
+        "🔗 Link Account",
+        "⏱️ Current Activity",
+        "❓ Help",
+        "🏠 Start"])
 async def handle_buttons(message: types.Message, state: FSMContext):
     if message.text == "🔗 Link Account":
         await cmd_link(message, state)
@@ -173,25 +192,29 @@ async def handle_buttons(message: types.Message, state: FSMContext):
     elif message.text == "🏠 Start":
         await cmd_start(message, state)
 
+
 def format_time(seconds):
     hours = seconds // 3600
     minutes = (seconds % 3600) // 60
     secs = seconds % 60
     return f"{hours:02d}:{minutes:02d}:{secs:02d}"
 
+
 async def send_notification(user_id: int, message: str):
     db = next(database.get_db())
     user = db.query(models.User).filter(models.User.id == user_id).first()
-    
+
     if user and user.telegram_chat_id:
         try:
             await bot.send_message(user.telegram_chat_id, message)
         except Exception as e:
             logger.error(f"Failed to send notification to user {user_id}: {e}")
 
+
 async def start_bot():
     logger.info("Starting telegram bot...")
     await dp.start_polling(bot)
+
 
 async def stop_bot():
     logger.info("Stopping telegram bot...")

@@ -30,6 +30,7 @@ def create_tag(
     logger.info(f"Tag {db_tag.name} created by user: {current_user.email}")
     return db_tag
 
+
 @tag_router.get("/", response_model=List[schemas.Tag])
 def read_tags(
     skip: int = 0,
@@ -38,5 +39,6 @@ def read_tags(
     current_user: models.User = Depends(auth.get_current_active_user)
 ):
     tags = db.query(models.Tag).offset(skip).limit(limit).all()
-    logger.info(f"Tags retrieved for user: {current_user.email}, count: {len(tags)}")
-    return tags 
+    logger.info(
+        f"Tags retrieved for user: {current_user.email}, count: {len(tags)}")
+    return tags

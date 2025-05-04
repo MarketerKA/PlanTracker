@@ -84,11 +84,7 @@ The frontend will be available at `http://localhost:3000`
 
 ### Backend (.env)
 - `SECRET_KEY`: JWT secret key
-- `ALGORITHM`: JWT algorithm
-- `ACCESS_TOKEN_EXPIRE_MINUTES`: Token expiration time
-- `MAIL_*`: Email configuration for user verification
-- `FRONTEND_URL`: Frontend application URL
-- `VERIFICATION_URL_BASE`: Base URL for email verification
+- `TELEGRAM_BOT_TOKEN`: Token for Telegram bot
 
 ### Frontend (.env)
 - `VITE_API_URL`: Backend API URL (default: http://localhost:8000)

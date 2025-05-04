@@ -12,6 +12,7 @@ from .routers.user_router import user_router
 # Create database tables
 models.Base.metadata.create_all(bind=engine)
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     bot_task = asyncio.create_task(telegram_bot.start_bot())

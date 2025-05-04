@@ -1,4 +1,5 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, DateTime, Table, Float
+from sqlalchemy import Boolean, Column, ForeignKey
+from sqlalchemy import Integer, String, DateTime, Table
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from .database import Base
@@ -12,6 +13,8 @@ activity_tags = Table(
 )
 
 # User database model
+
+
 class User(Base):
     __tablename__ = "users"
 
@@ -23,6 +26,8 @@ class User(Base):
     activities = relationship("Activity", back_populates="user")
 
 # Activity database model
+
+
 class Activity(Base):
     __tablename__ = "activities"
 
@@ -32,20 +37,31 @@ class Activity(Base):
     start_time = Column(DateTime(timezone=True), server_default=func.now())
     end_time = Column(DateTime(timezone=True), nullable=True)
     duration = Column(Integer, nullable=True)  # Duration in seconds
-    
+
     # Timer related fields
-    recorded_time = Column(Integer, default=0)  # Total recorded time in seconds
-    timer_status = Column(String, default="stopped")  # stopped, running, paused
-    last_timer_start = Column(DateTime(timezone=True), nullable=True)  # When timer was last started
-    
+    # Total recorded time in seconds
+    recorded_time = Column(Integer, default=0)
+    # stopped, running, paused
+    timer_status = Column(String, default="stopped")
+    last_timer_start = Column(DateTime(timezone=True),
+                              nullable=True)  # When timer was last started
+
     user_id = Column(Integer, ForeignKey("users.id"))
     user = relationship("User", back_populates="activities")
-    tags = relationship("Tag", secondary=activity_tags, back_populates="activities")
+    tags = relationship(
+        "Tag",
+        secondary=activity_tags,
+        back_populates="activities")
 
 # Tag database model
+
+
 class Tag(Base):
     __tablename__ = "tags"
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True, index=True)
-    activities = relationship("Activity", secondary=activity_tags, back_populates="tags") 
+    activities = relationship(
+        "Activity",
+        secondary=activity_tags,
+        back_populates="tags")
