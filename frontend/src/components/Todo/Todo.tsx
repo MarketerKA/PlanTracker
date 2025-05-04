@@ -38,7 +38,7 @@ export const Todo: FC<TodoProps> = () => {
         const tags = await tagsApi.getTags();
         setAvailableTags(tags);
       } catch (err) {
-        console.error('Не удалось загрузить теги:', err);
+        console.error('Failed to load tags:', err);
       } finally {
         setTagsLoading(false);
       }
@@ -52,25 +52,25 @@ export const Todo: FC<TodoProps> = () => {
     try {
       await addTask(task);
     } catch (err) {
-      console.error('Ошибка при добавлении задачи:', err);
+      console.error('Error adding task:', err);
     }
   };
 
   // Обработчик изменения статуса выполнения задачи
   const handleToggleComplete = async (id: string) => {
     try {
-      console.log(`Переключение статуса задачи ${id}...`);
+      console.log(`Toggling task status ${id}...`);
       const task = tasks.find(t => t.id === id);
-      console.log('Текущий статус задачи:', task?.completed ? 'Выполнена' : 'Не выполнена');
+      console.log('Current task status:', task?.completed ? 'Completed' : 'Not completed');
       
       const result = await toggleTaskComplete(id);
       if (!result) {
-        console.error('Не удалось изменить статус задачи');
+        console.error('Failed to change task status');
       } else {
-        console.log('Статус задачи успешно изменен');
+        console.log('Task status changed successfully');
       }
     } catch (err) {
-      console.error('Ошибка при изменении статуса задачи:', err);
+      console.error('Error changing task status:', err);
     }
   };
 
@@ -79,10 +79,10 @@ export const Todo: FC<TodoProps> = () => {
     try {
       const result = await deleteTask(id);
       if (!result) {
-        console.error('Не удалось удалить задачу');
+        console.error('Failed to delete task');
       }
     } catch (err) {
-      console.error('Ошибка при удалении задачи:', err);
+      console.error('Error deleting task:', err);
     }
   };
 
@@ -132,16 +132,16 @@ export const Todo: FC<TodoProps> = () => {
       {error && <div className={styles.errorMessage}>{error}</div>}
       
       <div className={styles.tagsFilter}>
-        <h3 className={styles.filterTitle}>Фильтр по тегам</h3>
+        <h3 className={styles.filterTitle}>Filter by Tags</h3>
         <div className={styles.tagsList}>
           <button 
             className={`${styles.tagButton} ${selectedTag === null ? styles.active : ''}`}
             onClick={() => handleTagSelect(null)}
           >
-            Все задачи
+            All Tasks
           </button>
           {tagsLoading ? (
-            <div className={styles.tagsSkeleton}>Загрузка тегов...</div>
+            <div className={styles.tagsSkeleton}>Loading tags...</div>
           ) : (
             availableTags.map(tag => (
               <button 
@@ -168,7 +168,7 @@ export const Todo: FC<TodoProps> = () => {
         <TaskForm onAddTask={handleAddTask} />
         
         {loading ? (
-          <div className={styles.loading}>Загрузка задач...</div>
+          <div className={styles.loading}>Loading tasks...</div>
         ) : (
           <TaskList 
             tasks={tasks} 

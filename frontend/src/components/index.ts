@@ -1,4 +1,4 @@
-// Экспорт компонентов
+// Export components
 export * from './Button';
 export * from './Header';
 export * from './Task';

@@ -29,7 +29,7 @@ export const TaskForm: FC<TaskFormProps> = ({ onAddTask }) => {
     
     onAddTask(newTask);
     
-    // Сброс формы
+    // Reset form
     setTitle('');
     setDescription('');
     setDueDate('');
@@ -54,7 +54,7 @@ export const TaskForm: FC<TaskFormProps> = ({ onAddTask }) => {
       <div className={styles.inputGroup}>
         <input
           type="text"
-          placeholder="Добавить новую задачу..."
+          placeholder="Add new task..."
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           className={styles.input}
@@ -67,7 +67,7 @@ export const TaskForm: FC<TaskFormProps> = ({ onAddTask }) => {
         <>
           <div className={styles.inputGroup}>
             <textarea
-              placeholder="Описание задачи (необязательно)"
+              placeholder="Task description (optional)"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className={`${styles.input} ${styles.textarea}`}
@@ -77,7 +77,7 @@ export const TaskForm: FC<TaskFormProps> = ({ onAddTask }) => {
           
           <div className={styles.formRow}>
             <div className={styles.inputGroup}>
-              <label className={styles.label}>Срок</label>
+              <label className={styles.label}>Due Date</label>
               <input
                 type="date"
                 value={dueDate}
@@ -88,7 +88,7 @@ export const TaskForm: FC<TaskFormProps> = ({ onAddTask }) => {
             </div>
             
             <div className={styles.inputGroup}>
-              <label className={styles.label}>Теги</label>
+              <label className={styles.label}>Tags</label>
               <div className={styles.tagsInput}>
                 <input
                   type="text"
@@ -100,7 +100,7 @@ export const TaskForm: FC<TaskFormProps> = ({ onAddTask }) => {
                       handleAddTag();
                     }
                   }}
-                  placeholder="Введите тег..."
+                  placeholder="Enter tag..."
                   className={styles.input}
                 />
                 <button
@@ -131,7 +131,7 @@ export const TaskForm: FC<TaskFormProps> = ({ onAddTask }) => {
       )}
       
       <button type="submit" className={styles.submitButton}>
-        Добавить задачу
+        Add Task
       </button>
     </form>
   );

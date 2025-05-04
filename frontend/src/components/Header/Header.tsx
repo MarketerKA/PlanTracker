@@ -37,7 +37,7 @@ export const Header: FC<HeaderProps> = () => {
                 to={ROUTES.HOME} 
                 className={({ isActive }) => isActive ? styles.active : ''}
               >
-                Главная
+                Home
               </NavLink>
             </li>
             <li>
@@ -45,7 +45,7 @@ export const Header: FC<HeaderProps> = () => {
                 to={ROUTES.TASKS} 
                 className={({ isActive }) => isActive ? styles.active : ''}
               >
-                Задачи
+                Tasks
               </NavLink>
             </li>
           </ul>
@@ -58,7 +58,7 @@ export const Header: FC<HeaderProps> = () => {
                 variant="secondary" 
                 onClick={handleLogout}
               >
-                Выйти
+                Logout
               </Button>
             </>
           ) : (
@@ -66,7 +66,7 @@ export const Header: FC<HeaderProps> = () => {
               variant="secondary" 
               onClick={handleLoginClick}
             >
-              Войти
+              Login
             </Button>
           )}
         </div>

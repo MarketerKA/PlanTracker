@@ -15,10 +15,10 @@ export interface ConfirmDialogProps {
 
 export const ConfirmDialog: FC<ConfirmDialogProps> = ({
   isOpen,
-  title,
-  message,
-  confirmText = 'Подтвердить',
-  cancelText = 'Отмена',
+  title = 'Confirm Action',
+  message = 'Are you sure you want to proceed?',
+  confirmText = 'Confirm',
+  cancelText = 'Cancel',
   onConfirm,
   onCancel,
   variant = 'info'

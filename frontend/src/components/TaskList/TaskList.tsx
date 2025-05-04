@@ -49,7 +49,7 @@ export const TaskList: FC<TaskListProps> = ({
             />
           ))
         ) : (
-          <div className={styles.emptyState}>Нет задач</div>
+          <div className={styles.emptyState}>No tasks</div>
         )}
       </div>
       
