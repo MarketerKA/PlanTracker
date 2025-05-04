@@ -1,4 +1,4 @@
-// Типы данных для работы с API
+// Data types for working with API
 export interface User {
   id: number;
   email: string;
@@ -21,7 +21,7 @@ export interface AuthResponse {
   token_type: string;
 }
 
-// Состояние авторизации в Redux
+// Authentication state in Redux
 export interface AuthState {
   user: User | null;
   token: string | null;

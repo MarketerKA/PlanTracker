@@ -9,7 +9,7 @@ import {
   AuthResponse 
 } from './types';
 
-// Начальное состояние
+// Initial state
 const initialState: AuthState = {
   user: null,
   token: authDto.getStoredToken(),
@@ -18,7 +18,7 @@ const initialState: AuthState = {
   error: null,
 };
 
-// Async thunks для работы с API
+// Async thunks for working with API
 export const login = createAsyncThunk(
   'auth/login',
   async (credentials: LoginCredentials, { rejectWithValue }) => {
@@ -26,7 +26,7 @@ export const login = createAsyncThunk(
       const response = await authApi.login(credentials);
       const token = authDto.processAuthResponse(response);
       
-      // После входа запрашиваем данные пользователя
+      // After login, request user data
       const user = await authApi.getCurrentUser();
       
       return { token, user };
@@ -34,7 +34,7 @@ export const login = createAsyncThunk(
       if (error instanceof Error) {
         return rejectWithValue(error.message);
       }
-      return rejectWithValue('Произошла неизвестная ошибка');
+      return rejectWithValue('An unknown error occurred');
     }
   }
 );
@@ -43,12 +43,12 @@ export const register = createAsyncThunk(
   'auth/register',
   async ({ email, password }: RegisterCredentials, { dispatch, rejectWithValue }) => {
     try {
-      // Регистрация пользователя
+      // Register user
       await authApi.register({ email, password });
       
-      // После успешной регистрации выполняем вход
-      // Будет отдельный запрос login, что даст пользователю понять,
-      // что регистрация прошла успешно, а затем происходит вход
+      // After successful registration, perform login
+      // This will be a separate login request, which lets the user know
+      // that registration was successful, and then login happens
       await dispatch(login({ email, password }));
       
       return { success: true };
@@ -56,7 +56,7 @@ export const register = createAsyncThunk(
       if (error instanceof Error) {
         return rejectWithValue(error.message);
       }
-      return rejectWithValue('Произошла неизвестная ошибка');
+      return rejectWithValue('An unknown error occurred');
     }
   }
 );
@@ -66,7 +66,7 @@ export const getCurrentUser = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       if (!authDto.hasToken()) {
-        throw new Error('Не авторизован');
+        throw new Error('Not authenticated');
       }
       const user = await authApi.getCurrentUser();
       return user;
@@ -74,7 +74,7 @@ export const getCurrentUser = createAsyncThunk(
       if (error instanceof Error) {
         return rejectWithValue(error.message);
       }
-      return rejectWithValue('Произошла неизвестная ошибка');
+      return rejectWithValue('An unknown error occurred');
     }
   }
 );
@@ -89,12 +89,12 @@ export const logout = createAsyncThunk(
       if (error instanceof Error) {
         return rejectWithValue(error.message);
       }
-      return rejectWithValue('Произошла неизвестная ошибка');
+      return rejectWithValue('An unknown error occurred');
     }
   }
 );
 
-// Создаем Redux Slice
+// Create Redux Slice
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -129,7 +129,7 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(register.fulfilled, (state) => {
-        // Данные пользователя установятся в login.fulfilled
+        // User data will be set in login.fulfilled
         state.loading = false;
       })
       .addCase(register.rejected, (state, action) => {
@@ -150,7 +150,7 @@ const authSlice = createSlice({
       .addCase(getCurrentUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
-        // Если получение пользователя не удалось, сбрасываем состояние
+        // If getting user failed, reset state
         state.isAuthenticated = false;
         state.token = null;
         localStorage.removeItem('token');

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { API_BASE_URL } from './config';
 
-// API-клиент с авторизацией
+// API client with authorization
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
   headers: {
@@ -9,7 +9,7 @@ const apiClient = axios.create({
   },
 });
 
-// Интерцептор для добавления токена
+// Interceptor for adding token
 apiClient.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   const tokenType = localStorage.getItem('token_type') || 'Bearer';
@@ -18,7 +18,7 @@ apiClient.interceptors.request.use((config) => {
     config.headers['Authorization'] = `${tokenType} ${token}`;
   }
   
-  // Debug - логирование запросов
+  // Debug - request logging
   if (process.env.NODE_ENV !== 'production') {
     console.log('API Request:', {
       url: config.url,
@@ -32,10 +32,10 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
-// Интерцептор для логирования ответов
+// Interceptor for response logging
 apiClient.interceptors.response.use(
   (response) => {
-    // Debug - логирование успешных ответов
+    // Debug - successful response logging
     if (process.env.NODE_ENV !== 'production') {
       console.log('API Response Success:', {
         url: response.config.url,
@@ -46,7 +46,7 @@ apiClient.interceptors.response.use(
     return response;
   },
   (error) => {
-    // Debug - логирование ошибок
+    // Debug - error logging
     if (process.env.NODE_ENV !== 'production') {
       console.error('API Response Error:', {
         url: error.config?.url,
@@ -59,14 +59,14 @@ apiClient.interceptors.response.use(
   }
 );
 
-// Интерфейс для создания активности
+// Interface for creating activity
 export interface ActivityCreateDto {
   title: string;
   description?: string;
   tags: string[];
 }
 
-// Интерфейс для получения активности
+// Interface for retrieving activity
 export interface ActivityDto {
   id: number;
   title: string;
@@ -81,7 +81,7 @@ export interface ActivityDto {
   tags: { id: number; name: string }[];
 }
 
-// Интерфейс для обновления активности
+// Interface for updating activity
 export interface ActivityUpdateDto {
   title?: string;
   description?: string;
@@ -92,15 +92,15 @@ export interface ActivityUpdateDto {
   timer_status?: string;
 }
 
-// Интерфейс для управления таймером
+// Interface for timer management
 export interface TimerActionDto {
   action: 'start' | 'pause' | 'stop' | 'save';
 }
 
-// Сервис для работы с активностями
+// Service for working with activities
 export const activitiesApi = {
   /**
-   * Получить список активностей с пагинацией и фильтрацией
+   * Get list of activities with pagination and filtering
    */
   getActivities: async (skip = 0, limit = 15, tag?: string): Promise<ActivityDto[]> => {
     try {
@@ -112,49 +112,49 @@ export const activitiesApi = {
       const response = await apiClient.get('/activities/', { params });
       return response.data;
     } catch (error) {
-      console.error('Ошибка при получении активностей:', error);
+      console.error('Error getting activities:', error);
       throw error;
     }
   },
 
   /**
-   * Получить одну активность по ID
+   * Get one activity by ID
    */
   getActivity: async (id: number): Promise<ActivityDto> => {
     try {
       const response = await apiClient.get(`/activities/${id}`);
       return response.data;
     } catch (error) {
-      console.error(`Ошибка при получении активности ${id}:`, error);
+      console.error(`Error getting activity ${id}:`, error);
       throw error;
     }
   },
 
   /**
-   * Создать новую активность
+   * Create new activity
    */
   createActivity: async (activity: ActivityCreateDto): Promise<ActivityDto> => {
     try {
       const response = await apiClient.post('/activities/', activity);
       return response.data;
     } catch (error) {
-      console.error('Ошибка при создании активности:', error);
+      console.error('Error creating activity:', error);
       throw error;
     }
   },
 
   /**
-   * Обновить существующую активность
+   * Update existing activity
    */
   updateActivity: async (id: number, activity: ActivityUpdateDto): Promise<ActivityDto> => {
     try {
-      // Проверяем обязательные поля
+      // Check required fields
       if (!activity.title) {
-        console.error('Ошибка: поле title обязательно для обновления активности');
-        throw new Error('Поле title обязательно для обновления активности');
+        console.error('Error: title field is required for activity update');
+        throw new Error('Title field is required for activity update');
       }
       
-      console.log('Отправка запроса на обновление активности:', {
+      console.log('Sending activity update request:', {
         id,
         data: activity
       });
@@ -162,32 +162,32 @@ export const activitiesApi = {
       const response = await apiClient.put(`/activities/${id}`, activity);
       return response.data;
     } catch (error) {
-      console.error(`Ошибка при обновлении активности ${id}:`, error);
+      console.error(`Error updating activity ${id}:`, error);
       throw error;
     }
   },
 
   /**
-   * Удалить активность
+   * Delete activity
    */
   deleteActivity: async (id: number): Promise<void> => {
     try {
       await apiClient.delete(`/activities/${id}`);
     } catch (error) {
-      console.error(`Ошибка при удалении активности ${id}:`, error);
+      console.error(`Error deleting activity ${id}:`, error);
       throw error;
     }
   },
 
   /**
-   * Управление таймером активности
+   * Activity timer management
    */
   timerAction: async (id: number, action: TimerActionDto): Promise<ActivityDto> => {
     try {
       const response = await apiClient.post(`/activities/${id}/timer`, action);
       return response.data;
     } catch (error) {
-      console.error(`Ошибка при выполнении таймер-действия для активности ${id}:`, error);
+      console.error(`Error executing timer action for activity ${id}:`, error);
       throw error;
     }
   },

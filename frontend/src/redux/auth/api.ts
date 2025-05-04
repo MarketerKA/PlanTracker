@@ -1,10 +1,10 @@
 import axios from 'axios';
 import { LoginCredentials, RegisterCredentials, AuthResponse, User } from './types';
 
-// Базовый URL для API
+// Base URL for API
 const API_BASE_URL = 'http://127.0.0.1:8000';
 
-// Создаем экземпляр axios с базовым URL
+// Create axios instance with base URL
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
@@ -13,7 +13,7 @@ const api = axios.create({
   }
 });
 
-// Интерцептор для добавления токена к запросам
+// Interceptor for adding token to requests
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
@@ -24,11 +24,11 @@ api.interceptors.request.use((config) => {
 });
 
 /**
- * API функции для работы с авторизацией
+ * API functions for authentication
  */
 export const authApi = {
   /**
-   * Авторизация пользователя
+   * User authentication
    */
   login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
     try {
@@ -36,37 +36,37 @@ export const authApi = {
       return response.data;
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
-        throw new Error(error.response.data.detail || 'Ошибка авторизации');
+        throw new Error(error.response.data.detail || 'Authentication error');
       }
-      throw new Error('Ошибка соединения с сервером');
+      throw new Error('Error connecting to server');
     }
   },
 
   /**
-   * Регистрация нового пользователя
+   * Register a new user
    */
   register: async (userData: RegisterCredentials): Promise<User> => {
     try {
-      // Проверка минимальной длины пароля
+      // Check minimum password length
       if (userData.password.length < 8) {
-        throw new Error('Пароль должен содержать минимум 8 символов');
+        throw new Error('Password must contain at least 8 characters');
       }
       
       const response = await api.post<User>('/users/', userData);
       return response.data;
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
-        throw new Error(error.response.data.detail || 'Ошибка регистрации');
+        throw new Error(error.response.data.detail || 'Registration error');
       }
       if (error instanceof Error) {
         throw error;
       }
-      throw new Error('Ошибка соединения с сервером');
+      throw new Error('Error connecting to server');
     }
   },
 
   /**
-   * Получение данных текущего пользователя
+   * Get current user data
    */
   getCurrentUser: async (): Promise<User> => {
     try {
@@ -74,14 +74,14 @@ export const authApi = {
       return response.data;
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
-        throw new Error(error.response.data.detail || 'Ошибка получения данных пользователя');
+        throw new Error(error.response.data.detail || 'Error getting user data');
       }
-      throw new Error('Ошибка соединения с сервером');
+      throw new Error('Error connecting to server');
     }
   },
 
   /**
-   * Выход пользователя (очистка localStorage)
+   * User logout (clear localStorage)
    */
   logout: (): void => {
     localStorage.removeItem('token');

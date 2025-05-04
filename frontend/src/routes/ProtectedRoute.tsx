@@ -10,26 +10,26 @@ interface ProtectedRouteProps {
 export const ProtectedRoute: FC<ProtectedRouteProps> = ({ children }) => {
   const { isAuthenticated, loading } = useAppSelector(state => state.auth);
   
-  // Если проверяем аутентификацию, показываем индикатор загрузки
+  // If checking authentication, show loading indicator
   if (loading) {
     return (
       <div style={{
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        height: 'calc(100vh - 70px)', // Учитываем высоту хедера
+        height: 'calc(100vh - 70px)', // Account for header height
         color: 'var(--text-primary)'
       }}>
-        Загрузка...
+        Loading...
       </div>
     );
   }
   
-  // Если не авторизован, перенаправляем на страницу входа
+  // If not authenticated, redirect to login page
   if (!isAuthenticated) {
     return <Navigate to={ROUTES.LOGIN} replace />;
   }
   
-  // Если авторизован, показываем запрошенный компонент
+  // If authenticated, show the requested component
   return <>{children}</>;
 }; 

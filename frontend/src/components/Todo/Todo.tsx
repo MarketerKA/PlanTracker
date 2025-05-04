@@ -27,10 +27,10 @@ export const Todo: FC<TodoProps> = () => {
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [tagsLoading, setTagsLoading] = useState(false);
 
-  // Выбранная задача
+  // Selected task
   const selectedTask = tasks.find(task => task.id === selectedTaskId);
 
-  // Загрузка тегов
+  // Loading tags
   useEffect(() => {
     const loadTags = async () => {
       setTagsLoading(true);
@@ -47,7 +47,7 @@ export const Todo: FC<TodoProps> = () => {
     loadTags();
   }, []);
 
-  // Обработчик добавления задачи
+  // Task add handler
   const handleAddTask = async (task: Omit<TaskType, 'id'>) => {
     try {
       await addTask(task);
@@ -56,7 +56,7 @@ export const Todo: FC<TodoProps> = () => {
     }
   };
 
-  // Обработчик изменения статуса выполнения задачи
+  // Task completion status change handler
   const handleToggleComplete = async (id: string) => {
     try {
       console.log(`Toggling task status ${id}...`);
@@ -74,7 +74,7 @@ export const Todo: FC<TodoProps> = () => {
     }
   };
 
-  // Обработчик удаления задачи
+  // Task delete handler
   const handleDeleteTask = async (id: string) => {
     try {
       const result = await deleteTask(id);
@@ -86,7 +86,7 @@ export const Todo: FC<TodoProps> = () => {
     }
   };
 
-  // Обработчик запуска таймера
+  // Timer start handler
   const handleTimerStart = async () => {
     if (selectedTaskId) {
       const success = await startTimer(selectedTaskId);
@@ -94,7 +94,7 @@ export const Todo: FC<TodoProps> = () => {
     }
   };
 
-  // Обработчик паузы таймера
+  // Timer pause handler
   const handleTimerPause = async () => {
     if (selectedTaskId) {
       const success = await pauseTimer(selectedTaskId);
@@ -102,7 +102,7 @@ export const Todo: FC<TodoProps> = () => {
     }
   };
 
-  // Обработчик остановки таймера
+  // Timer stop handler
   const handleTimerStop = async () => {
     if (selectedTaskId) {
       const success = await stopTimer(selectedTaskId);
@@ -114,14 +114,14 @@ export const Todo: FC<TodoProps> = () => {
     }
   };
 
-  // Обработчик выбора задачи
+  // Task selection handler
   const handleTaskSelect = (taskId: string) => {
     if (!isTimerRunning) {
       setSelectedTaskId(prevId => prevId === taskId ? null : taskId);
     }
   };
 
-  // Обработчик выбора тега для фильтрации
+  // Tag selection handler for filtering
   const handleTagSelect = (tag: string | null) => {
     setSelectedTag(tag);
     fetchTasks(0, 15, tag || undefined);

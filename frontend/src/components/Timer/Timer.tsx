@@ -46,7 +46,7 @@ export const Timer: FC<TimerProps> = ({ isRunning, onStart, onPause, onStop, sel
         <>
             <div className={styles.timer}>
                 <div className={styles.taskTitle}>
-                    {selectedTaskTitle ? `${selectedTaskTitle}` : 'Выберите задачу для отслеживания'}
+                    {selectedTaskTitle ? `${selectedTaskTitle}` : 'Select a task to track'}
                 </div>
                 <div className={styles.display}>{formatTime(time)}</div>
                 <div className={styles.controls}>
@@ -58,9 +58,9 @@ export const Timer: FC<TimerProps> = ({ isRunning, onStart, onPause, onStop, sel
 
             <ConfirmDialog
                 isOpen={showStopConfirm}
-                title="Остановить таймер?"
-                message="Вы уверены, что хотите остановить таймер? Это действие нельзя отменить."
-                confirmText="Остановить"
+                title="Stop timer?"
+                message="Are you sure you want to stop the timer? This action cannot be undone."
+                confirmText="Stop"
                 onConfirm={handleStopConfirm}
                 onCancel={() => setShowStopConfirm(false)}
                 variant="warning"

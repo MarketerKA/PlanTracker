@@ -11,7 +11,7 @@ export interface TaskProps {
   onSelect?: () => void;
 }
 
-// Функция для форматирования времени в формат ЧЧ:ММ:СС
+// Function to format time in HH:MM:SS format
 const formatTime = (seconds: number): string => {
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
@@ -33,7 +33,7 @@ export const Task: FC<TaskProps> = ({
 }) => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-  // Иконка статуса таймера
+  // Timer status icon
   const renderTimerStatus = () => {
     if (!task.timerStatus) return null;
     
@@ -112,9 +112,9 @@ export const Task: FC<TaskProps> = ({
 
       <ConfirmDialog
         isOpen={showDeleteConfirm}
-        title="Удалить задачу?"
-        message={`Вы уверены, что хотите удалить задачу "${task.title}"? Это действие нельзя отменить.`}
-        confirmText="Удалить"
+        title="Delete task?"
+        message={`Are you sure you want to delete the task "${task.title}"? This action cannot be undone.`}
+        confirmText="Delete"
         onConfirm={() => {
           onDelete(task.id);
           setShowDeleteConfirm(false);

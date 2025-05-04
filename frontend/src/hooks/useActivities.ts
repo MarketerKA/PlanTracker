@@ -2,15 +2,15 @@ import { useState, useEffect, useCallback } from 'react';
 import { activitiesApi, ActivityDto, ActivityCreateDto, ActivityUpdateDto, TimerActionDto } from '../api/activities';
 import { TaskType } from '../components/Task/types';
 
-// Преобразование ActivityDto в TaskType
+// Converting ActivityDto to TaskType
 const mapActivityToTask = (activity: ActivityDto): TaskType => {
-  // Функция для безопасного форматирования даты
+  // Function for safely formatting date
   const formatDate = (dateString?: string | null): string | undefined => {
     if (!dateString) return undefined;
     try {
       return new Date(dateString).toISOString().split('T')[0];
     } catch (err) {
-      console.error(`Ошибка при форматировании даты ${dateString}:`, err);
+      console.error(`Error formatting date ${dateString}:`, err);
       return undefined;
     }
   };
@@ -18,7 +18,7 @@ const mapActivityToTask = (activity: ActivityDto): TaskType => {
   return {
     id: activity.id.toString(),
     title: activity.title,
-    completed: Boolean(activity.end_time),  // Если есть end_time, считаем задачу завершенной
+    completed: Boolean(activity.end_time),  // If end_time exists, consider the task completed
     tags: activity.tags.map(tag => tag.name),
     dueDate: formatDate(activity.end_time),
     description: activity.description,
@@ -27,7 +27,7 @@ const mapActivityToTask = (activity: ActivityDto): TaskType => {
   };
 };
 
-// Преобразование TaskType в ActivityCreateDto
+// Converting TaskType to ActivityCreateDto
 const mapTaskToActivityCreate = (task: Omit<TaskType, 'id'>): ActivityCreateDto => {
   return {
     title: task.title,
@@ -36,31 +36,31 @@ const mapTaskToActivityCreate = (task: Omit<TaskType, 'id'>): ActivityCreateDto 
   };
 };
 
-// Преобразование TaskType в ActivityUpdateDto
+// Converting TaskType to ActivityUpdateDto
 const mapTaskToActivityUpdate = (task: Partial<TaskType>, originalTask?: TaskType): ActivityUpdateDto => {
-  // Задача может быть частичной (только изменяемые поля),
-  // поэтому нам нужен оригинальный объект задачи, чтобы получить недостающие данные
+  // The task can be partial (only changeable fields),
+  // so we need the original task object to get the missing data
   const updateDto: ActivityUpdateDto = {
-    // Обязательное поле title всегда должно присутствовать
+    // Required field title must always be present
     title: task.title ?? originalTask?.title ?? ""
   };
   
-  // Добавляем остальные поля, если они есть
+  // Add remaining fields if they exist
   if (task.description !== undefined) updateDto.description = task.description;
   if (task.tags !== undefined) updateDto.tags = task.tags;
   
-  // Обработка статуса выполнения
+  // Processing completion status
   if (task.completed !== undefined) {
     if (task.completed) {
-      // Для завершенной задачи устанавливаем текущую дату в ISO формате
+      // For completed task, set current date in ISO format
       updateDto.end_time = new Date().toISOString();
     } else {
-      // Для незавершенной задачи устанавливаем null
+      // For incomplete task, set null
       updateDto.end_time = null;
     }
   }
   
-  // Добавление других полей, если они есть
+  // Adding other fields if they exist
   if (task.recordedTime !== undefined) updateDto.recorded_time = task.recordedTime;
   if (task.timerStatus !== undefined) updateDto.timer_status = task.timerStatus;
   
@@ -72,7 +72,7 @@ export const useActivities = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Загрузка задач
+  // Loading tasks
   const fetchTasks = useCallback(async (skip = 0, limit = 15, tag?: string) => {
     setLoading(true);
     setError(null);
@@ -82,19 +82,19 @@ export const useActivities = () => {
       const mappedTasks = activities.map(mapActivityToTask);
       setTasks(mappedTasks);
     } catch (err) {
-      setError('Не удалось загрузить задачи');
+      setError('Failed to load tasks');
       console.error(err);
     } finally {
       setLoading(false);
     }
   }, []);
 
-  // Загрузка задач при монтировании
+  // Loading tasks on mount
   useEffect(() => {
     fetchTasks();
   }, [fetchTasks]);
 
-  // Добавление новой задачи
+  // Adding a new task
   const addTask = async (taskData: Omit<TaskType, 'id'>) => {
     setLoading(true);
     setError(null);
@@ -107,7 +107,7 @@ export const useActivities = () => {
       setTasks(prev => [newTask, ...prev]);
       return newTask;
     } catch (err) {
-      setError('Не удалось создать задачу');
+      setError('Failed to create task');
       console.error(err);
       return null;
     } finally {
@@ -115,30 +115,30 @@ export const useActivities = () => {
     }
   };
 
-  // Обновление задачи
+  // Updating a task
   const updateTask = async (id: string, taskData: Partial<TaskType>) => {
     setLoading(true);
     setError(null);
     
     try {
-      console.log(`Обновление задачи ${id} с данными:`, taskData);
+      console.log(`Updating task ${id} with data:`, taskData);
       
       const activityId = parseInt(id);
       if (isNaN(activityId)) {
-        throw new Error(`Некорректный ID задачи: ${id}`);
+        throw new Error(`Invalid task ID: ${id}`);
       }
       
-      // Найдем оригинальную задачу
+      // Find the original task
       const originalTask = tasks.find(task => task.id === id);
       if (!originalTask) {
-        throw new Error(`Задача с ID ${id} не найдена в списке`);
+        throw new Error(`Task with ID ${id} not found in the list`);
       }
       
       const updateData = mapTaskToActivityUpdate(taskData, originalTask);
-      console.log('Преобразованные данные для API:', updateData);
+      console.log('Transformed data for API:', updateData);
       
       const updatedActivity = await activitiesApi.updateActivity(activityId, updateData);
-      console.log('Ответ API:', updatedActivity);
+      console.log('API response:', updatedActivity);
       
       const updatedTask = mapActivityToTask(updatedActivity);
       
@@ -148,16 +148,16 @@ export const useActivities = () => {
       
       return updatedTask;
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Неизвестная ошибка';
-      console.error(`Ошибка при обновлении задачи ${id}:`, err);
-      setError(`Не удалось обновить задачу: ${errorMessage}`);
+      const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+      console.error(`Error updating task ${id}:`, err);
+      setError(`Failed to update task: ${errorMessage}`);
       return null;
     } finally {
       setLoading(false);
     }
   };
 
-  // Удаление задачи
+  // Deleting a task
   const deleteTask = async (id: string) => {
     setLoading(true);
     setError(null);
@@ -169,7 +169,7 @@ export const useActivities = () => {
       setTasks(prev => prev.filter(task => task.id !== id));
       return true;
     } catch (err) {
-      setError('Не удалось удалить задачу');
+      setError('Failed to delete task');
       console.error(err);
       return false;
     } finally {
@@ -177,29 +177,29 @@ export const useActivities = () => {
     }
   };
 
-  // Изменение статуса выполнения задачи
+  // Changing task completion status
   const toggleTaskComplete = async (id: string) => {
     const task = tasks.find(t => t.id === id);
     if (!task) {
-      console.error(`Задача с ID ${id} не найдена`);
+      console.error(`Task with ID ${id} not found`);
       return false;
     }
     
     try {
-      console.log(`Изменение статуса задачи ${id} с ${task.completed} на ${!task.completed}`);
+      console.log(`Changing task status ${id} from ${task.completed} to ${!task.completed}`);
       
-      // Подготавливаем данные для обновления - только статус выполнения
+      // Prepare data for update - only completion status
       const updateData: Partial<TaskType> = { completed: !task.completed };
       
       const updatedTask = await updateTask(id, updateData);
       return Boolean(updatedTask);
     } catch (err) {
-      console.error(`Ошибка при изменении статуса задачи ${id}:`, err);
+      console.error(`Error changing task status ${id}:`, err);
       return false;
     }
   };
 
-  // Управление таймером
+  // Timer management
   const startTimer = async (id: string) => {
     setLoading(true);
     setError(null);
@@ -217,7 +217,7 @@ export const useActivities = () => {
       
       return true;
     } catch (err) {
-      setError('Не удалось запустить таймер');
+      setError('Failed to start timer');
       console.error(err);
       return false;
     } finally {
@@ -242,7 +242,7 @@ export const useActivities = () => {
       
       return true;
     } catch (err) {
-      setError('Не удалось приостановить таймер');
+      setError('Failed to pause timer');
       console.error(err);
       return false;
     } finally {
@@ -267,7 +267,7 @@ export const useActivities = () => {
       
       return true;
     } catch (err) {
-      setError('Не удалось остановить таймер');
+      setError('Failed to stop timer');
       console.error(err);
       return false;
     } finally {

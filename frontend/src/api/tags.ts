@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { API_BASE_URL } from './config';
 
-// API-клиент с авторизацией
+// API client with authorization
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
   headers: {
@@ -9,7 +9,7 @@ const apiClient = axios.create({
   },
 });
 
-// Интерцептор для добавления токена
+// Interceptor for adding token
 apiClient.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   const tokenType = localStorage.getItem('token_type') || 'Bearer';
@@ -20,41 +20,41 @@ apiClient.interceptors.request.use((config) => {
   return config;
 });
 
-// Интерфейс для тега
+// Tag interface
 export interface TagDto {
   id: number;
   name: string;
 }
 
-// Интерфейс для создания тега
+// Create tag interface
 export interface TagCreateDto {
   name: string;
 }
 
-// Сервис для работы с тегами
+// Service for working with tags
 export const tagsApi = {
   /**
-   * Получить список всех тегов
+   * Get list of all tags
    */
   getTags: async (skip = 0, limit = 100): Promise<TagDto[]> => {
     try {
       const response = await apiClient.get('/tags/', { params: { skip, limit } });
       return response.data;
     } catch (error) {
-      console.error('Ошибка при получении списка тегов:', error);
+      console.error('Error getting tags list:', error);
       throw error;
     }
   },
 
   /**
-   * Создать новый тег
+   * Create new tag
    */
   createTag: async (tag: TagCreateDto): Promise<TagDto> => {
     try {
       const response = await apiClient.post('/tags/', tag);
       return response.data;
     } catch (error) {
-      console.error('Ошибка при создании тега:', error);
+      console.error('Error creating tag:', error);
       throw error;
     }
   },

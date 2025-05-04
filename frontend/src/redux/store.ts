@@ -4,7 +4,7 @@ import authReducer from './auth';
 export const store = configureStore({
   reducer: {
     auth: authReducer,
-    // здесь можно добавить другие редьюсеры по мере необходимости
+    // add other reducers here as needed
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
@@ -12,6 +12,6 @@ export const store = configureStore({
     }),
 });
 
-// Типы для использования в компонентах
+// Types for use in components
 export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch; 

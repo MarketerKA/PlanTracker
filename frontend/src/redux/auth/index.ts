@@ -1,4 +1,4 @@
-// Реэкспорт всех необходимых модулей для публичного API
+// Re-exporting all necessary modules for public API
 import authReducer, { 
   login, 
   register, 
@@ -11,10 +11,10 @@ import { authApi } from './api';
 import { authDto } from './dto';
 import type { User, AuthState, LoginCredentials, RegisterCredentials, AuthResponse } from './types';
 
-// Экспорт редьюсера как default
+// Export reducer as default
 export default authReducer;
 
-// Экспорт всех действий для использования в компонентах
+// Export all actions for use in components
 export {
   // Actions
   login,
@@ -31,7 +31,7 @@ export {
   authDto,
 };
 
-// Экспорт типов
+// Export types
 export type {
   User,
   AuthState,

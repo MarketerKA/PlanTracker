@@ -26,14 +26,14 @@ export const Login: FC<LoginProps> = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [formErrors, setFormErrors] = useState<{email?: string; password?: string}>({});
 
-  // Если пользователь уже авторизован, перенаправляем на главную страницу
+  // If user is already authenticated, redirect to home page
   useEffect(() => {
     if (isAuthenticated) {
       navigate(ROUTES.HOME);
     }
   }, [isAuthenticated, navigate]);
 
-  // Сбрасываем ошибки с сервера при изменении полей ввода
+  // Reset server errors when input fields change
   useEffect(() => {
     if (error) {
       dispatch(clearError());
@@ -48,13 +48,13 @@ export const Login: FC<LoginProps> = () => {
     const newErrors: {email?: string; password?: string} = {};
     
     if (!email) {
-      newErrors.email = 'Email обязателен';
+      newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(email)) {
-      newErrors.email = 'Некорректный email';
+      newErrors.email = 'Invalid email format';
     }
     
     if (!password) {
-      newErrors.password = 'Пароль обязателен';
+      newErrors.password = 'Password is required';
     }
     
     setFormErrors(newErrors);
@@ -66,7 +66,7 @@ export const Login: FC<LoginProps> = () => {
     
     if (!validateForm()) return;
 
-    // Отправляем запрос на авторизацию через Redux
+    // Send authentication request through Redux
     dispatch(login({ email, password }));
   };
 
@@ -76,8 +76,8 @@ export const Login: FC<LoginProps> = () => {
 
   return (
     <AuthLayout 
-      title="Вход в аккаунт" 
-      subtitle="Введите ваши данные для доступа к сервису"
+      title="Log in to account" 
+      subtitle="Enter your credentials to access the service"
     >
       <form className={styles.form} onSubmit={handleSubmit}>
         {error && (
@@ -98,10 +98,10 @@ export const Login: FC<LoginProps> = () => {
         />
         
         <InputField
-          label="Пароль"
+          label="Password"
           icon={<LockIcon />}
           type={showPassword ? 'text' : 'password'}
-          placeholder="Введите пароль"
+          placeholder="Enter password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
@@ -111,7 +111,7 @@ export const Login: FC<LoginProps> = () => {
         />
         
         <div className={styles.forgotPassword}>
-          <a href="#" className={styles.link}>Забыли пароль?</a>
+          <a href="#" className={styles.link}>Forgot password?</a>
         </div>
         
         <Button
@@ -119,17 +119,17 @@ export const Login: FC<LoginProps> = () => {
           disabled={loading}
           className={styles.submitButton}
         >
-          {loading ? 'Вход...' : 'Войти'}
+          {loading ? 'Logging in...' : 'Log in'}
         </Button>
         
         <div className={styles.registerPrompt}>
-          <span>Еще нет аккаунта?</span>
+          <span>Don't have an account yet?</span>
           <button 
             type="button" 
             className={styles.registerLink}
             onClick={goToRegister}
           >
-            Зарегистрироваться
+            Register
           </button>
         </div>
       </form>

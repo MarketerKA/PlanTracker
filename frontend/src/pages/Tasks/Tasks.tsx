@@ -9,7 +9,7 @@ export const Tasks: FC<TasksProps> = () => {
   const { tasks, loading } = useActivities();
   const [activeTab, setActiveTab] = useState<'all' | 'stats'>('all');
 
-  // Подсчет статистики для TaskStats
+  // Calculate statistics for TaskStats
   const stats = {
     total: tasks.length,
     completed: tasks.filter(task => task.completed).length,
@@ -23,20 +23,20 @@ export const Tasks: FC<TasksProps> = () => {
       <main className={styles.main}>
         <div className={styles.container}>
           <div className={styles.tasksHeader}>
-            <h1 className={styles.title}>Мои задачи</h1>
+            <h1 className={styles.title}>My Tasks</h1>
             
             <div className={styles.tabsContainer}>
               <button 
                 className={`${styles.tabButton} ${activeTab === 'all' ? styles.active : ''}`} 
                 onClick={() => setActiveTab('all')}
               >
-                Задачи
+                Tasks
               </button>
               <button 
                 className={`${styles.tabButton} ${activeTab === 'stats' ? styles.active : ''}`} 
                 onClick={() => setActiveTab('stats')}
               >
-                Статистика
+                Statistics
               </button>
             </div>
           </div>
@@ -46,7 +46,7 @@ export const Tasks: FC<TasksProps> = () => {
           ) : (
             <div className={styles.statsContainer}>
               {loading ? (
-                <div className={styles.loading}>Загрузка данных...</div>
+                <div className={styles.loading}>Loading data...</div>
               ) : (
                 <TaskStats
                   total={stats.total}

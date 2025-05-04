@@ -7,11 +7,11 @@ import { getCurrentUser, authDto } from './redux/auth';
 
 export const App: FC = () => {
   useEffect(() => {
-    // Если есть токен, загружаем данные пользователя
+    // If token exists, load user data
     if (authDto.hasToken()) {
       store.dispatch(getCurrentUser())
-        .then(() => console.log('Пользователь загружен'))
-        .catch(() => console.log('Ошибка при загрузке пользователя'));
+        .then(() => console.log('User loaded'))
+        .catch(() => console.log('Error loading user'));
     }
   }, []);
 

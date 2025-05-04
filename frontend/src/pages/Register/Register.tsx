@@ -32,14 +32,14 @@ export const Register: FC<RegisterProps> = () => {
     confirmPassword?: string;
   }>({});
 
-  // Если пользователь уже авторизован, перенаправляем на главную страницу
+  // If user is already authenticated, redirect to the home page
   useEffect(() => {
     if (isAuthenticated) {
       navigate(ROUTES.HOME);
     }
   }, [isAuthenticated, navigate]);
 
-  // Сбрасываем ошибки с сервера при изменении полей ввода
+  // Reset server errors when input fields change
   useEffect(() => {
     if (error) {
       dispatch(clearError());
@@ -62,19 +62,19 @@ export const Register: FC<RegisterProps> = () => {
     } = {};
     
     if (!email) {
-      newErrors.email = 'Email обязателен';
+      newErrors.email = 'Email is required';
     } else if (!/\S+@\S+\.\S+/.test(email)) {
-      newErrors.email = 'Некорректный email';
+      newErrors.email = 'Invalid email format';
     }
     
     if (!password) {
-      newErrors.password = 'Пароль обязателен';
+      newErrors.password = 'Password is required';
     } else if (password.length < 8) {
-      newErrors.password = 'Пароль должен содержать минимум 8 символов';
+      newErrors.password = 'Password must be at least 8 characters';
     }
     
     if (password !== confirmPassword) {
-      newErrors.confirmPassword = 'Пароли не совпадают';
+      newErrors.confirmPassword = 'Passwords do not match';
     }
     
     setFormErrors(newErrors);
@@ -86,7 +86,7 @@ export const Register: FC<RegisterProps> = () => {
     
     if (!validateForm()) return;
     
-    // Отправляем запрос на регистрацию через Redux
+    // Send registration request through Redux
     dispatch(register({ email, password }));
   };
 
@@ -96,8 +96,8 @@ export const Register: FC<RegisterProps> = () => {
 
   return (
     <AuthLayout 
-      title="Регистрация" 
-      subtitle="Создайте аккаунт для доступа к сервису"
+      title="Registration" 
+      subtitle="Create an account to access the service"
     >
       <form className={styles.form} onSubmit={handleSubmit}>
         {error && (
@@ -118,10 +118,10 @@ export const Register: FC<RegisterProps> = () => {
         />
         
         <InputField
-          label="Пароль"
+          label="Password"
           icon={<LockIcon />}
           type={showPassword ? 'text' : 'password'}
-          placeholder="Минимум 8 символов"
+          placeholder="Minimum 8 characters"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
@@ -131,10 +131,10 @@ export const Register: FC<RegisterProps> = () => {
         />
         
         <InputField
-          label="Подтверждение пароля"
+          label="Confirm Password"
           icon={<LockIcon />}
           type={showConfirmPassword ? 'text' : 'password'}
-          placeholder="Повторите пароль"
+          placeholder="Repeat password"
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
           required
@@ -148,17 +148,17 @@ export const Register: FC<RegisterProps> = () => {
           disabled={loading}
           className={styles.submitButton}
         >
-          {loading ? 'Регистрация...' : 'Зарегистрироваться'}
+          {loading ? 'Registering...' : 'Register'}
         </Button>
         
         <div className={styles.loginPrompt}>
-          <span>Уже есть аккаунт?</span>
+          <span>Already have an account?</span>
           <button 
             type="button" 
             className={styles.loginLink}
             onClick={goToLogin}
           >
-            Войти
+            Log in
           </button>
         </div>
       </form>

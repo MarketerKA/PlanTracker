@@ -14,7 +14,7 @@ export const TaskStats: FC<TaskStatsProps> = ({
   inProgress,
   withTimer
 }) => {
-  // Вычисляем процент выполнения
+  // Calculate completion percentage
   const completionPercentage = total > 0 ? Math.round((completed / total) * 100) : 0;
   
   return (
