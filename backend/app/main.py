@@ -6,9 +6,11 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime, timedelta
 import os
-from . import models, schemas, auth, config
+from . import models, schemas, auth, config, telegram_bot
 from .database import engine, get_db
 import re
+from contextlib import asynccontextmanager
+import asyncio
 from email_validator import validate_email, EmailNotValidError
 import logging
 
@@ -19,8 +21,21 @@ logger = logging.getLogger(__name__)
 # Create database tables
 models.Base.metadata.create_all(bind=engine)
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    bot_task = asyncio.create_task(telegram_bot.start_bot())
+    try:
+        yield
+    finally:
+        await telegram_bot.stop_bot()
+        bot_task.cancel()
+        try:
+            await bot_task
+        except asyncio.CancelledError:
+            pass
+
 # Initialize FastAPI app
-app = FastAPI(title="PlanTracker API")
+app = FastAPI(title="PlanTracker API", lifespan=lifespan)
 
 # Configure CORS
 app.add_middleware(
@@ -318,7 +333,7 @@ def delete_activity(
 
 # Timer functionality endpoints
 @app.post("/activities/{activity_id}/timer", response_model=schemas.Activity)
-def activity_timer(
+async def activity_timer(
     activity_id: int,
     timer_action: schemas.TimerAction,
     db: Session = Depends(get_db),
@@ -353,6 +368,13 @@ def activity_timer(
         if db_activity.timer_status == "stopped":
             db_activity.timer_status = "running"
             db_activity.last_timer_start = current_time
+        
+        # Sending a notification to Telegram
+        if current_user.telegram_chat_id:
+            await telegram_bot.send_notification(
+                current_user.id,
+                f"▶️ Timer started for task: {db_activity.title}"
+            )
             
         logger.info(f"Timer started for activity {activity_id} by user {current_user.email}")
         
@@ -367,6 +389,14 @@ def activity_timer(
         db_activity.recorded_time += elapsed
         db_activity.timer_status = "paused"
         db_activity.last_timer_start = None
+        
+        # Sending a notification to Telegram
+        if current_user.telegram_chat_id:
+            await telegram_bot.send_notification(
+                current_user.id,
+                f"⏸️ Timer paused for task: {db_activity.title}\n"
+                f"Saved time: {telegram_bot.format_time(db_activity.recorded_time)}"
+            )
         
         logger.info(f"Timer paused for activity {activity_id} by user {current_user.email}")
         
@@ -385,8 +415,16 @@ def activity_timer(
         db_activity.timer_status = "stopped"
         db_activity.last_timer_start = None
         
-        logger.info(f"Timer stopped for activity {activity_id} by user {current_user.email}")
+        if current_user.telegram_chat_id:
+            await telegram_bot.send_notification(
+                current_user.id,
+                f"⏹️ Timer stopped for task: {db_activity.title}\n"
+                f"Total time: {telegram_bot.format_time(db_activity.recorded_time)}"
+            )
         
+        logger.info(f"Timer stopped for activity {activity_id} by user {current_user.email}")
+    
+
     elif action == "save":
         # Can save from any state, but only calculate additional time if running
         if db_activity.timer_status == "running":
@@ -400,7 +438,7 @@ def activity_timer(
     else:
         logger.warning(f"Invalid timer action: {action} for activity {activity_id}")
         raise HTTPException(status_code=400, detail="Invalid timer action")
-    
+
     # Save changes to database
     db.commit()
     db.refresh(db_activity)
@@ -431,3 +469,22 @@ def read_tags(
     tags = db.query(models.Tag).offset(skip).limit(limit).all()
     logger.info(f"Tags retrieved for user: {current_user.email}, count: {len(tags)}")
     return tags 
+
+
+@app.get("/users/me/telegram-status")
+async def get_telegram_status(current_user: models.User = Depends(auth.get_current_active_user)):
+    return {
+        "is_linked": bool(current_user.telegram_chat_id),
+        "telegram_chat_id": current_user.telegram_chat_id
+    }
+
+
+@app.delete("/users/me/telegram")
+async def unlink_telegram(current_user: models.User = Depends(auth.get_current_active_user), db: Session = Depends(get_db)):
+    if not current_user.telegram_chat_id:
+        raise HTTPException(status_code=400, detail="Telegram account not linked")
+    
+    current_user.telegram_chat_id = None
+    db.commit()
+    
+    return {"message": "Telegram account unlinked successfully"}
