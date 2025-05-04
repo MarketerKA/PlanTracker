@@ -11,6 +11,7 @@ activity_tags = Table(
     Column('tag_id', Integer, ForeignKey('tags.id'))
 )
 
+# User database model
 class User(Base):
     __tablename__ = "users"
 
@@ -21,6 +22,7 @@ class User(Base):
     telegram_chat_id = Column(String, nullable=True)
     activities = relationship("Activity", back_populates="user")
 
+# Activity database model
 class Activity(Base):
     __tablename__ = "activities"
 
@@ -40,6 +42,7 @@ class Activity(Base):
     user = relationship("User", back_populates="activities")
     tags = relationship("Tag", secondary=activity_tags, back_populates="activities")
 
+# Tag database model
 class Tag(Base):
     __tablename__ = "tags"
 

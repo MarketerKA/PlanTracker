@@ -4,7 +4,7 @@ from pathlib import Path
 
 # Load environment variables from .env file
 env_path = Path(__file__).parent.parent / '.env'
-load_dotenv(dotenv_path=env_path)
+load_dotenv(env_path)
 
 # JWT Settings
 SECRET_KEY = os.getenv("SECRET_KEY")
