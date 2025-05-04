@@ -34,14 +34,6 @@ export const Header: FC<HeaderProps> = () => {
           <ul>
             <li>
               <NavLink 
-                to={ROUTES.HOME} 
-                className={({ isActive }) => isActive ? styles.active : ''}
-              >
-                Home
-              </NavLink>
-            </li>
-            <li>
-              <NavLink 
                 to={ROUTES.TASKS} 
                 className={({ isActive }) => isActive ? styles.active : ''}
               >

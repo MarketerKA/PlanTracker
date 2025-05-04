@@ -5,7 +5,7 @@ export const ROUTES = {
   REGISTER: '/register',
   
   // При необходимости можно добавить другие маршруты
-  TASKS: '/tasks',
+  TASKS: '/',
   PROFILE: '/profile',
   SETTINGS: '/settings',
 }; 

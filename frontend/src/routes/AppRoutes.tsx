@@ -1,6 +1,6 @@
 import { FC } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { Home, Login, Register, Tasks } from '../pages';
+import { Login, Register, Tasks } from '../pages';
 import { ROUTES } from './routeConstants';
 import { ProtectedRoute } from './ProtectedRoute';
 
@@ -9,14 +9,6 @@ export const AppRoutes: FC = () => {
     <Routes>
       <Route 
         path={ROUTES.HOME} 
-        element={
-          <ProtectedRoute>
-            <Home />
-          </ProtectedRoute>
-        } 
-      />
-      <Route 
-        path={ROUTES.TASKS} 
         element={
           <ProtectedRoute>
             <Tasks />
