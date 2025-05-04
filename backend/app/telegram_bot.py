@@ -14,14 +14,29 @@ logger = logging.getLogger(__name__)
 
 class LinkStates(StatesGroup):
     waiting_for_email = State()
-    waiting_for_confirmation_code = State()
+    waiting_for_password = State()
 
 BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 bot = Bot(token=BOT_TOKEN)
 storage = MemoryStorage()
 dp = Dispatcher(storage=storage)
 
-verification_codes = {}
+# Create keyboard menu
+def get_main_keyboard():
+    keyboard = types.ReplyKeyboardMarkup(
+        keyboard=[
+            [
+                types.KeyboardButton(text="🔗 Link Account"),
+                types.KeyboardButton(text="⏱️ Current Activity")
+            ],
+            [
+                types.KeyboardButton(text="❓ Help"),
+                types.KeyboardButton(text="🏠 Start")
+            ]
+        ],
+        resize_keyboard=True
+    )
+    return keyboard
 
 @dp.message(Command("start"))
 async def cmd_start(message: types.Message, state: FSMContext):
@@ -31,13 +46,35 @@ async def cmd_start(message: types.Message, state: FSMContext):
         "Available commands:\n"
         "/help - help\n"
         "/link - link account\n"
-        "/current - current activity"
+        "/current - current activity",
+        reply_markup=get_main_keyboard()
+    )
+
+@dp.message(Command("help"))
+async def cmd_help(message: types.Message):
+    await message.answer(
+        "PlanTracker Bot Commands:\n\n"
+        "/start - Start the bot and see available commands\n"
+        "/help - Show this help message\n"
+        "/link - Link your PlanTracker account with Telegram\n"
+        "/current - Show your current activity with timer\n"
+        "\n"
+        "To link your account:\n"
+        "1. Use /link command\n"
+        "2. Enter your email\n"
+        "3. Enter your password\n"
+        "\n"
+        "After linking, you'll receive notifications about your activities.",
+        reply_markup=get_main_keyboard()
     )
 
 @dp.message(Command("link"))
 async def cmd_link(message: types.Message, state: FSMContext):
     await state.set_state(LinkStates.waiting_for_email)
-    await message.answer("Enter the email address of your PlanTracker account:")
+    await message.answer(
+        "Enter the email address of your PlanTracker account:",
+        reply_markup=types.ReplyKeyboardRemove()
+    )
 
 @dp.message(LinkStates.waiting_for_email)
 async def process_email(message: types.Message, state: FSMContext):
@@ -47,60 +84,43 @@ async def process_email(message: types.Message, state: FSMContext):
     user = db.query(models.User).filter(models.User.email == email).first()
     
     if not user:
-        await message.answer("The user with this email was not found. Try again:")
+        await message.answer(
+            "The user with this email was not found. Try again:",
+            reply_markup=types.ReplyKeyboardRemove()
+        )
         return
     
-    import random
-    code = str(random.randint(100000, 999999))
-    verification_codes[email] = {
-        'code': code,
-        'telegram_id': message.from_user.id,
-        'expires': datetime.now().timestamp() + 600  # 10 минут
-    }
-    
-    # Send code to email (using fastapi-mail)
-    # TODO: integrate
-    
     await state.update_data(email=email)
-    await state.set_state(LinkStates.waiting_for_confirmation_code)
+    await state.set_state(LinkStates.waiting_for_password)
     await message.answer(
-        f"The confirmation code has been sent to {email}\n"
-        "Enter the code from the email:"
+        "Enter your password:",
+        reply_markup=types.ReplyKeyboardRemove()
     )
 
-
-@dp.message(LinkStates.waiting_for_confirmation_code)
-async def process_confirmation_code(message: types.Message, state: FSMContext):
-    code = message.text.strip()
+@dp.message(LinkStates.waiting_for_password)
+async def process_password(message: types.Message, state: FSMContext):
+    password = message.text.strip()
     data = await state.get_data()
     email = data.get('email')
     
-    # if email not in verification_codes:
-    #     await message.answer("The code has expired. Start over with /link")
-    #     await state.clear()
-    #     return
-    
-    # verification_data = verification_codes[email]
-    
-    # if verification_data['code'] != code:
-    #     await message.answer("Invalid code. Try again:")
-    #     return
-    
-    # if datetime.now().timestamp() > verification_data['expires']:
-    #     await message.answer("The code has expired. Start over with /link")
-    #     del verification_codes[email]
-    #     await state.clear()
-    #     return
-    
     db = next(database.get_db())
-    user = db.query(models.User).filter(models.User.email == email).first()
+    user = auth.authenticate_user(db, email, password)
+    
+    if not user:
+        await message.answer(
+            "Invalid password. Try again:",
+            reply_markup=types.ReplyKeyboardRemove()
+        )
+        return
+    
     user.telegram_chat_id = str(message.from_user.id)
     db.commit()
     
-    del verification_codes[email]
     await state.clear()
-    await message.answer("The account has been successfully linked! You will now receive notifications.")
-
+    await message.answer(
+        "The account has been successfully linked! You will now receive notifications.",
+        reply_markup=get_main_keyboard()
+    )
 
 @dp.message(Command("current"))
 async def cmd_current(message: types.Message):
@@ -109,7 +129,10 @@ async def cmd_current(message: types.Message):
     
     user = db.query(models.User).filter(models.User.telegram_chat_id == telegram_id).first()
     if not user:
-        await message.answer("First, link the account with the /link command")
+        await message.answer(
+            "First, link the account with the /link command",
+            reply_markup=get_main_keyboard()
+        )
         return
     
     current_activity = db.query(models.Activity).filter(
@@ -118,7 +141,10 @@ async def cmd_current(message: types.Message):
     ).first()
     
     if not current_activity:
-        await message.answer("There are no active tasks with the timer running")
+        await message.answer(
+            "There are no active tasks with the timer running",
+            reply_markup=get_main_keyboard()
+        )
         return
     
     elapsed_time = 0
@@ -131,15 +157,27 @@ async def cmd_current(message: types.Message):
     await message.answer(
         f"Current activity: {current_activity.title}\n"
         f"Time: {format_time(total_time)}\n"
-        f"Timer status: ▶️ Running"
+        f"Timer status: ▶️ Running",
+        reply_markup=get_main_keyboard()
     )
+
+# Handle button clicks
+@dp.message(lambda message: message.text in ["🔗 Link Account", "⏱️ Current Activity", "❓ Help", "🏠 Start"])
+async def handle_buttons(message: types.Message, state: FSMContext):
+    if message.text == "🔗 Link Account":
+        await cmd_link(message, state)
+    elif message.text == "⏱️ Current Activity":
+        await cmd_current(message)
+    elif message.text == "❓ Help":
+        await cmd_help(message)
+    elif message.text == "🏠 Start":
+        await cmd_start(message, state)
 
 def format_time(seconds):
     hours = seconds // 3600
     minutes = (seconds % 3600) // 60
     secs = seconds % 60
     return f"{hours:02d}:{minutes:02d}:{secs:02d}"
-
 
 async def send_notification(user_id: int, message: str):
     db = next(database.get_db())
