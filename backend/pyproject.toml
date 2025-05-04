@@ -21,6 +21,7 @@ bcrypt = "^4.3.0"
 fastapi-mail = "^1.4.1"
 python-dotenv = "^1.1.0"
 aiogram = "^3.20.0.post0"
+httpx = "^0.28.1"
 
 
 [build-system]
