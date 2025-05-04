@@ -32,7 +32,7 @@ export const authApi = {
    */
   login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
     try {
-      const response = await api.post<AuthResponse>('/login', credentials);
+      const response = await api.post<AuthResponse>('/users/login', credentials);
       return response.data;
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
