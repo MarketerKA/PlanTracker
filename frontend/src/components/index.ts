@@ -10,3 +10,4 @@ export * from './AuthLayout';
 export * from './Timer';
 export * from './Todo';
 export * from './TaskStats';
+export * from './ConfirmDialog';

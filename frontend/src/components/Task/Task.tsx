@@ -1,6 +1,7 @@
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import { TaskType } from './types';
 import styles from './Task.module.scss';
+import { ConfirmDialog } from '../ConfirmDialog';
 
 export interface TaskProps {
   task: TaskType;
@@ -30,6 +31,8 @@ export const Task: FC<TaskProps> = ({
   isSelected,
   onSelect
 }) => {
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
   // Иконка статуса таймера
   const renderTimerStatus = () => {
     if (!task.timerStatus) return null;
@@ -44,64 +47,81 @@ export const Task: FC<TaskProps> = ({
     }
   };
 
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowDeleteConfirm(true);
+  };
+
   return (
-    <div 
-      className={`${styles.task} ${task.completed ? styles.completed : ''} ${isSelected ? styles.selected : ''}`}
-      onClick={onSelect}
-    >
-      <div className={styles.checkbox}>
-        <input 
-          type="checkbox" 
-          checked={task.completed} 
-          onChange={(e) => {
-            e.stopPropagation();
-            onToggleComplete(task.id);
-          }} 
-        />
-      </div>
-      <div className={styles.content}>
-        <div className={styles.header}>
-          <div className={styles.title}>
-            {task.title}
-            {renderTimerStatus()}
-          </div>
-          {task.recordedTime !== undefined && task.recordedTime > 0 && (
-            <div className={styles.recordedTime}>
-              {formatTime(task.recordedTime)}
-            </div>
-          )}
-        </div>
-        
-        {task.description && (
-          <div className={styles.description}>{task.description}</div>
-        )}
-        
-        <div className={styles.details}>
-          {task.dueDate && (
-            <div className={styles.dueDate}>
-              {new Date(task.dueDate).toLocaleDateString()}
-            </div>
-          )}
-          {task.tags.length > 0 && (
-            <div className={styles.tags}>
-              {task.tags.map(tag => (
-                <span key={tag} className={styles.tag}>
-                  {tag}
-                </span>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-      <button 
-        className={styles.deleteBtn}
-        onClick={(e) => {
-          e.stopPropagation();
-          onDelete(task.id);
-        }}
+    <>
+      <div 
+        className={`${styles.task} ${task.completed ? styles.completed : ''} ${isSelected ? styles.selected : ''}`}
+        onClick={onSelect}
       >
-        ✕
-      </button>
-    </div>
+        <div className={styles.checkbox}>
+          <input 
+            type="checkbox" 
+            checked={task.completed} 
+            onChange={(e) => {
+              e.stopPropagation();
+              onToggleComplete(task.id);
+            }} 
+          />
+        </div>
+        <div className={styles.content}>
+          <div className={styles.header}>
+            <div className={styles.title}>
+              {task.title}
+              {renderTimerStatus()}
+            </div>
+            {task.recordedTime !== undefined && task.recordedTime > 0 && (
+              <div className={styles.recordedTime}>
+                {formatTime(task.recordedTime)}
+              </div>
+            )}
+          </div>
+          
+          {task.description && (
+            <div className={styles.description}>{task.description}</div>
+          )}
+          
+          <div className={styles.details}>
+            {task.dueDate && (
+              <div className={styles.dueDate}>
+                {new Date(task.dueDate).toLocaleDateString()}
+              </div>
+            )}
+            {task.tags.length > 0 && (
+              <div className={styles.tags}>
+                {task.tags.map(tag => (
+                  <span key={tag} className={styles.tag}>
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+        <button 
+          className={styles.deleteBtn}
+          onClick={handleDeleteClick}
+        >
+          ✕
+        </button>
+      </div>
+
+      <ConfirmDialog
+        isOpen={showDeleteConfirm}
+        title="Удалить задачу?"
+        message={`Вы уверены, что хотите удалить задачу "${task.title}"? Это действие нельзя отменить.`}
+        confirmText="Удалить"
+        onConfirm={() => {
+          onDelete(task.id);
+          setShowDeleteConfirm(false);
+        }}
+        onCancel={() => setShowDeleteConfirm(false)}
+        variant="danger"
+      />
+    </>
   );
 };
