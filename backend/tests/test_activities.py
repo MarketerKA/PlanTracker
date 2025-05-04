@@ -61,7 +61,7 @@ def test_get_activities_by_tag(client, auth_headers, test_activity):
 
     # Non-existent tag
     response = client.get(
-        "/activities/?tag=nonexistenttag",
+        "/activities/?tag=randomtag",
         headers=auth_headers)
     assert response.status_code == 200
     data = response.json()
