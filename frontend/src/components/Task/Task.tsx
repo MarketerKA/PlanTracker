@@ -1,4 +1,4 @@
-import { FC, useState } from 'react';
+import { FC, useState, KeyboardEvent } from 'react';
 import { TaskType } from './types';
 import styles from './Task.module.scss';
 import { ConfirmDialog } from '../ConfirmDialog';
@@ -50,12 +50,25 @@ export const Task: FC<TaskProps> = ({
     setShowDeleteConfirm(true);
   };
 
+  const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      if (onSelect) {
+        onSelect();
+      }
+    }
+  };
+
   return (
     <>
       <div 
         className={`${styles.task} ${task.completed ? styles.completed : ''} ${isSelected ? styles.selected : ''}`}
         onClick={onSelect}
+        onKeyDown={handleKeyDown}
         role="button"
+        tabIndex={0}
+        aria-pressed={isSelected}
+        aria-label={`Task: ${task.title}${task.completed ? ', completed' : ''}`}
       >
         <div className={styles.checkbox}>
           <input 
@@ -65,6 +78,7 @@ export const Task: FC<TaskProps> = ({
               e.stopPropagation();
               onToggleComplete(task.id);
             }} 
+            aria-label={`Mark ${task.title} as ${task.completed ? 'incomplete' : 'complete'}`}
           />
         </div>
         <div className={styles.content}>
@@ -106,6 +120,7 @@ export const Task: FC<TaskProps> = ({
         <button 
           className={styles.deleteBtn}
           onClick={handleDeleteClick}
+          aria-label={`Delete task: ${task.title}`}
         >
           ✕
         </button>
