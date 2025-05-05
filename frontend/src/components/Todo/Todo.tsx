@@ -25,7 +25,17 @@ export const Todo: FC<TodoProps> = () => {
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [availableTags, setAvailableTags] = useState<TagDto[]>([]);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string>('');
   const [tagsLoading, setTagsLoading] = useState(false);
+
+  // Filtered tasks based on selected date
+  const filteredTasks = tasks.filter(task => {
+    // If no date selected, show all tasks
+    if (!selectedDate) return true;
+    
+    // Only show tasks with a due date that matches the selected date
+    return task.dueDate === selectedDate;
+  });
 
   // Selected task
   const selectedTask = tasks.find(task => task.id === selectedTaskId);
@@ -127,33 +137,76 @@ export const Todo: FC<TodoProps> = () => {
     fetchTasks(0, 15, tag || undefined);
   };
 
+  // Date selection handler for filtering
+  const handleDateSelect = (date: string) => {
+    setSelectedDate(date);
+  };
+
+  // Reset all filters
+  const handleResetFilters = () => {
+    setSelectedTag(null);
+    setSelectedDate('');
+    fetchTasks(0, 15);
+  };
+
   return (
     <div className={styles.todoWrapper}>
       {error && <div className={styles.errorMessage}>{error}</div>}
       
-      <div className={styles.tagsFilter}>
-        <h3 className={styles.filterTitle}>Filter by Tags</h3>
-        <div className={styles.tagsList}>
-          <button 
-            className={`${styles.tagButton} ${selectedTag === null ? styles.active : ''}`}
-            onClick={() => handleTagSelect(null)}
-          >
-            All Tasks
-          </button>
-          {tagsLoading ? (
-            <div className={styles.tagsSkeleton}>Loading tags...</div>
-          ) : (
-            availableTags.map(tag => (
+      <div className={styles.filters}>
+        <div className={styles.filterSection}>
+          <h3 className={styles.filterTitle}>Filter by Date</h3>
+          <div className={styles.dateFilter}>
+            <input
+              type="date"
+              value={selectedDate}
+              onChange={(e) => handleDateSelect(e.target.value)}
+              className={styles.dateInput}
+            />
+            {selectedDate && (
               <button 
-                key={tag.id}
-                className={`${styles.tagButton} ${selectedTag === tag.name ? styles.active : ''}`}
-                onClick={() => handleTagSelect(tag.name)}
+                className={styles.clearButton}
+                onClick={() => setSelectedDate('')}
               >
-                {tag.name}
+                Clear
               </button>
-            ))
-          )}
+            )}
+          </div>
         </div>
+        
+        <div className={styles.filterSection}>
+          <h3 className={styles.filterTitle}>Filter by Tags</h3>
+          <div className={styles.tagsList}>
+            <button 
+              className={`${styles.tagButton} ${selectedTag === null ? styles.active : ''}`}
+              onClick={() => handleTagSelect(null)}
+            >
+              All Tags
+            </button>
+            {tagsLoading ? (
+              <div className={styles.tagsSkeleton}>Loading tags...</div>
+            ) : (
+              availableTags.map(tag => (
+                <button 
+                  key={tag.id}
+                  className={`${styles.tagButton} ${selectedTag === tag.name ? styles.active : ''}`}
+                  onClick={() => handleTagSelect(tag.name)}
+                >
+                  {tag.name}
+                </button>
+              ))
+            )}
+          </div>
+        </div>
+        
+        {(selectedTag || selectedDate) && (
+          <button 
+            className={styles.resetButton}
+            onClick={handleResetFilters}
+          >
+            Reset All Filters
+          </button>
+        )}
       </div>
       
       <div className={styles.content}>
@@ -171,7 +224,7 @@ export const Todo: FC<TodoProps> = () => {
           <div className={styles.loading}>Loading tasks...</div>
         ) : (
           <TaskList 
-            tasks={tasks} 
+            tasks={filteredTasks} 
             onToggleComplete={handleToggleComplete} 
             onDelete={handleDeleteTask}
             itemsPerPage={5}

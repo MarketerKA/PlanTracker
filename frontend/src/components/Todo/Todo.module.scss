@@ -1,77 +1,79 @@
 .todoWrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
   width: 100%;
   max-width: 800px;
   margin: 0 auto;
 }
 
-.content {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
 .errorMessage {
-  background-color: var(--color-error-bg, #ffe5e5);
-  color: var(--color-error, #e53e3e);
-  padding: 0.75rem 1rem;
-  border-radius: 0.5rem;
-  font-size: 0.9rem;
-  font-weight: 500;
-  margin-bottom: 1rem;
-}
-
-.loading {
+  background-color: var(--color-danger-bg);
+  color: var(--color-danger);
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
   display: flex;
-  justify-content: center;
   align-items: center;
-  padding: 2rem 0;
-  color: var(--color-text-secondary);
-  font-size: 0.9rem;
+  gap: 8px;
   
-  &::after {
-    content: "";
-    width: 1rem;
-    height: 1rem;
-    margin-left: 0.5rem;
-    border: 2px solid var(--color-border);
-    border-radius: 50%;
-    border-top-color: var(--color-primary);
-    animation: spin 1s linear infinite;
+  &::before {
+    content: '⚠️';
   }
 }
 
-.tagsFilter {
+.content {
   background-color: var(--element-primary);
-  border-radius: 8px;
-  padding: 1rem;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: var(--shadow-medium);
+  margin-top: 20px;
+}
+
+.loading {
+  padding: 40px 0;
+  text-align: center;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+// Filters
+.filters {
+  background-color: var(--element-primary);
+  border-radius: 12px;
+  padding: 16px 20px;
   box-shadow: var(--shadow-small);
-  border: 1px solid var(--border-color);
+  margin-bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.filterSection {
+  &:not(:last-child) {
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border-color);
+  }
 }
 
 .filterTitle {
-  font-size: 1rem;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 500;
+  margin: 0 0 12px;
   color: var(--text-primary);
-  margin-bottom: 0.75rem;
 }
 
+// Tag filtering
 .tagsList {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 0.5rem;
+  gap: 8px;
 }
 
 .tagButton {
   background-color: var(--element-secondary);
   border: 1px solid var(--border-color);
   color: var(--text-secondary);
-  font-size: 0.85rem;
-  padding: 0.4rem 0.8rem;
-  border-radius: 1rem;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 13px;
   cursor: pointer;
   transition: all 0.2s ease;
   
@@ -81,19 +83,65 @@
   
   &.active {
     background-color: var(--accent-primary);
-    color: var(--text-on-accent);
+    color: white;
     border-color: var(--accent-primary);
   }
 }
 
 .tagsSkeleton {
-  font-size: 0.85rem;
+  padding: 8px 0;
   color: var(--text-secondary);
-  padding: 0.5rem 0;
+  font-style: italic;
+  font-size: 14px;
 }
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
+// Date filtering
+.dateFilter {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dateInput {
+  padding: 8px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 14px;
+  background-color: var(--element-secondary);
+  color: var(--text-primary);
+  
+  &:focus {
+    border-color: var(--accent-primary);
+    outline: none;
+  }
+}
+
+.clearButton {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 4px 8px;
+  
+  &:hover {
+    color: var(--accent-primary);
+    text-decoration: underline;
+  }
+}
+
+.resetButton {
+  align-self: flex-start;
+  background-color: var(--element-secondary);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  
+  &:hover {
+    background-color: var(--element-hover);
+    color: var(--accent-primary);
   }
 } 
