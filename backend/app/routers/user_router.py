@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from email_validator import validate_email, EmailNotValidError
 import logging
+from typing import Optional
 from .. import schemas, models, auth
 from sqlalchemy.orm import Session
 from ..database import get_db
@@ -94,7 +95,7 @@ async def login_json(login_data: schemas.UserCreate, db: Session = Depends(get_d
 
 @user_router.get("/me", response_model=schemas.User)
 async def read_users_me(
-    current_user: models.User = Depends(auth.get_current_active_user),
+    current_user: Optional[models.User] = Depends(auth.get_current_user_dependency),
 ):
     logger.info(f"Profile accessed by user: {current_user.email}")
     return current_user
@@ -102,7 +103,7 @@ async def read_users_me(
 
 @user_router.get("/me/telegram-status")
 async def get_telegram_status(
-    current_user: models.User = Depends(auth.get_current_active_user),
+    current_user: Optional[models.User] = Depends(auth.get_current_user_dependency),
 ):
     return {
         "is_linked": bool(current_user.telegram_chat_id),
@@ -112,7 +113,7 @@ async def get_telegram_status(
 
 @user_router.delete("/me/telegram", response_model=dict)
 async def unlink_telegram(
-    current_user: models.User = Depends(auth.get_current_active_user),
+    current_user: Optional[models.User] = Depends(auth.get_current_user_dependency),
     db: Session = Depends(get_db)
 ):
     if not current_user.telegram_chat_id:

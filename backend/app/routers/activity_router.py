@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from typing import List, Optional
-from datetime import datetime
+from datetime import datetime, timezone
 from sqlalchemy.orm import Session
 from .. import models, schemas, auth
 from ..database import get_db
@@ -22,7 +22,16 @@ activity_router = APIRouter(prefix="/activities", tags=["activities"])
 def calculate_elapsed_time(activity):
     if activity.timer_status == "running" and activity.last_timer_start:
         # Calculate time since timer was started
-        elapsed = datetime.now() - activity.last_timer_start
+        now = datetime.now(timezone.utc)
+        
+        # Convert last_timer_start to timezone-aware if it's naive
+        if activity.last_timer_start.tzinfo is None:
+            # Assume the naive datetime is in UTC
+            last_start = activity.last_timer_start.replace(tzinfo=timezone.utc)
+        else:
+            last_start = activity.last_timer_start
+            
+        elapsed = now - last_start
         # Convert to seconds
         return int(elapsed.total_seconds())
     return 0
@@ -35,7 +44,7 @@ def calculate_elapsed_time(activity):
 def create_activity(
     activity: schemas.ActivityCreate,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth.get_current_active_user),
+    current_user: Optional[models.User] = Depends(auth.get_current_user_dependency),
 ):
     # Get tags from activity data
     tag_names = activity.tags
@@ -76,7 +85,7 @@ def read_activities(
     limit: int = 15,
     tag: Optional[str] = None,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth.get_current_active_user),
+    current_user: Optional[models.User] = Depends(auth.get_current_user_dependency),
 ):
     # Base query for user's activities
     query = db.query(models.Activity).filter(models.Activity.user_id == current_user.id)
@@ -109,7 +118,7 @@ def read_activities(
 def read_activity(
     activity_id: int,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth.get_current_active_user),
+    current_user: Optional[models.User] = Depends(auth.get_current_user_dependency),
 ):
     # Get activity
     db_activity = (
@@ -131,7 +140,7 @@ def read_activity(
     if db_activity.timer_status == "running" and db_activity.last_timer_start:
         elapsed = calculate_elapsed_time(db_activity)
         db_activity.recorded_time += elapsed
-        db_activity.last_timer_start = datetime.now()
+        db_activity.last_timer_start = datetime.now(timezone.utc)
         db.commit()
 
     logger.info(f"Activity {activity_id} retrieved by user: {current_user.email}")
@@ -143,7 +152,7 @@ def update_activity(
     activity_id: int,
     activity: schemas.ActivityUpdate,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth.get_current_active_user),
+    current_user: Optional[models.User] = Depends(auth.get_current_user_dependency),
 ):
     db_activity = (
         db.query(models.Activity)
@@ -194,7 +203,7 @@ def update_activity(
 def delete_activity(
     activity_id: int,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth.get_current_active_user),
+    current_user: Optional[models.User] = Depends(auth.get_current_user_dependency),
 ):
     db_activity = (
         db.query(models.Activity)
@@ -295,7 +304,7 @@ async def activity_timer(
     activity_id: int,
     timer_action: schemas.TimerAction,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth.get_current_active_user),
+    current_user: Optional[models.User] = Depends(auth.get_current_user_dependency),
 ):
     # Get activity
     db_activity = (
@@ -315,7 +324,7 @@ async def activity_timer(
         raise HTTPException(status_code=404, detail=ACTIVITY_NOT_FOUND)
 
     action = timer_action.action.lower()
-    current_time = datetime.now()
+    current_time = datetime.now(timezone.utc)
 
     # Handle timer actions using action handlers
     action_handlers = {

@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from typing import List
+from typing import List, Optional
 from sqlalchemy.orm import Session
 from .. import models, schemas, auth
 from ..database import get_db
@@ -18,7 +18,7 @@ tag_router = APIRouter(prefix="/tags", tags=["tags"])
 def create_tag(
     tag: schemas.TagCreate,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth.get_current_active_user),
+    current_user: Optional[models.User] = Depends(auth.get_current_user_dependency),
 ):
     db_tag = models.Tag(**tag.dict())
     db.add(db_tag)
@@ -33,8 +33,8 @@ def read_tags(
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth.get_current_active_user),
-):
+    current_user: Optional[models.User] = Depends(auth.get_current_user_dependency),
+):    
     tags = db.query(models.Tag).offset(skip).limit(limit).all()
     logger.info(f"Tags retrieved for user: {current_user.email}, count: {len(tags)}")
     return tags

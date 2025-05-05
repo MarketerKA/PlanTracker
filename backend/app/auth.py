@@ -85,3 +85,12 @@ async def get_current_active_user(
             status_code=status.HTTP_403_FORBIDDEN, detail="Inactive user"
         )
     return current_user
+
+
+# Function to use as dependency that accepts None as default
+def get_current_user_dependency(current_user=Depends(get_current_active_user)):
+    """
+    Dependency that safely gets the current user
+    This should be used in place of directly depending on get_current_active_user
+    """
+    return current_user
