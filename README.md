@@ -1,4 +1,4 @@
- # PlanTracker
+ # PlanTracker - https://marketerka.github.io/PlanTracker/
 
 A full-stack application for tracking and managing tasks and activities.
 
