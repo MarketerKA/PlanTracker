@@ -23,14 +23,14 @@ def calculate_elapsed_time(activity):
     if activity.timer_status == "running" and activity.last_timer_start:
         # Calculate time since timer was started
         now = datetime.now(timezone.utc)
-        
+
         # Convert last_timer_start to timezone-aware if it's naive
         if activity.last_timer_start.tzinfo is None:
             # Assume the naive datetime is in UTC
             last_start = activity.last_timer_start.replace(tzinfo=timezone.utc)
         else:
             last_start = activity.last_timer_start
-            
+
         elapsed = now - last_start
         # Convert to seconds
         return int(elapsed.total_seconds())

@@ -45,7 +45,7 @@ def test_load_multiple_activities(client, auth_headers):
     """Test loading multiple activities"""
     # Create 5 activities with different titles
     activity_titles = [f"Activity {i}" for i in range(1, 6)]
-    
+
     for title in activity_titles:
         activity_data = {
             "title": title,
@@ -53,27 +53,27 @@ def test_load_multiple_activities(client, auth_headers):
             "tags": ["test"],
         }
         client.post("/activities/", json=activity_data, headers=auth_headers)
-    
+
     # Get all activities
     response = client.get("/activities/", headers=auth_headers)
-    
+
     assert response.status_code == 200
     data = response.json()
     assert isinstance(data, list)
     assert len(data) >= 5  # There might be more if other tests created activities
-    
+
     # Check that all our created activities are present in the response
     returned_titles = [activity["title"] for activity in data]
     for title in activity_titles:
         assert title in returned_titles
-    
+
     # Test pagination - get first 3 activities
     response = client.get("/activities/?limit=3", headers=auth_headers)
     assert response.status_code == 200
     data = response.json()
     assert isinstance(data, list)
     assert len(data) == 3
-    
+
     # Test pagination - get remaining activities
     response = client.get("/activities/?skip=3", headers=auth_headers)
     assert response.status_code == 200

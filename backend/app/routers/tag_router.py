@@ -34,7 +34,7 @@ def read_tags(
     limit: int = 100,
     db: Session = Depends(get_db),
     current_user: Optional[models.User] = Depends(auth.get_current_user_dependency),
-):    
+):
     tags = db.query(models.Tag).offset(skip).limit(limit).all()
     logger.info(f"Tags retrieved for user: {current_user.email}, count: {len(tags)}")
     return tags

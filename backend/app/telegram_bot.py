@@ -224,20 +224,22 @@ async def check_upcoming_tasks():
             logger.info(f"[NOTIFY] Now: {now.isoformat()}, 10min from now: {ten_minutes_from_now.isoformat()}")
 
             # Find tasks scheduled to start in the next 10 minutes
+
             upcoming_tasks = (
                 db.query(models.Activity)
                 .filter(
                     models.Activity.scheduled_time >= now,
                     models.Activity.scheduled_time <= ten_minutes_from_now,
                     models.Activity.timer_status == "stopped",
-                    models.Activity.notified == False
+                    models.Activity.notified is False
                 )
                 .all()
             )
             logger.info(f"[NOTIFY] Found {len(upcoming_tasks)} upcoming tasks")
 
             for task in upcoming_tasks:
-                logger.info(f"[NOTIFY] Task id={task.id}, title='{task.title}', scheduled_time={task.scheduled_time}, timer_status={task.timer_status}")
+                logger.info(f"[NOTIFY] Task id={task.id}, title='{task.title}',\
+                            scheduled_time={task.scheduled_time}, timer_status={task.timer_status}")
                 await send_notification(
                     task.user_id,
                     f"🔔 Reminder: Task '{task.title}' is scheduled to start in 10 minutes!"

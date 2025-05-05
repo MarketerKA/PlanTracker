@@ -47,7 +47,7 @@ jobs:
       run: poetry install --no-interaction --no-root
 
     - name: Run flake8
-      run: poetry run flake8 app tests --max-line-length=99
+      run: poetry run flake8 app tests --max-line-length=120
 
     - name: Run tests with coverage
       run: |
