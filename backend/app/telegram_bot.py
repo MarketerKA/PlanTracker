@@ -4,7 +4,7 @@ from aiogram.filters import Command
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import os
 import asyncio
 from . import models, database, auth
@@ -165,7 +165,7 @@ async def cmd_current(message: types.Message):
 
     elapsed_time = 0
     if current_activity.last_timer_start:
-        elapsed = datetime.utcnow() - current_activity.last_timer_start
+        elapsed = datetime.now(timezone.utc) - current_activity.last_timer_start
         elapsed_time = int(elapsed.total_seconds())
 
     total_time = current_activity.recorded_time + elapsed_time
@@ -219,7 +219,7 @@ async def check_upcoming_tasks():
     while True:
         try:
             db = next(database.get_db())
-            now = datetime.utcnow()
+            now = datetime.now(timezone.utc)
             ten_minutes_from_now = now + timedelta(minutes=10)
             logger.info(f"[NOTIFY] Now: {now.isoformat()}, 10min from now: {ten_minutes_from_now.isoformat()}")
 

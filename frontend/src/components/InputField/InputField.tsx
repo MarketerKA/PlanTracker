@@ -49,6 +49,7 @@ export const InputField: FC<InputFieldProps> = ({
           <div 
             className={styles.iconRight} 
             onClick={onRightIconClick}
+            role="button"
           >
             {rightIcon}
           </div>

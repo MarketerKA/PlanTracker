@@ -1,52 +1,52 @@
-import { FC, useState, FormEvent } from 'react';
-import styles from './TaskForm.module.scss';
-import { TaskType } from '../Task/types';
+import { FC, useState, FormEvent } from "react";
+import styles from "./TaskForm.module.scss";
+import { TaskType } from "../Task/types";
 
 export interface TaskFormProps {
-  onAddTask: (task: Omit<TaskType, 'id'>) => void;
+  onAddTask: (task: Omit<TaskType, "id">) => void;
 }
 
 export const TaskForm: FC<TaskFormProps> = ({ onAddTask }) => {
-  const [title, setTitle] = useState('');
-  const [dueDate, setDueDate] = useState('');
+  const [title, setTitle] = useState("");
+  const [dueDate, setDueDate] = useState("");
   const [tags, setTags] = useState<string[]>([]);
-  const [newTag, setNewTag] = useState('');
+  const [newTag, setNewTag] = useState("");
   const [isExpanded, setIsExpanded] = useState(false);
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    
+
     if (!title.trim()) return;
-    
+
     // Due date should be required, so don't submit if not provided
     if (!dueDate) return;
-    
-    const newTask: Omit<TaskType, 'id'> = {
+
+    const newTask: Omit<TaskType, "id"> = {
       title: title.trim(),
       completed: false,
       tags,
-      dueDate
+      dueDate,
     };
-    
+
     onAddTask(newTask);
-    
+
     // Reset form
-    setTitle('');
-    setDueDate('');
+    setTitle("");
+    setDueDate("");
     setTags([]);
-    setNewTag('');
+    setNewTag("");
     setIsExpanded(false);
   };
 
   const handleAddTag = () => {
     if (newTag.trim() && !tags.includes(newTag.trim())) {
       setTags([...tags, newTag.trim()]);
-      setNewTag('');
+      setNewTag("");
     }
   };
 
   const handleRemoveTag = (tagToRemove: string) => {
-    setTags(tags.filter(tag => tag !== tagToRemove));
+    setTags(tags.filter((tag) => tag !== tagToRemove));
   };
 
   return (
@@ -62,24 +62,28 @@ export const TaskForm: FC<TaskFormProps> = ({ onAddTask }) => {
           required
         />
       </div>
-      
+
       {isExpanded && (
         <>
           <div className={styles.formRow}>
             <div className={styles.inputGroup}>
-              <label className={styles.label}>Due Date (required)</label>
-              <input
-                type="datetime-local"
-                value={dueDate}
-                min={new Date().toISOString().slice(0, 16)}
-                onChange={(e) => setDueDate(e.target.value)}
-                className={styles.input}
-                required
-              />
+              <label className={styles.label}>
+                Due Date (required)
+                <input
+                  type="datetime-local"
+                  value={dueDate}
+                  min={new Date().toISOString().slice(0, 16)}
+                  onChange={(e) => setDueDate(e.target.value)}
+                  className={styles.input}
+                  required
+                />
+              </label>
             </div>
-            
+
             <div className={styles.inputGroup}>
-              <label className={styles.label} htmlFor="tag-input">Tags</label>
+              <label className={styles.label} htmlFor="tag-input">
+                Tags
+              </label>
               <div className={styles.tagInput}>
                 <input
                   id="tag-input"
@@ -89,7 +93,7 @@ export const TaskForm: FC<TaskFormProps> = ({ onAddTask }) => {
                   onChange={(e) => setNewTag(e.target.value)}
                   className={styles.input}
                   onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
+                    if (e.key === "Enter") {
                       e.preventDefault();
                       handleAddTag();
                     }
@@ -122,7 +126,7 @@ export const TaskForm: FC<TaskFormProps> = ({ onAddTask }) => {
               )}
             </div>
           </div>
-          
+
           <div className={styles.formActions}>
             <button type="submit" className={styles.submitButton}>
               Add Task

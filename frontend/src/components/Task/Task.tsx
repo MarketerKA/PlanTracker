@@ -55,6 +55,7 @@ export const Task: FC<TaskProps> = ({
       <div 
         className={`${styles.task} ${task.completed ? styles.completed : ''} ${isSelected ? styles.selected : ''}`}
         onClick={onSelect}
+        role="button"
       >
         <div className={styles.checkbox}>
           <input 

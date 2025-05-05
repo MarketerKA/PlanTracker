@@ -7,7 +7,7 @@ const mapActivityToTask = (activity: ActivityDto): TaskType => {
   // Extract the due date from the description field if it exists
   let dueDate: string | undefined;
   
-  if (activity.description && activity.description.startsWith("DUE_DATE:")) {
+  if (activity.description?.startsWith("DUE_DATE:")) {
     dueDate = activity.description.split("DUE_DATE:")[1].trim();
     // Convert to datetime-local format (YYYY-MM-DDThh:mm)
     if (dueDate) {

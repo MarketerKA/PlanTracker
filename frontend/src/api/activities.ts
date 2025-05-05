@@ -55,7 +55,7 @@ apiClient.interceptors.response.use(
         message: error.message,
       });
     }
-    return Promise.reject(error);
+    return Promise.reject(new Error(error.message));
   }
 );
 
