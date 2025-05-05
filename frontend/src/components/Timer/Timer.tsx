@@ -46,13 +46,13 @@ export const Timer: FC<TimerProps> = ({ isRunning, onStart, onPause, onStop, sel
         <>
             <div className={styles.timer}>
                 <div className={styles.taskTitle}>
-                    {selectedTaskTitle ? `${selectedTaskTitle}` : 'Select a task to track'}
+                    {selectedTaskTitle ? selectedTaskTitle : 'Select a task to track'}
                 </div>
                 <div className={styles.display}>{formatTime(time)}</div>
                 <div className={styles.controls}>
-                    <button onClick={onStart} disabled={isRunning}>Start</button>
+                    <button onClick={onStart} disabled={isRunning || !selectedTaskTitle}>Start</button>
                     <button onClick={onPause} disabled={!isRunning}>Pause</button>
-                    <button onClick={handleStopClick}>Stop</button>
+                    <button onClick={handleStopClick} disabled={!selectedTaskTitle}>Stop</button>
                 </div>
             </div>
 

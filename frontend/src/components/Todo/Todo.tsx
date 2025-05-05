@@ -153,62 +153,6 @@ export const Todo: FC<TodoProps> = () => {
     <div className={styles.todoWrapper}>
       {error && <div className={styles.errorMessage}>{error}</div>}
       
-      <div className={styles.filters}>
-        <div className={styles.filterSection}>
-          <h3 className={styles.filterTitle}>Filter by Date</h3>
-          <div className={styles.dateFilter}>
-            <input
-              type="date"
-              value={selectedDate}
-              onChange={(e) => handleDateSelect(e.target.value)}
-              className={styles.dateInput}
-            />
-            {selectedDate && (
-              <button 
-                className={styles.clearButton}
-                onClick={() => setSelectedDate('')}
-              >
-                Clear
-              </button>
-            )}
-          </div>
-        </div>
-        
-        <div className={styles.filterSection}>
-          <h3 className={styles.filterTitle}>Filter by Tags</h3>
-          <div className={styles.tagsList}>
-            <button 
-              className={`${styles.tagButton} ${selectedTag === null ? styles.active : ''}`}
-              onClick={() => handleTagSelect(null)}
-            >
-              All Tags
-            </button>
-            {tagsLoading ? (
-              <div className={styles.tagsSkeleton}>Loading tags...</div>
-            ) : (
-              availableTags.map(tag => (
-                <button 
-                  key={tag.id}
-                  className={`${styles.tagButton} ${selectedTag === tag.name ? styles.active : ''}`}
-                  onClick={() => handleTagSelect(tag.name)}
-                >
-                  {tag.name}
-                </button>
-              ))
-            )}
-          </div>
-        </div>
-        
-        {(selectedTag || selectedDate) && (
-          <button 
-            className={styles.resetButton}
-            onClick={handleResetFilters}
-          >
-            Reset All Filters
-          </button>
-        )}
-      </div>
-      
       <div className={styles.content}>
         <Timer 
           isRunning={isTimerRunning} 
@@ -219,6 +163,64 @@ export const Todo: FC<TodoProps> = () => {
         />
         
         <TaskForm onAddTask={handleAddTask} />
+        
+        <div className={styles.filters}>
+          <div className={styles.filterRow}>
+            <div className={styles.filterSection}>
+              <label className={styles.filterLabel}>Date:</label>
+              <div className={styles.dateFilter}>
+                <input
+                  type="date"
+                  value={selectedDate}
+                  onChange={(e) => handleDateSelect(e.target.value)}
+                  className={styles.dateInput}
+                />
+                {selectedDate && (
+                  <button 
+                    className={styles.clearButton}
+                    onClick={() => setSelectedDate('')}
+                  >
+                    ×
+                  </button>
+                )}
+              </div>
+            </div>
+            
+            <div className={styles.filterSection}>
+              <label className={styles.filterLabel}>Tags:</label>
+              <div className={styles.tagsList}>
+                <button 
+                  className={`${styles.tagButton} ${selectedTag === null ? styles.active : ''}`}
+                  onClick={() => handleTagSelect(null)}
+                >
+                  All
+                </button>
+                {tagsLoading ? (
+                  <span className={styles.tagsSkeleton}>Loading...</span>
+                ) : (
+                  availableTags.map(tag => (
+                    <button 
+                      key={tag.id}
+                      className={`${styles.tagButton} ${selectedTag === tag.name ? styles.active : ''}`}
+                      onClick={() => handleTagSelect(tag.name)}
+                    >
+                      {tag.name}
+                    </button>
+                  ))
+                )}
+              </div>
+            </div>
+            
+            {(selectedTag || selectedDate) && (
+              <button 
+                className={styles.resetButton}
+                onClick={handleResetFilters}
+              >
+                Reset
+              </button>
+            )}
+          </div>
+        </div>
         
         {loading ? (
           <div className={styles.loading}>Loading tasks...</div>
