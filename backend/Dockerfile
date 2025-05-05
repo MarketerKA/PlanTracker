@@ -11,8 +11,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Install poetry
 RUN pip install --no-cache-dir poetry==1.7.1
 
-# Copy poetry configuration files
-COPY pyproject.toml poetry.lock* ./
+# Create non-root user
+RUN groupadd -r appuser && useradd -r -g appuser appuser
+
+# Copy only poetry configuration files
+COPY pyproject.toml poetry.lock ./
 
 # Configure poetry to not create a virtual environment
 RUN poetry config virtualenvs.create false
@@ -20,8 +23,17 @@ RUN poetry config virtualenvs.create false
 # Install dependencies
 RUN poetry install --no-root --no-dev
 
-# Copy application code
-COPY . .
+# Copy application code (more specific than ". .")
+COPY app/ ./app/
+COPY alembic/ ./alembic/
+COPY alembic.ini ./ 
+COPY migrations/ ./migrations/
+
+# Set ownership to non-root user
+RUN chown -R appuser:appuser /app
+
+# Switch to non-root user
+USER appuser
 
 # Expose port for the application
 EXPOSE 8000
