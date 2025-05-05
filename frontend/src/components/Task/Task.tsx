@@ -82,7 +82,13 @@ export const Task: FC<TaskProps> = ({
           <div className={styles.details}>
             {task.dueDate && (
               <div className={styles.dueDate}>
-                {new Date(task.dueDate).toLocaleDateString()}
+                {new Date(task.dueDate).toLocaleString(undefined, {
+                  year: 'numeric',
+                  month: 'short',
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })}
               </div>
             )}
             {task.tags.length > 0 && (

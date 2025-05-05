@@ -65,6 +65,7 @@ export interface ActivityCreateDto {
   description?: string;
   due_date?: string;
   tags: string[];
+  scheduled_time?: string;
 }
 
 // Interface for retrieving activity
@@ -93,6 +94,7 @@ export interface ActivityUpdateDto {
   duration?: number;
   recorded_time?: number;
   timer_status?: string;
+  scheduled_time?: string;
 }
 
 // Interface for timer management

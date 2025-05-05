@@ -47,6 +47,9 @@ class Activity(Base):
     last_timer_start = Column(
         DateTime(timezone=True), nullable=True
     )  # When timer was last started
+    scheduled_time = Column(DateTime(timezone=True), nullable=True)  # When the task is scheduled for
+
+    notified = Column(Boolean, default=False)  # Whether notification was sent
 
     user_id = Column(Integer, ForeignKey("users.id"))
     user = relationship("User", back_populates="activities")

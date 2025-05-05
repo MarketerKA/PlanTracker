@@ -40,17 +40,28 @@ class ActivityBase(BaseModel):
 
 
 class ActivityCreate(ActivityBase):
-    pass
+    title: str
+    description: Optional[str] = None
+    duration: Optional[int] = None
+    scheduled_time: Optional[datetime] = None
+    tags: List[str] = []
+
+    class Config:
+        from_attributes = True
 
 
 # Activity update schema
 
 
 class ActivityUpdate(ActivityBase):
-    end_time: Optional[datetime] = None
+    title: Optional[str] = None
+    description: Optional[str] = None
     duration: Optional[int] = None
-    recorded_time: Optional[int] = None
-    timer_status: Optional[str] = None
+    scheduled_time: Optional[datetime] = None
+    tags: Optional[List[str]] = None
+
+    class Config:
+        from_attributes = True
 
 
 # Timer action schema

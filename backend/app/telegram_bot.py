@@ -4,8 +4,9 @@ from aiogram.filters import Command
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
+import asyncio
 from . import models, database, auth
 
 logging.basicConfig(level=logging.INFO)
@@ -164,7 +165,7 @@ async def cmd_current(message: types.Message):
 
     elapsed_time = 0
     if current_activity.last_timer_start:
-        elapsed = datetime.now() - current_activity.last_timer_start
+        elapsed = datetime.utcnow() - current_activity.last_timer_start
         elapsed_time = int(elapsed.total_seconds())
 
     total_time = current_activity.recorded_time + elapsed_time
@@ -213,8 +214,49 @@ async def send_notification(user_id: int, message: str):
             logger.error(f"Failed to send notification to user {user_id}: {e}")
 
 
+async def check_upcoming_tasks():
+    """Check for tasks that are scheduled to start in 10 minutes and send notifications."""
+    while True:
+        try:
+            db = next(database.get_db())
+            now = datetime.utcnow()
+            ten_minutes_from_now = now + timedelta(minutes=10)
+            logger.info(f"[NOTIFY] Now: {now.isoformat()}, 10min from now: {ten_minutes_from_now.isoformat()}")
+
+            # Find tasks scheduled to start in the next 10 minutes
+            upcoming_tasks = (
+                db.query(models.Activity)
+                .filter(
+                    models.Activity.scheduled_time >= now,
+                    models.Activity.scheduled_time <= ten_minutes_from_now,
+                    models.Activity.timer_status == "stopped",
+                    models.Activity.notified == False
+                )
+                .all()
+            )
+            logger.info(f"[NOTIFY] Found {len(upcoming_tasks)} upcoming tasks")
+
+            for task in upcoming_tasks:
+                logger.info(f"[NOTIFY] Task id={task.id}, title='{task.title}', scheduled_time={task.scheduled_time}, timer_status={task.timer_status}")
+                await send_notification(
+                    task.user_id,
+                    f"🔔 Reminder: Task '{task.title}' is scheduled to start in 10 minutes!"
+                )
+                task.notified = True  # Mark that we've sent the notification
+                db.commit()
+
+            # Sleep for 1 minute before checking again
+            await asyncio.sleep(60)
+
+        except Exception as e:
+            logger.error(f"Error in check_upcoming_tasks: {e}")
+            await asyncio.sleep(60)  # Sleep for 1 minute before retrying
+
+
 async def start_bot():
     logger.info("Starting telegram bot...")
+    # Start the background task for checking upcoming tasks
+    asyncio.create_task(check_upcoming_tasks())
     await dp.start_polling(bot)
 
 

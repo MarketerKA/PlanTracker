@@ -9,11 +9,14 @@ const mapActivityToTask = (activity: ActivityDto): TaskType => {
   
   if (activity.description && activity.description.startsWith("DUE_DATE:")) {
     dueDate = activity.description.split("DUE_DATE:")[1].trim();
-    console.log("Extracted due date from description:", dueDate);
+    // Convert to datetime-local format (YYYY-MM-DDThh:mm)
+    if (dueDate) {
+      const date = new Date(dueDate);
+      dueDate = date.toISOString().slice(0, 16);
+    }
   } else {
-    // Fallback to the current date
-    dueDate = new Date().toISOString().split('T')[0];
-    console.log("No due date found in description, using today:", dueDate);
+    // Fallback to the current date and time
+    dueDate = new Date().toISOString().slice(0, 16);
   }
 
   // Log for debugging
@@ -33,51 +36,46 @@ const mapActivityToTask = (activity: ActivityDto): TaskType => {
 
 // Converting TaskType to ActivityCreateDto
 const mapTaskToActivityCreate = (task: Omit<TaskType, 'id'>): ActivityCreateDto => {
-  // Store the due date in the description field with a special prefix
-  // since the backend doesn't have a dedicated due_date field
   const dueDatePrefix = "DUE_DATE:";
-  const dueDate = task.dueDate || new Date().toISOString().split('T')[0];
-  
+  const dueDate = task.dueDate || new Date().toISOString().slice(0, 16);
+
+  // scheduled_time в формате ISO (UTC)
+  const scheduled_time = task.dueDate ? new Date(task.dueDate).toISOString() : undefined;
+
   return {
     title: task.title,
     description: `${dueDatePrefix}${dueDate}`,
     tags: task.tags || [],
+    scheduled_time,
   };
 };
 
 // Converting TaskType to ActivityUpdateDto
 const mapTaskToActivityUpdate = (task: Partial<TaskType>, originalTask?: TaskType): ActivityUpdateDto => {
-  // The task can be partial (only changeable fields),
-  // so we need the original task object to get the missing data
   const updateDto: ActivityUpdateDto = {
-    // Required field title must always be present
     title: task.title ?? originalTask?.title ?? ""
   };
-  
-  // Add remaining fields if they exist
+
   if (task.tags !== undefined) updateDto.tags = task.tags;
-  
-  // Handling due date - store in description field with prefix
+
   if (task.dueDate !== undefined) {
     const dueDatePrefix = "DUE_DATE:";
     updateDto.description = `${dueDatePrefix}${task.dueDate}`;
+    // scheduled_time в формате ISO (UTC)
+    updateDto.scheduled_time = task.dueDate ? new Date(task.dueDate).toISOString() : undefined;
   }
-  
-  // Processing completion status
+
   if (task.completed !== undefined) {
     if (task.completed) {
-      // For completed task, set current date in ISO format
       updateDto.end_time = new Date().toISOString();
     } else {
-      // For incomplete task, set null
       updateDto.end_time = null;
     }
   }
-  
-  // Adding other fields if they exist
+
   if (task.recordedTime !== undefined) updateDto.recorded_time = task.recordedTime;
   if (task.timerStatus !== undefined) updateDto.timer_status = task.timerStatus;
-  
+
   return updateDto;
 };
 
