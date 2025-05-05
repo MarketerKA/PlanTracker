@@ -3,7 +3,8 @@ import styles from './Tasks.module.scss';
 import { Header, Todo, TaskStats } from '../../components';
 import { useActivities } from '../../hooks/useActivities';
 
-export interface TasksProps {}
+// Using Record<string, never> instead of empty interface
+type TasksProps = Record<string, never>;
 
 export const Tasks: FC<TasksProps> = () => {
   const { tasks, loading } = useActivities();

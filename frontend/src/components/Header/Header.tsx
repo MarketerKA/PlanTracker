@@ -7,12 +7,12 @@ import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { logout } from '../../redux/auth';
 import { RootState } from '../../redux/store';
 
-export interface HeaderProps {}
+// Using Record<string, never> instead of empty interface
+type HeaderProps = Record<string, never>;
 
 export const Header: FC<HeaderProps> = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  // @ts-ignore
   const { user, isAuthenticated } = useAppSelector((state: RootState) => state.auth);
 
   const handleLoginClick = () => {

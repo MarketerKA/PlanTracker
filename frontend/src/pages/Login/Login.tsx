@@ -14,7 +14,8 @@ import { ROUTES } from '../../routes';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { login, clearError } from '../../redux/auth';
 
-export interface LoginProps {}
+// Using Record<string, never> instead of empty interface
+type LoginProps = Record<string, never>;
 
 export const Login: FC<LoginProps> = () => {
   const navigate = useNavigate();

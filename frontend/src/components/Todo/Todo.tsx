@@ -5,7 +5,8 @@ import { useActivities } from '../../hooks/useActivities';
 import { TaskType } from '../Task/types';
 import { tagsApi, TagDto } from '../../api/tags';
 
-export interface TodoProps {}
+// Using Record<string, never> instead of empty interface
+type TodoProps = Record<string, never>;
 
 export const Todo: FC<TodoProps> = () => {
   const { 

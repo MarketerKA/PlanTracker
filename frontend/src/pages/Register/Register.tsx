@@ -14,7 +14,8 @@ import { ROUTES } from '../../routes';
 import { useAppDispatch, useAppSelector } from '../../redux/hooks';
 import { register, clearError } from '../../redux/auth';
 
-export interface RegisterProps {}
+// Using Record<string, never> instead of empty interface
+type RegisterProps = Record<string, never>;
 
 export const Register: FC<RegisterProps> = () => {
   const navigate = useNavigate();

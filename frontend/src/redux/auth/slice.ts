@@ -5,8 +5,7 @@ import {
   AuthState, 
   LoginCredentials, 
   RegisterCredentials, 
-  User, 
-  AuthResponse 
+  User
 } from './types';
 
 // Initial state
