@@ -8,6 +8,9 @@ import logging
 from ..telegram_bot import send_notification, format_time
 
 
+ACTIVITY_NOT_FOUND = "Activity not found"
+
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -117,7 +120,7 @@ def read_activity(
     if not db_activity:
         logger.warning(
             f"Activity {activity_id} not found for user {current_user.email}")
-        raise HTTPException(status_code=404, detail="Activity not found")
+        raise HTTPException(status_code=404, detail=ACTIVITY_NOT_FOUND)
 
     # Update recorded time if timer is running
     if db_activity.timer_status == "running" and db_activity.last_timer_start:
@@ -146,7 +149,7 @@ def update_activity(
         logger.warning(
             f"Activity update failed: Activity {activity_id} not found for "
             f"user {current_user.email}")
-        raise HTTPException(status_code=404, detail="Activity not found")
+        raise HTTPException(status_code=404, detail=ACTIVITY_NOT_FOUND)
 
     # Update activity with provided data
     update_data = activity.dict(exclude_unset=True)
@@ -195,7 +198,7 @@ def delete_activity(
         logger.warning(
             f"Activity deletion failed: Activity {activity_id} not found for "
             f"user {current_user.email}")
-        raise HTTPException(status_code=404, detail="Activity not found")
+        raise HTTPException(status_code=404, detail=ACTIVITY_NOT_FOUND)
 
     db.delete(db_activity)
     db.commit()
@@ -223,7 +226,7 @@ async def activity_timer(
         logger.warning(
             f"Timer action failed: Activity {activity_id} not found for "
             f"user {current_user.email}")
-        raise HTTPException(status_code=404, detail="Activity not found")
+        raise HTTPException(status_code=404, detail=ACTIVITY_NOT_FOUND)
 
     action = timer_action.action.lower()
     current_time = datetime.now()

@@ -127,6 +127,7 @@ async def get_telegram_status(
 
 
 @user_router.delete("/me/telegram")
+# noinspection PyDefaultArgument
 async def unlink_telegram(
         current_user: models.User = Depends(
             auth.get_current_active_user),

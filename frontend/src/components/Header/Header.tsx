@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import { useNavigate, NavLink, useLocation } from 'react-router-dom';
+import { useNavigate, NavLink } from 'react-router-dom';
 import styles from './Header.module.scss';
 import { Button } from '../Button';
 import { ROUTES } from '../../routes';
@@ -11,7 +11,6 @@ export interface HeaderProps {}
 
 export const Header: FC<HeaderProps> = () => {
   const navigate = useNavigate();
-  const location = useLocation();
   const dispatch = useAppDispatch();
   // @ts-ignore
   const { user, isAuthenticated } = useAppSelector((state: RootState) => state.auth);

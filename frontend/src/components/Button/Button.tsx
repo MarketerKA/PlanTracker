@@ -13,7 +13,7 @@ export const Button: FC<ButtonProps> = ({
 }) => {
   return (
     <button 
-      className={`${styles.button} ${styles[variant]} ${className || ''}`} 
+      className={`${styles.button} ${styles[variant]} ${className ?? ''}`} 
       {...props}
     >
       {children}
