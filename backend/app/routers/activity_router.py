@@ -208,6 +208,74 @@ def delete_activity(
 
 # Timer functionality endpoints
 
+async def handle_timer_start(activity, current_time, user):
+    """Handle timer start action."""
+    if activity.timer_status == "running":
+        logger.info(f"Timer already running for activity {activity.id}")
+        return False
+    
+    activity.timer_status = "running"
+    activity.last_timer_start = current_time
+    
+    if user.telegram_chat_id:
+        await send_notification(
+            user.id,
+            f"▶️ Timer started for task: {activity.title}"
+        )
+    logger.info(f"Timer started for activity {activity.id} by user {user.email}")
+    return True
+
+async def handle_timer_pause(activity, user):
+    """Handle timer pause action."""
+    if activity.timer_status != "running":
+        logger.warning(f"Cannot pause: Timer not running for activity {activity.id}")
+        raise HTTPException(status_code=400, detail="Timer not running")
+    
+    elapsed = calculate_elapsed_time(activity)
+    activity.recorded_time += elapsed
+    activity.timer_status = "paused"
+    activity.last_timer_start = None
+    
+    if user.telegram_chat_id:
+        await send_notification(
+            user.id,
+            f"⏸️ Timer paused for task: {activity.title}\n"
+            f"Saved time: {format_time(activity.recorded_time)}"
+        )
+    logger.info(f"Timer paused for activity {activity.id} by user {user.email}")
+    return True
+
+async def handle_timer_stop(activity, user):
+    """Handle timer stop action."""
+    if activity.timer_status == "stopped":
+        logger.warning(f"Timer already stopped for activity {activity.id}")
+        return False
+    
+    if activity.timer_status == "running":
+        elapsed = calculate_elapsed_time(activity)
+        activity.recorded_time += elapsed
+    
+    activity.timer_status = "stopped"
+    activity.last_timer_start = None
+    
+    if user.telegram_chat_id:
+        await send_notification(
+            user.id,
+            f"⏹️ Timer stopped for task: {activity.title}\n"
+            f"Total time: {format_time(activity.recorded_time)}"
+        )
+    logger.info(f"Timer stopped for activity {activity.id} by user {user.email}")
+    return True
+
+def handle_timer_save(activity, current_time):
+    """Handle timer save action."""
+    if activity.timer_status == "running":
+        elapsed = calculate_elapsed_time(activity)
+        activity.recorded_time += elapsed
+        activity.last_timer_start = current_time
+    
+    logger.info(f"Timer saved for activity {activity.id}")
+    return True
 
 @activity_router.post("/{activity_id}/timer", response_model=schemas.Activity)
 async def activity_timer(
@@ -230,106 +298,26 @@ async def activity_timer(
 
     action = timer_action.action.lower()
     current_time = datetime.now()
-
-    # Handle timer actions
-    if action == "start":
-        # If timer was already running, do nothing
-        if db_activity.timer_status == "running":
-            logger.info(f"Timer already running for activity {activity_id}")
-            return db_activity
-
-        # If timer was paused, just change status and update start time
-        if db_activity.timer_status == "paused":
-            db_activity.timer_status = "running"
-            db_activity.last_timer_start = current_time
-
-        # If timer was stopped, reset start time and change status
-        if db_activity.timer_status == "stopped":
-            db_activity.timer_status = "running"
-            db_activity.last_timer_start = current_time
-
-        # Sending a notification to Telegram
-        if current_user.telegram_chat_id:
-            await send_notification(
-                current_user.id,
-                f"▶️ Timer started for task: {db_activity.title}"
-            )
-
-        logger.info(
-            f"Timer started for activity {activity_id} by user "
-            f"{current_user.email}")
-
-    elif action == "pause":
-        # Can only pause a running timer
-        if db_activity.timer_status != "running":
-            logger.warning(
-                f"Cannot pause: Timer not running for activity {activity_id}")
-            raise HTTPException(status_code=400, detail="Timer not running")
-
-        # Calculate elapsed time since last start and add to recorded time
-        elapsed = calculate_elapsed_time(db_activity)
-        db_activity.recorded_time += elapsed
-        db_activity.timer_status = "paused"
-        db_activity.last_timer_start = None
-
-        # Sending a notification to Telegram
-        if current_user.telegram_chat_id:
-            await send_notification(
-                current_user.id,
-                f"⏸️ Timer paused for task: {db_activity.title}\n"
-                f"Saved time: {format_time(db_activity.recorded_time)}"
-            )
-
-        logger.info(
-            f"Timer paused for activity {activity_id} by user "
-            f"{current_user.email}")
-
-    elif action == "stop":
-        # Can only stop a running or paused timer
-        if db_activity.timer_status == "stopped":
-            logger.warning(f"Timer already stopped for activity {activity_id}")
-            return db_activity
-
-        # If running, calculate elapsed time and add to recorded time
-        if db_activity.timer_status == "running":
-            elapsed = calculate_elapsed_time(db_activity)
-            db_activity.recorded_time += elapsed
-
-        # Reset timer state
-        db_activity.timer_status = "stopped"
-        db_activity.last_timer_start = None
-
-        if current_user.telegram_chat_id:
-            await send_notification(
-                current_user.id,
-                f"⏹️ Timer stopped for task: {db_activity.title}\n"
-                f"Total time: {format_time(db_activity.recorded_time)}"
-            )
-
-        logger.info(
-            f"Timer stopped for activity {activity_id} by user "
-            f"{current_user.email}")
-
-    elif action == "save":
-        # Can save from any state, but only calculate additional time if
-        # running
-        if db_activity.timer_status == "running":
-            elapsed = calculate_elapsed_time(db_activity)
-            db_activity.recorded_time += elapsed
-            # Reset timer start time to now
-            db_activity.last_timer_start = current_time
-
-        logger.info(
-            f"Timer saved for activity {activity_id} by user "
-            f"{current_user.email}")
-
-    else:
-        logger.warning(
-            f"Invalid timer action: {action} for activity {activity_id}")
+    
+    # Handle timer actions using action handlers
+    action_handlers = {
+        "start": handle_timer_start,
+        "pause": handle_timer_pause,
+        "stop": handle_timer_stop,
+        "save": handle_timer_save
+    }
+    
+    if action not in action_handlers:
+        logger.warning(f"Invalid timer action: {action} for activity {activity_id}")
         raise HTTPException(status_code=400, detail="Invalid timer action")
-
+    
+    # Execute the appropriate handler
+    if action == "save":
+        handle_timer_save(db_activity, current_time)
+    else:
+        await action_handlers[action](db_activity, current_time, current_user)
+    
     # Save changes to database
     db.commit()
     db.refresh(db_activity)
-
     return db_activity
