@@ -83,13 +83,6 @@
   font-family: monospace;
 }
 
-.description {
-  font-size: 14px;
-  color: var(--text-secondary);
-  margin: 4px 0 8px;
-  line-height: 1.4;
-}
-
 .details {
   display: flex;
   gap: 12px;
@@ -142,13 +135,15 @@
 .deleteBtn {
   background: none;
   border: none;
-  color: var(--text-muted);
-  font-size: 16px;
+  color: var(--text-secondary);
   cursor: pointer;
-  padding: 4px;
-  margin-left: 8px;
-
+  font-size: 16px;
+  padding: 4px 8px;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+  
   &:hover {
-    color: var(--priority-high);
+    opacity: 1;
+    color: var(--color-danger);
   }
 }

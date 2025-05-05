@@ -4,7 +4,6 @@ export interface TaskType {
   completed: boolean;
   dueDate?: string;
   tags: string[];
-  description?: string;
   recordedTime?: number;
   timerStatus?: string;
 }
