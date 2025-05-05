@@ -43,6 +43,9 @@ jobs:
       if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
       run: poetry install --no-interaction --no-root
 
+    - name: Run flake8
+      run: poetry run flake8 app tests
+
     - name: Run tests with coverage
       run: |
         poetry run pytest --cov=app tests/ --cov-report=term-missing 
