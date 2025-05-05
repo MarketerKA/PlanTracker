@@ -1,4 +1,4 @@
-name: CI
+name: Backend CI
 
 on:
   push:
@@ -48,7 +48,7 @@ jobs:
 
     - name: Run tests with coverage
       run: |
-        poetry run pytest --cov=app tests/ --cov-report=term-missing
+        poetry run pytest --cov=app tests/ --cov-report=term-missing --cov-report=xml
 
   sonarcloud:
     needs: test
