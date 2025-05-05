@@ -26,6 +26,7 @@ async def lifespan(app: FastAPI):
         except asyncio.CancelledError:
             pass
 
+
 # Initialize FastAPI app
 app = FastAPI(title="PlanTracker API", lifespan=lifespan)
 

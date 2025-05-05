@@ -10,10 +10,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-tag_router = APIRouter(
-    prefix="/tags",
-    tags=["tags"]
-)
+tag_router = APIRouter(prefix="/tags", tags=["tags"])
 
 
 # Tag endpoints
@@ -21,7 +18,7 @@ tag_router = APIRouter(
 def create_tag(
     tag: schemas.TagCreate,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth.get_current_active_user)
+    current_user: models.User = Depends(auth.get_current_active_user),
 ):
     db_tag = models.Tag(**tag.dict())
     db.add(db_tag)
@@ -36,9 +33,8 @@ def read_tags(
     skip: int = 0,
     limit: int = 100,
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(auth.get_current_active_user)
+    current_user: models.User = Depends(auth.get_current_active_user),
 ):
     tags = db.query(models.Tag).offset(skip).limit(limit).all()
-    logger.info(
-        f"Tags retrieved for user: {current_user.email}, count: {len(tags)}")
+    logger.info(f"Tags retrieved for user: {current_user.email}, count: {len(tags)}")
     return tags

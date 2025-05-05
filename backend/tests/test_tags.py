@@ -1,11 +1,6 @@
-
 def test_create_tag(client, auth_headers):
     """Test creating a tag"""
-    response = client.post(
-        "/tags/",
-        json={"name": "newtag"},
-        headers=auth_headers
-    )
+    response = client.post("/tags/", json={"name": "newtag"}, headers=auth_headers)
 
     assert response.status_code == 200
     data = response.json()

@@ -1,17 +1,12 @@
-
 def test_create_activity(client, auth_headers):
     """Test creating an activity"""
     activity_data = {
         "title": "Test Activity",
         "description": "Test Description",
-        "tags": ["test", "work"]
+        "tags": ["test", "work"],
     }
 
-    response = client.post(
-        "/activities/",
-        json=activity_data,
-        headers=auth_headers
-    )
+    response = client.post("/activities/", json=activity_data, headers=auth_headers)
 
     assert response.status_code == 200
     data = response.json()
@@ -60,9 +55,7 @@ def test_get_activities_by_tag(client, auth_headers, test_activity):
     assert data[0]["id"] == test_activity["id"]
 
     # Non-existent tag
-    response = client.get(
-        "/activities/?tag=randomtag",
-        headers=auth_headers)
+    response = client.get("/activities/?tag=randomtag", headers=auth_headers)
     assert response.status_code == 200
     data = response.json()
     assert isinstance(data, list)
@@ -71,10 +64,7 @@ def test_get_activities_by_tag(client, auth_headers, test_activity):
 
 def test_get_activity_by_id(client, auth_headers, test_activity):
     """Test getting a specific activity by ID"""
-    response = client.get(
-        f"/activities/{test_activity['id']}",
-        headers=auth_headers
-    )
+    response = client.get(f"/activities/{test_activity['id']}", headers=auth_headers)
 
     assert response.status_code == 200
     data = response.json()
@@ -85,10 +75,7 @@ def test_get_activity_by_id(client, auth_headers, test_activity):
 
 def test_get_activity_by_id_not_found(client, auth_headers):
     """Test getting a non-existent activity"""
-    response = client.get(
-        "/activities/999",
-        headers=auth_headers
-    )
+    response = client.get("/activities/999", headers=auth_headers)
 
     assert response.status_code == 404
     assert "Activity not found" in response.json()["detail"]
@@ -99,13 +86,11 @@ def test_update_activity(client, auth_headers, test_activity):
     update_data = {
         "title": "Updated Title",
         "description": "Updated Description",
-        "tags": ["updated", "test"]
+        "tags": ["updated", "test"],
     }
 
     response = client.put(
-        f"/activities/{test_activity['id']}",
-        json=update_data,
-        headers=auth_headers
+        f"/activities/{test_activity['id']}", json=update_data, headers=auth_headers
     )
 
     assert response.status_code == 200
@@ -120,16 +105,9 @@ def test_update_activity(client, auth_headers, test_activity):
 
 def test_update_activity_not_found(client, auth_headers):
     """Test updating a non-existent activity"""
-    update_data = {
-        "title": "Updated Title",
-        "description": "Updated Description"
-    }
+    update_data = {"title": "Updated Title", "description": "Updated Description"}
 
-    response = client.put(
-        "/activities/999",
-        json=update_data,
-        headers=auth_headers
-    )
+    response = client.put("/activities/999", json=update_data, headers=auth_headers)
 
     assert response.status_code == 404
     assert "Activity not found" in response.json()["detail"]
@@ -137,29 +115,20 @@ def test_update_activity_not_found(client, auth_headers):
 
 def test_delete_activity(client, auth_headers, test_activity):
     """Test deleting an activity"""
-    response = client.delete(
-        f"/activities/{test_activity['id']}",
-        headers=auth_headers
-    )
+    response = client.delete(f"/activities/{test_activity['id']}", headers=auth_headers)
 
     assert response.status_code == 200
     assert "message" in response.json()
     assert "deleted successfully" in response.json()["message"]
 
     # Verify it's gone
-    response = client.get(
-        f"/activities/{test_activity['id']}",
-        headers=auth_headers
-    )
+    response = client.get(f"/activities/{test_activity['id']}", headers=auth_headers)
     assert response.status_code == 404
 
 
 def test_delete_activity_not_found(client, auth_headers):
     """Test deleting a non-existent activity"""
-    response = client.delete(
-        "/activities/999",
-        headers=auth_headers
-    )
+    response = client.delete("/activities/999", headers=auth_headers)
 
     assert response.status_code == 404
     assert "Activity not found" in response.json()["detail"]
@@ -173,7 +142,7 @@ def test_timer_actions(client, auth_headers, test_activity):
     response = client.post(
         f"/activities/{activity_id}/timer",
         json={"action": "start"},
-        headers=auth_headers
+        headers=auth_headers,
     )
     assert response.status_code == 200
     assert response.json()["timer_status"] == "running"
@@ -182,7 +151,7 @@ def test_timer_actions(client, auth_headers, test_activity):
     response = client.post(
         f"/activities/{activity_id}/timer",
         json={"action": "pause"},
-        headers=auth_headers
+        headers=auth_headers,
     )
     assert response.status_code == 200
     assert response.json()["timer_status"] == "paused"
@@ -191,7 +160,7 @@ def test_timer_actions(client, auth_headers, test_activity):
     response = client.post(
         f"/activities/{activity_id}/timer",
         json={"action": "start"},
-        headers=auth_headers
+        headers=auth_headers,
     )
     assert response.status_code == 200
     assert response.json()["timer_status"] == "running"
@@ -200,7 +169,7 @@ def test_timer_actions(client, auth_headers, test_activity):
     response = client.post(
         f"/activities/{activity_id}/timer",
         json={"action": "stop"},
-        headers=auth_headers
+        headers=auth_headers,
     )
     assert response.status_code == 200
     assert response.json()["timer_status"] == "stopped"
@@ -209,7 +178,7 @@ def test_timer_actions(client, auth_headers, test_activity):
     response = client.post(
         f"/activities/{activity_id}/timer",
         json={"action": "save"},
-        headers=auth_headers
+        headers=auth_headers,
     )
     assert response.status_code == 200
     data = response.json()
@@ -223,7 +192,7 @@ def test_timer_invalid_action(client, auth_headers, test_activity):
     response = client.post(
         f"/activities/{test_activity['id']}/timer",
         json={"action": "invalid_action"},
-        headers=auth_headers
+        headers=auth_headers,
     )
 
     assert response.status_code == 400

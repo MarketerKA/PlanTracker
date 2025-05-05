@@ -6,10 +6,10 @@ from .database import Base
 
 # Association table for many-to-many relationship between activities and tags
 activity_tags = Table(
-    'activity_tags',
+    "activity_tags",
     Base.metadata,
-    Column('activity_id', Integer, ForeignKey('activities.id')),
-    Column('tag_id', Integer, ForeignKey('tags.id'))
+    Column("activity_id", Integer, ForeignKey("activities.id")),
+    Column("tag_id", Integer, ForeignKey("tags.id")),
 )
 
 # User database model
@@ -24,6 +24,7 @@ class User(Base):
     is_active = Column(Boolean, default=True)
     telegram_chat_id = Column(String, nullable=True)
     activities = relationship("Activity", back_populates="user")
+
 
 # Activity database model
 
@@ -43,15 +44,14 @@ class Activity(Base):
     recorded_time = Column(Integer, default=0)
     # stopped, running, paused
     timer_status = Column(String, default="stopped")
-    last_timer_start = Column(DateTime(timezone=True),
-                              nullable=True)  # When timer was last started
+    last_timer_start = Column(
+        DateTime(timezone=True), nullable=True
+    )  # When timer was last started
 
     user_id = Column(Integer, ForeignKey("users.id"))
     user = relationship("User", back_populates="activities")
-    tags = relationship(
-        "Tag",
-        secondary=activity_tags,
-        back_populates="activities")
+    tags = relationship("Tag", secondary=activity_tags, back_populates="activities")
+
 
 # Tag database model
 
@@ -62,6 +62,5 @@ class Tag(Base):
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, unique=True, index=True)
     activities = relationship(
-        "Activity",
-        secondary=activity_tags,
-        back_populates="tags")
+        "Activity", secondary=activity_tags, back_populates="tags"
+    )

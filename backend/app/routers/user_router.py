@@ -13,10 +13,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-user_router = APIRouter(
-    prefix="/users",
-    tags=["users"]
-)
+user_router = APIRouter(prefix="/users", tags=["users"])
 
 
 # Validate email with email-validator library
@@ -32,41 +29,32 @@ def validate_email_address(email: str) -> bool:
         return False
 
 
-@user_router.post("/", response_model=schemas.User,
-                  status_code=status.HTTP_201_CREATED)
+@user_router.post("/", response_model=schemas.User, status_code=status.HTTP_201_CREATED)
 async def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     # Log the request
     logger.info(f"User registration attempt: {user.email}")
 
     # Check if user with this email already exists
-    db_user = db.query(
-        models.User).filter(
-        models.User.email == user.email).first()
+    db_user = db.query(models.User).filter(models.User.email == user.email).first()
     if db_user:
-        logger.warning(
-            f"Registration failed: Email already registered: {user.email}")
+        logger.warning(f"Registration failed: Email already registered: {user.email}")
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Email already registered"
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered"
         )
 
     # Validate email with email-validator library
     if not validate_email_address(user.email):
-        logger.warning(
-            f"Registration failed: Invalid email address: {user.email}")
+        logger.warning(f"Registration failed: Invalid email address: {user.email}")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid email address. Please provide a valid email."
+            detail="Invalid email address. Please provide a valid email.",
         )
 
     # Hash the password
     hashed_password = auth.get_password_hash(user.password)
 
     # Create new user
-    db_user = models.User(
-        email=user.email,
-        hashed_password=hashed_password
-    )
+    db_user = models.User(email=user.email, hashed_password=hashed_password)
 
     # Save to database
     db.add(db_user)
@@ -79,10 +67,7 @@ async def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
 
 # JSON-based login endpoint for frontend applications
 @user_router.post("/login", response_model=schemas.Token)
-async def login_json(
-    login_data: schemas.UserCreate,
-    db: Session = Depends(get_db)
-):
+async def login_json(login_data: schemas.UserCreate, db: Session = Depends(get_db)):
     logger.info(f"Login attempt for email: {login_data.email}")
 
     # Verify user exists and password is correct
@@ -95,48 +80,45 @@ async def login_json(
         )
 
     # Create access token
-    access_token_expires = timedelta(
-        minutes=config.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token_expires = timedelta(minutes=config.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = auth.create_access_token(
-        data={"sub": user.email},
-        expires_delta=access_token_expires
+        data={"sub": user.email}, expires_delta=access_token_expires
     )
 
     logger.info(f"Login successful for user: {user.email}")
     return {"access_token": access_token, "token_type": "bearer"}
+
 
 # Get current user profile
 
 
 @user_router.get("/me", response_model=schemas.User)
 async def read_users_me(
-    current_user: models.User = Depends(
-        auth.get_current_active_user)):
+    current_user: models.User = Depends(auth.get_current_active_user),
+):
     logger.info(f"Profile accessed by user: {current_user.email}")
     return current_user
 
 
 @user_router.get("/me/telegram-status")
 async def get_telegram_status(
-    current_user: models.User = Depends(
-        auth.get_current_active_user)):
+    current_user: models.User = Depends(auth.get_current_active_user),
+):
     return {
         "is_linked": bool(current_user.telegram_chat_id),
-        "telegram_chat_id": current_user.telegram_chat_id
+        "telegram_chat_id": current_user.telegram_chat_id,
     }
 
 
 @user_router.delete("/me/telegram")
 # noinspection PyDefaultArgument
 async def unlink_telegram(
-        current_user: models.User = None,
-        db: Session = Depends(get_db)):
+    current_user: models.User = None, db: Session = Depends(get_db)
+):
     if current_user is None:
         current_user = Depends(auth.get_current_active_user)()
     if not current_user.telegram_chat_id:
-        raise HTTPException(
-            status_code=400,
-            detail="Telegram account not linked")
+        raise HTTPException(status_code=400, detail="Telegram account not linked")
 
     current_user.telegram_chat_id = None
     db.commit()

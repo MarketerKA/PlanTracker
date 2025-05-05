@@ -27,11 +27,7 @@ def test_token_creation_and_decoding():
     assert isinstance(token, str)
 
     # Decode token
-    payload = jwt.decode(
-        token,
-        config.SECRET_KEY,
-        algorithms=[config.ALGORITHM]
-    )
+    payload = jwt.decode(token, config.SECRET_KEY, algorithms=[config.ALGORITHM])
 
     # Check payload
     assert payload["sub"] == "test@example.com"

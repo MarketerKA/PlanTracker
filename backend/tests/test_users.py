@@ -1,12 +1,7 @@
-
 def test_create_user(client):
     """Test user creation"""
     response = client.post(
-        "/users/",
-        json={
-            "email": "newuser@gmail.com",
-            "password": "password123"
-        }
+        "/users/", json={"email": "newuser@gmail.com", "password": "password123"}
     )
     assert response.status_code == 201
     data = response.json()
@@ -19,11 +14,7 @@ def test_create_user(client):
 def test_create_user_duplicate_email(client, test_user):
     """Test creating user with duplicate email fails"""
     response = client.post(
-        "/users/",
-        json={
-            "email": test_user["email"],
-            "password": "anotherpassword"
-        }
+        "/users/", json={"email": test_user["email"], "password": "anotherpassword"}
     )
     assert response.status_code == 400
     assert "Email already registered" in response.json()["detail"]
@@ -32,11 +23,7 @@ def test_create_user_duplicate_email(client, test_user):
 def test_create_user_invalid_email(client):
     """Test creating user with invalid email fails"""
     response = client.post(
-        "/users/",
-        json={
-            "email": "invalid-email",
-            "password": "password123"
-        }
+        "/users/", json={"email": "invalid-email", "password": "password123"}
     )
     assert response.status_code == 422
     error_response = response.json()
@@ -48,10 +35,7 @@ def test_login_valid_credentials(client, test_user):
     """Test logging in with valid credentials"""
     response = client.post(
         "/users/login",
-        json={
-            "email": test_user["email"],
-            "password": test_user["password"]
-        }
+        json={"email": test_user["email"], "password": test_user["password"]},
     )
     assert response.status_code == 200
     data = response.json()
@@ -63,11 +47,7 @@ def test_login_valid_credentials(client, test_user):
 def test_login_invalid_credentials(client, test_user):
     """Test logging in with invalid credentials fails"""
     response = client.post(
-        "/users/login",
-        json={
-            "email": test_user["email"],
-            "password": "wrongpassword"
-        }
+        "/users/login", json={"email": test_user["email"], "password": "wrongpassword"}
     )
     assert response.status_code == 401
     assert "Incorrect email or password" in response.json()["detail"]

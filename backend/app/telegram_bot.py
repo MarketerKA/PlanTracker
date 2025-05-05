@@ -30,14 +30,14 @@ def get_main_keyboard():
         keyboard=[
             [
                 types.KeyboardButton(text="🔗 Link Account"),
-                types.KeyboardButton(text="⏱️ Current Activity")
+                types.KeyboardButton(text="⏱️ Current Activity"),
             ],
             [
                 types.KeyboardButton(text="❓ Help"),
-                types.KeyboardButton(text="🏠 Start")
-            ]
+                types.KeyboardButton(text="🏠 Start"),
+            ],
         ],
-        resize_keyboard=True
+        resize_keyboard=True,
     )
     return keyboard
 
@@ -51,7 +51,7 @@ async def cmd_start(message: types.Message, state: FSMContext):
         "/help - help\n"
         "/link - link account\n"
         "/current - current activity",
-        reply_markup=get_main_keyboard()
+        reply_markup=get_main_keyboard(),
     )
 
 
@@ -70,7 +70,7 @@ async def cmd_help(message: types.Message):
         "3. Enter your password\n"
         "\n"
         "After linking, you'll receive notifications about your activities.",
-        reply_markup=get_main_keyboard()
+        reply_markup=get_main_keyboard(),
     )
 
 
@@ -79,7 +79,7 @@ async def cmd_link(message: types.Message, state: FSMContext):
     await state.set_state(LinkStates.waiting_for_email)
     await message.answer(
         "Enter the email address of your PlanTracker account:",
-        reply_markup=types.ReplyKeyboardRemove()
+        reply_markup=types.ReplyKeyboardRemove(),
     )
 
 
@@ -93,15 +93,14 @@ async def process_email(message: types.Message, state: FSMContext):
     if not user:
         await message.answer(
             "The user with this email was not found. Try again:",
-            reply_markup=types.ReplyKeyboardRemove()
+            reply_markup=types.ReplyKeyboardRemove(),
         )
         return
 
     await state.update_data(email=email)
     await state.set_state(LinkStates.waiting_for_password)
     await message.answer(
-        "Enter your password:",
-        reply_markup=types.ReplyKeyboardRemove()
+        "Enter your password:", reply_markup=types.ReplyKeyboardRemove()
     )
 
 
@@ -109,15 +108,14 @@ async def process_email(message: types.Message, state: FSMContext):
 async def process_password(message: types.Message, state: FSMContext):
     password = message.text.strip()
     data = await state.get_data()
-    email = data.get('email')
+    email = data.get("email")
 
     db = next(database.get_db())
     user = auth.authenticate_user(db, email, password)
 
     if not user:
         await message.answer(
-            "Invalid password. Try again:",
-            reply_markup=types.ReplyKeyboardRemove()
+            "Invalid password. Try again:", reply_markup=types.ReplyKeyboardRemove()
         )
         return
 
@@ -126,9 +124,8 @@ async def process_password(message: types.Message, state: FSMContext):
 
     await state.clear()
     await message.answer(
-        "The account has been successfully linked! You will now receive "
-        "notifications.",
-        reply_markup=get_main_keyboard()
+        "The account has been successfully linked! You will now receive notifications.",
+        reply_markup=get_main_keyboard(),
     )
 
 
@@ -137,25 +134,31 @@ async def cmd_current(message: types.Message):
     telegram_id = str(message.from_user.id)
     db = next(database.get_db())
 
-    user = db.query(
-        models.User).filter(
-        models.User.telegram_chat_id == telegram_id).first()
+    user = (
+        db.query(models.User)
+        .filter(models.User.telegram_chat_id == telegram_id)
+        .first()
+    )
     if not user:
         await message.answer(
             "First, link the account with the /link command",
-            reply_markup=get_main_keyboard()
+            reply_markup=get_main_keyboard(),
         )
         return
 
-    current_activity = db.query(models.Activity).filter(
-        models.Activity.user_id == user.id,
-        models.Activity.timer_status == "running"
-    ).first()
+    current_activity = (
+        db.query(models.Activity)
+        .filter(
+            models.Activity.user_id == user.id,
+            models.Activity.timer_status == "running",
+        )
+        .first()
+    )
 
     if not current_activity:
         await message.answer(
             "There are no active tasks with the timer running",
-            reply_markup=get_main_keyboard()
+            reply_markup=get_main_keyboard(),
         )
         return
 
@@ -170,18 +173,17 @@ async def cmd_current(message: types.Message):
         f"Current activity: {current_activity.title}\n"
         f"Time: {format_time(total_time)}\n"
         f"Timer status: ▶️ Running",
-        reply_markup=get_main_keyboard()
+        reply_markup=get_main_keyboard(),
     )
+
 
 # Handle button clicks
 
 
 @dp.message(
-    lambda message: message.text in [
-        "🔗 Link Account",
-        "⏱️ Current Activity",
-        "❓ Help",
-        "🏠 Start"])
+    lambda message: message.text
+    in ["🔗 Link Account", "⏱️ Current Activity", "❓ Help", "🏠 Start"]
+)
 async def handle_buttons(message: types.Message, state: FSMContext):
     if message.text == "🔗 Link Account":
         await cmd_link(message, state)

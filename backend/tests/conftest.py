@@ -51,6 +51,9 @@ def client(db_session):
     def override_get_db():
         try:
             yield db_session
+        except Exception as e:
+            print(f"Error in db_session: {e}")
+            raise e
 
     # Apply the overrides
     app.dependency_overrides[get_db] = override_get_db

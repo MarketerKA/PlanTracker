@@ -9,11 +9,13 @@ from email_validator import validate_email, EmailNotValidError
 class TagBase(BaseModel):
     name: str
 
+
 # Tag create schema
 
 
 class TagCreate(TagBase):
     pass
+
 
 # Tag schema
 
@@ -24,6 +26,7 @@ class Tag(TagBase):
     class Config:
         from_attributes = True
 
+
 # Activity base schema
 
 
@@ -32,11 +35,13 @@ class ActivityBase(BaseModel):
     description: Optional[str] = None
     tags: List[str] = []
 
+
 # Activity create schema
 
 
 class ActivityCreate(ActivityBase):
     pass
+
 
 # Activity update schema
 
@@ -47,11 +52,13 @@ class ActivityUpdate(ActivityBase):
     recorded_time: Optional[int] = None
     timer_status: Optional[str] = None
 
+
 # Timer action schema
 
 
 class TimerAction(BaseModel):
     action: str  # start, pause, stop, save
+
 
 # Activity schema
 
@@ -70,21 +77,22 @@ class Activity(ActivityBase):
     class Config:
         from_attributes = True
 
+
 # User base schema
 
 
 class UserBase(BaseModel):
     email: str  # Changed from EmailStr to str for custom validation
 
-    @field_validator('email')
+    @field_validator("email")
     def validate_email_field(cls, v):
         try:
             # Strict validation with deliverability check
             valid = validate_email(v, check_deliverability=True)
 
             # Check for common test domains
-            domain = v.split('@')[1].lower()
-            if domain in ['example.com', 'test.com', 'example.org']:
+            domain = v.split("@")[1].lower()
+            if domain in ["example.com", "test.com", "example.org"]:
                 raise ValueError(f"Email domain {domain} is not allowed")
 
             # Return normalized email
@@ -100,17 +108,16 @@ class UserCreate(UserBase):
     class Config:
         # This ensures error messages are properly shown
         json_schema_extra = {
-            "example": {
-                "email": "user@gmail.com",
-                "password": "strongpassword123"
-            }
+            "example": {"email": "user@gmail.com", "password": "strongpassword123"}
         }
+
 
 # User update schema
 
 
 class UserUpdate(UserBase):
     telegram_chat_id: Optional[str] = None
+
 
 # User schema
 
@@ -123,6 +130,7 @@ class User(UserBase):
     class Config:
         from_attributes = True
 
+
 # Token schema
 
 
@@ -130,11 +138,13 @@ class Token(BaseModel):
     access_token: str
     token_type: str
 
+
 # Token data schema
 
 
 class TokenData(BaseModel):
     email: Optional[str] = None
+
 
 # Verify email schema
 

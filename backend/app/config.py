@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 from pathlib import Path
 
 # Load environment variables from .env file
-env_path = Path(__file__).parent.parent / '.env'
+env_path = Path(__file__).parent.parent / ".env"
 load_dotenv(env_path)
 
 # JWT Settings
