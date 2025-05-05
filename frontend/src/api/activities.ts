@@ -63,6 +63,7 @@ apiClient.interceptors.response.use(
 export interface ActivityCreateDto {
   title: string;
   description?: string;
+  due_date?: string;
   tags: string[];
 }
 
@@ -73,6 +74,7 @@ export interface ActivityDto {
   description?: string | null;
   start_time: string;
   end_time?: string | null;
+  due_date?: string | null;
   duration?: number | null;
   recorded_time: number;
   timer_status: string;
@@ -86,6 +88,7 @@ export interface ActivityUpdateDto {
   title?: string;
   description?: string;
   tags?: string[];
+  due_date?: string;
   end_time?: string | null;
   duration?: number;
   recorded_time?: number;

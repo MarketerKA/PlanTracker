@@ -15,13 +15,20 @@ const mapActivityToTask = (activity: ActivityDto): TaskType => {
     }
   };
 
+  // Get due date from due_date field if exists, otherwise use end_time
+  let dueDate = formatDate(activity.due_date) || formatDate(activity.end_time);
+  
+  // If no due date is set, use today's date as fallback
+  if (!dueDate) {
+    dueDate = new Date().toISOString().split('T')[0];
+  }
+
   return {
     id: activity.id.toString(),
     title: activity.title,
     completed: Boolean(activity.end_time),  // If end_time exists, consider the task completed
     tags: activity.tags.map(tag => tag.name),
-    dueDate: formatDate(activity.end_time),
-    description: activity.description,
+    dueDate,
     recordedTime: activity.recorded_time,
     timerStatus: activity.timer_status,
   };
@@ -31,8 +38,8 @@ const mapActivityToTask = (activity: ActivityDto): TaskType => {
 const mapTaskToActivityCreate = (task: Omit<TaskType, 'id'>): ActivityCreateDto => {
   return {
     title: task.title,
-    description: task.description || null,
     tags: task.tags || [],
+    due_date: task.dueDate || new Date().toISOString().split('T')[0],
   };
 };
 
@@ -46,8 +53,12 @@ const mapTaskToActivityUpdate = (task: Partial<TaskType>, originalTask?: TaskTyp
   };
   
   // Add remaining fields if they exist
-  if (task.description !== undefined) updateDto.description = task.description;
   if (task.tags !== undefined) updateDto.tags = task.tags;
+  
+  // Handling due date
+  if (task.dueDate !== undefined) {
+    updateDto.due_date = task.dueDate;
+  }
   
   // Processing completion status
   if (task.completed !== undefined) {

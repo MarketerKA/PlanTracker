@@ -11,17 +11,15 @@ export interface TaskProps {
   onSelect?: () => void;
 }
 
-// Function to format time in HH:MM:SS format
+// Function to format time (XX:XX:XX)
 const formatTime = (seconds: number): string => {
-  const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
+  const hrs = Math.floor(seconds / 3600);
+  const mins = Math.floor((seconds % 3600) / 60);
   const secs = seconds % 60;
   
-  return [
-    hours.toString().padStart(2, '0'),
-    minutes.toString().padStart(2, '0'),
-    secs.toString().padStart(2, '0')
-  ].join(':');
+  return [hrs, mins, secs]
+    .map(val => val.toString().padStart(2, '0'))
+    .join(':');
 };
 
 export const Task: FC<TaskProps> = ({ 
@@ -80,10 +78,6 @@ export const Task: FC<TaskProps> = ({
               </div>
             )}
           </div>
-          
-          {task.description && (
-            <div className={styles.description}>{task.description}</div>
-          )}
           
           <div className={styles.details}>
             {task.dueDate && (
