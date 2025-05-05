@@ -4,24 +4,21 @@ import { TaskType } from '../components/Task/types';
 
 // Converting ActivityDto to TaskType
 const mapActivityToTask = (activity: ActivityDto): TaskType => {
-  // Function for safely formatting date
-  const formatDate = (dateString?: string | null): string | undefined => {
-    if (!dateString) return undefined;
-    try {
-      return new Date(dateString).toISOString().split('T')[0];
-    } catch (err) {
-      console.error(`Error formatting date ${dateString}:`, err);
-      return undefined;
-    }
-  };
-
-  // Get due date from due_date field if exists, otherwise use end_time
-  let dueDate = formatDate(activity.due_date) || formatDate(activity.end_time);
+  // Extract the due date from the description field if it exists
+  let dueDate: string | undefined;
   
-  // If no due date is set, use today's date as fallback
-  if (!dueDate) {
+  if (activity.description && activity.description.startsWith("DUE_DATE:")) {
+    dueDate = activity.description.split("DUE_DATE:")[1].trim();
+    console.log("Extracted due date from description:", dueDate);
+  } else {
+    // Fallback to the current date
     dueDate = new Date().toISOString().split('T')[0];
+    console.log("No due date found in description, using today:", dueDate);
   }
+
+  // Log for debugging
+  console.log("API returned description:", activity.description);
+  console.log("Final due date value:", dueDate);
 
   return {
     id: activity.id.toString(),
@@ -36,10 +33,15 @@ const mapActivityToTask = (activity: ActivityDto): TaskType => {
 
 // Converting TaskType to ActivityCreateDto
 const mapTaskToActivityCreate = (task: Omit<TaskType, 'id'>): ActivityCreateDto => {
+  // Store the due date in the description field with a special prefix
+  // since the backend doesn't have a dedicated due_date field
+  const dueDatePrefix = "DUE_DATE:";
+  const dueDate = task.dueDate || new Date().toISOString().split('T')[0];
+  
   return {
     title: task.title,
+    description: `${dueDatePrefix}${dueDate}`,
     tags: task.tags || [],
-    due_date: task.dueDate || new Date().toISOString().split('T')[0],
   };
 };
 
@@ -55,9 +57,10 @@ const mapTaskToActivityUpdate = (task: Partial<TaskType>, originalTask?: TaskTyp
   // Add remaining fields if they exist
   if (task.tags !== undefined) updateDto.tags = task.tags;
   
-  // Handling due date
+  // Handling due date - store in description field with prefix
   if (task.dueDate !== undefined) {
-    updateDto.due_date = task.dueDate;
+    const dueDatePrefix = "DUE_DATE:";
+    updateDto.description = `${dueDatePrefix}${task.dueDate}`;
   }
   
   // Processing completion status
@@ -111,9 +114,17 @@ export const useActivities = () => {
     setError(null);
     
     try {
+      console.log("Task data received from form:", taskData);
+      console.log("Selected due date from form:", taskData.dueDate);
+      
       const activityData = mapTaskToActivityCreate(taskData);
+      console.log("Data being sent to API:", activityData);
+      
       const newActivity = await activitiesApi.createActivity(activityData);
+      console.log("Response from API:", newActivity);
+      
       const newTask = mapActivityToTask(newActivity);
+      console.log("Task after mapping from response:", newTask);
       
       setTasks(prev => [newTask, ...prev]);
       return newTask;
