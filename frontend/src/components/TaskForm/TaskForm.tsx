@@ -79,9 +79,10 @@ export const TaskForm: FC<TaskFormProps> = ({ onAddTask }) => {
             </div>
             
             <div className={styles.inputGroup}>
-              <label className={styles.label}>Tags</label>
+              <label className={styles.label} htmlFor="tag-input">Tags</label>
               <div className={styles.tagInput}>
                 <input
+                  id="tag-input"
                   type="text"
                   placeholder="Add tag..."
                   value={newTag}

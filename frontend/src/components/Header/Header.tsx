@@ -26,9 +26,13 @@ export const Header: FC<HeaderProps> = () => {
   return (
     <header className={styles.header}>
       <div className={styles.container}>
-        <div className={styles.logo} onClick={() => navigate(ROUTES.HOME)}>
+        <button
+          className={styles.logo}
+          onClick={() => navigate(ROUTES.HOME)}
+          type="button"
+        >
           <h1>Plan<span>Tracker</span></h1>
-        </div>
+        </button>
         <nav className={styles.nav}>
           <ul>
             <li>
