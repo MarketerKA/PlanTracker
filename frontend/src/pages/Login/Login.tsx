@@ -55,7 +55,7 @@ export const Login: FC<LoginProps> = () => {
     }
     
     if (!password) {
-      newErrors.password = 'Password is required';
+      alert('Password is required');
     }
     
     setFormErrors(newErrors);

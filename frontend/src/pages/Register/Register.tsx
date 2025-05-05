@@ -69,9 +69,11 @@ export const Register: FC<RegisterProps> = () => {
     }
     
     if (!password) {
-      newErrors.password = 'Password is required';
+      // create alert
+      alert('Password is required');
     } else if (password.length < 8) {
-      newErrors.password = 'Password must be at least 8 characters';
+      // create alert
+      alert('Password must be at least 8 characters');
     }
     
     if (password !== confirmPassword) {
