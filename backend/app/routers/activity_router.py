@@ -235,7 +235,7 @@ async def handle_timer_start(activity, current_time, user):
     return True
 
 
-async def handle_timer_pause(activity, user):
+async def handle_timer_pause(activity, current_time, user):
     """Handle timer pause action."""
     if activity.timer_status != "running":
         logger.warning(f"Cannot pause: Timer not running for activity {activity.id}")
@@ -256,7 +256,7 @@ async def handle_timer_pause(activity, user):
     return True
 
 
-async def handle_timer_stop(activity, user):
+async def handle_timer_stop(activity, current_time, user):
     """Handle timer stop action."""
     if activity.timer_status == "stopped":
         logger.warning(f"Timer already stopped for activity {activity.id}")

@@ -110,13 +110,11 @@ async def get_telegram_status(
     }
 
 
-@user_router.delete("/me/telegram")
-# noinspection PyDefaultArgument
+@user_router.delete("/me/telegram", response_model=dict)
 async def unlink_telegram(
-    current_user: models.User = None, db: Session = Depends(get_db)
+    current_user: models.User = Depends(auth.get_current_active_user),
+    db: Session = Depends(get_db)
 ):
-    if current_user is None:
-        current_user = Depends(auth.get_current_active_user)()
     if not current_user.telegram_chat_id:
         raise HTTPException(status_code=400, detail="Telegram account not linked")
 
