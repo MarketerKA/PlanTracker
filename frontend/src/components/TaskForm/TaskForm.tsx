@@ -8,7 +8,6 @@ export interface TaskFormProps {
 
 export const TaskForm: FC<TaskFormProps> = ({ onAddTask }) => {
   const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
   const [dueDate, setDueDate] = useState('');
   const [tags, setTags] = useState<string[]>([]);
   const [newTag, setNewTag] = useState('');
@@ -19,19 +18,20 @@ export const TaskForm: FC<TaskFormProps> = ({ onAddTask }) => {
     
     if (!title.trim()) return;
     
+    // Due date should be required, so don't submit if not provided
+    if (!dueDate) return;
+    
     const newTask: Omit<TaskType, 'id'> = {
       title: title.trim(),
       completed: false,
       tags,
-      ...(dueDate && { dueDate }),
-      ...(description.trim() && { description: description.trim() })
+      dueDate
     };
     
     onAddTask(newTask);
     
     // Reset form
     setTitle('');
-    setDescription('');
     setDueDate('');
     setTags([]);
     setNewTag('');
@@ -65,74 +65,70 @@ export const TaskForm: FC<TaskFormProps> = ({ onAddTask }) => {
       
       {isExpanded && (
         <>
-          <div className={styles.inputGroup}>
-            <textarea
-              placeholder="Task description (optional)"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className={`${styles.input} ${styles.textarea}`}
-              rows={3}
-            />
-          </div>
-          
           <div className={styles.formRow}>
             <div className={styles.inputGroup}>
-              <label className={styles.label}>Due Date</label>
+              <label className={styles.label}>Due Date (required)</label>
               <input
                 type="date"
                 value={dueDate}
                 min={new Date().toISOString().split('T')[0]}
                 onChange={(e) => setDueDate(e.target.value)}
                 className={styles.input}
+                required
               />
             </div>
             
             <div className={styles.inputGroup}>
               <label className={styles.label}>Tags</label>
-              <div className={styles.tagsInput}>
+              <div className={styles.tagInput}>
                 <input
                   type="text"
+                  placeholder="Add tag..."
                   value={newTag}
                   onChange={(e) => setNewTag(e.target.value)}
+                  className={styles.input}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
                       e.preventDefault();
                       handleAddTag();
                     }
                   }}
-                  placeholder="Enter tag..."
-                  className={styles.input}
                 />
                 <button
                   type="button"
                   onClick={handleAddTag}
                   className={styles.addTagButton}
+                  disabled={!newTag.trim()}
                 >
                   +
                 </button>
               </div>
-              <div className={styles.tagsList}>
-                {tags.map(tag => (
-                  <span key={tag} className={styles.tag}>
-                    {tag}
-                    <button
-                      type="button"
-                      onClick={() => handleRemoveTag(tag)}
-                      className={styles.removeTag}
-                    >
-                      ×
-                    </button>
-                  </span>
-                ))}
-              </div>
+              {tags.length > 0 && (
+                <div className={styles.tagsContainer}>
+                  {tags.map((tag) => (
+                    <div key={tag} className={styles.tag}>
+                      {tag}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveTag(tag)}
+                        className={styles.removeTagButton}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
+          </div>
+          
+          <div className={styles.formActions}>
+            <button type="submit" className={styles.submitButton}>
+              Add Task
+            </button>
           </div>
         </>
       )}
-      
-      <button type="submit" className={styles.submitButton}>
-        Add Task
-      </button>
     </form>
   );
 };
