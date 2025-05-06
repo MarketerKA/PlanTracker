@@ -74,6 +74,13 @@ case "$MODE" in
     sed -i "s|^FRONTEND_VERSION=.*|FRONTEND_VERSION=latest|g" backend/.env
     sed -i "s|^BACKEND_VERSION=.*|BACKEND_VERSION=latest|g" backend/.env
     
+    # Convert GITHUB_REPOSITORY to lowercase for Docker compatibility
+    if [ -f ".env" ]; then
+      source .env
+      GITHUB_REPOSITORY_LOWER=$(echo "$GITHUB_REPOSITORY" | tr '[:upper:]' '[:lower:]')
+      sed -i "s|^GITHUB_REPOSITORY=.*|GITHUB_REPOSITORY=$GITHUB_REPOSITORY_LOWER|g" .env
+    fi
+    
     # Pull the latest images
     docker-compose pull
     
