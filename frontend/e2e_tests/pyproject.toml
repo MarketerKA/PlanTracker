@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "e2e_tests"
+version = "0.1.0"
+description = "Selenium E2E tests for PlanTracker frontend"
+authors = ["Your Name <your.email@example.com>"]
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.10"
+selenium = "^4.18.1"
+webdriver-manager = "^4.0.1"
+pytest = "^8.0.0"
+pytest-html = "^4.1.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api" 
