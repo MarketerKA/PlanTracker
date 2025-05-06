@@ -1,0 +1,61 @@
+version: '3.8'
+
+# Create a .env file with the following variables:
+# GITHUB_REPOSITORY=your-username/PlanTracker
+# SECRET_KEY=your_secret_key
+# TELEGRAM_BOT_TOKEN=your_telegram_bot_token
+
+services:
+  backend:
+    image: ghcr.io/${GITHUB_REPOSITORY}/backend:latest
+    container_name: plantracker-backend
+    restart: unless-stopped
+    environment:
+      - SECRET_KEY=${SECRET_KEY}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+    volumes:
+      - backend_data:/app/data
+    networks:
+      internal:
+        aliases:
+          - backend
+      web:
+        aliases:
+          - backend
+
+  frontend:
+    image: ghcr.io/${GITHUB_REPOSITORY}/frontend:latest
+    container_name: plantracker-frontend
+    restart: unless-stopped
+    networks:
+      internal:
+        aliases:
+          - frontend
+      web:
+        aliases:
+          - frontend
+
+  nginx:
+    image: nginx:stable-alpine
+    container_name: plantracker-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/ssl:/etc/nginx/ssl
+      - ./nginx/www:/var/www/html
+    networks:
+      - web
+    depends_on:
+      - frontend
+      - backend
+
+networks:
+  internal:
+  web:
+    driver: bridge
+
+volumes:
+  backend_data: 

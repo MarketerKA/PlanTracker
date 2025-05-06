@@ -24,6 +24,10 @@ COPY pyproject.toml .
 COPY pytest.ini .
 COPY .flake8 .
 
+# Create a dummy .env file if needed
+RUN echo "SECRET_KEY=\${SECRET_KEY:-dummy_secret_key}" > .env \
+    && echo "TELEGRAM_BOT_TOKEN=\${TELEGRAM_BOT_TOKEN:-dummy_token}" >> .env
+
 # Set ownership to non-root user
 RUN chown -R appuser:appuser /app
 

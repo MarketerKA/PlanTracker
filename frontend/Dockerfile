@@ -28,22 +28,22 @@ RUN echo 'server { \
 # Production stage
 FROM nginx:stable-alpine
 
+# Set up Nginx to run as root (only for testing)
+# This is not recommended for production
+ENV NGINX_USER=root
+
 # Copy built files from build stage to nginx
 COPY --from=build /app/dist /usr/share/nginx/html
 
 # Copy nginx configuration 
 COPY --from=build /app/nginx.conf /etc/nginx/conf.d/default.conf
 
-# Update permissions for nginx directories
-RUN chown -R nginx:nginx /usr/share/nginx/html && \
-    chown -R nginx:nginx /etc/nginx && \
-    chmod -R 755 /usr/share/nginx/html && \
-    chmod -R 755 /etc/nginx
+# Create necessary directories with proper permissions
+RUN mkdir -p /var/cache/nginx /var/run/nginx && \
+    chmod -R 777 /var/cache/nginx /var/run/nginx /var/log/nginx
 
 # Use a non-privileged port
 EXPOSE 8080
 
-# Set nginx to run as non-root
-USER nginx
-
+# Command to run the application
 CMD ["nginx", "-g", "daemon off;"] 

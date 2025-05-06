@@ -1,0 +1,46 @@
+version: '3.8'
+
+# Test configuration without external dependencies
+services:
+  backend:
+    build: ./backend
+    container_name: plantracker-backend-test
+    environment:
+      - SECRET_KEY=test_secret_key
+      - TELEGRAM_BOT_TOKEN=123456:ABC-DEF1234ghIkl-zyx57W2v1u123ew11
+    networks:
+      internal:
+        aliases:
+          - backend
+      web:
+        aliases:
+          - backend
+
+  frontend:
+    build: ./frontend
+    container_name: plantracker-frontend-test
+    networks:
+      internal:
+        aliases:
+          - frontend
+      web:
+        aliases:
+          - frontend
+
+  nginx:
+    image: nginx:stable-alpine
+    container_name: plantracker-nginx-test
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/test:/etc/nginx/conf.d
+    networks:
+      - web
+    depends_on:
+      - frontend
+      - backend
+
+networks:
+  internal:
+  web:
+    driver: bridge 
