@@ -9,11 +9,6 @@ const mapActivityToTask = (activity: ActivityDto): TaskType => {
   
   if (activity.description?.startsWith("DUE_DATE:")) {
     dueDate = activity.description.split("DUE_DATE:")[1].trim();
-    // Convert to datetime-local format (YYYY-MM-DDThh:mm)
-    if (dueDate) {
-      const date = new Date(dueDate);
-      dueDate = date.toISOString().slice(0, 16);
-    }
   } else {
     // Fallback to the current date and time
     dueDate = new Date().toISOString().slice(0, 16);
