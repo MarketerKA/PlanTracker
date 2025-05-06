@@ -1,4 +1,4 @@
-FROM python:3.11-slim AS build
+FROM python:3.13.3-slim AS build
 
 WORKDIR /app
 
@@ -23,7 +23,7 @@ COPY pytest.ini .
 COPY .flake8 .
 
 # Runtime stage (smaller image)
-FROM python:3.11-slim
+FROM python:3.13.3-slim
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -44,7 +44,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 RUN groupadd -r appuser -g 1001 && useradd -r -g appuser -u 1001 appuser
 
 # Copy dependencies from build stage
-COPY --from=build /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+COPY --from=build /usr/local/lib/python3.13/site-packages /usr/local/lib/python3.13/site-packages
 COPY --from=build /usr/local/bin /usr/local/bin
 
 # Copy application code
