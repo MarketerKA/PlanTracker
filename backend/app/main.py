@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from . import models, telegram_bot
+# from . import models, telegram_bot
 from .database import engine
 from contextlib import asynccontextmanager
 import asyncio
@@ -11,7 +11,6 @@ from .routers.user_router import user_router
 
 # Create database tables
 models.Base.metadata.create_all(bind=engine)
-
 
 
 # @asynccontextmanager
@@ -27,7 +26,6 @@ models.Base.metadata.create_all(bind=engine)
 #             await bot_task
 #         except asyncio.CancelledError:
 #             pass
-
 
 
 # Initialize FastAPI app

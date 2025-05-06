@@ -7,7 +7,7 @@ version: '3.8'
 
 services:
   backend:
-    image: ghcr.io/${GITHUB_REPOSITORY}/backend:latest
+    image: ghcr.io/${GITHUB_REPOSITORY}/backend:${BACKEND_VERSION:-latest}
     container_name: plantracker-backend
     restart: unless-stopped
     environment:
@@ -24,9 +24,14 @@ services:
           - backend
 
   frontend:
-    image: ghcr.io/${GITHUB_REPOSITORY}/frontend:latest
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
     container_name: plantracker-frontend
     restart: unless-stopped
+    expose:
+      - "80"
+      - "8080"
     networks:
       internal:
         aliases:
