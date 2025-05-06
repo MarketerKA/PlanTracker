@@ -17,6 +17,9 @@ RUN npm run build
 # Production stage with specific NGINX version
 FROM nginx:1.25-alpine
 
+# Create non-root user
+RUN adduser -D -H -u 101 -s /sbin/nologin nginx-user
+
 # Copy built files from build stage to nginx 
 COPY --from=build /app/dist /usr/share/nginx/html
 
@@ -43,12 +46,20 @@ RUN echo 'server { \
     } \
 }' > /etc/nginx/conf.d/default.conf
 
+# Create necessary directories with proper permissions
+RUN mkdir -p /var/cache/nginx /var/run/nginx && \
+    chown -R nginx-user:nginx-user /var/cache/nginx /var/run/nginx /var/log/nginx /usr/share/nginx/html && \
+    chmod -R 755 /var/cache/nginx /var/run/nginx /var/log/nginx /usr/share/nginx/html
+
 # Use a non-privileged port
 EXPOSE 8080
 
 # Add healthcheck
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
     CMD wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
+
+# Switch to non-root user
+USER nginx-user
 
 # Command to run the application
 CMD ["nginx", "-g", "daemon off;"] 
