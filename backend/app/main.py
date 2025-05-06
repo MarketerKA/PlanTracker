@@ -14,19 +14,19 @@ models.Base.metadata.create_all(bind=engine)
 
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    bot_task = asyncio.create_task(telegram_bot.start_bot())
-    try:
-        yield
-    finally:
-        if not bot_task.cancelled():
-            await telegram_bot.stop_bot()
-        bot_task.cancel()
-        try:
-            await bot_task
-        except asyncio.CancelledError:
-            pass
+# @asynccontextmanager
+# async def lifespan(app: FastAPI):
+#     bot_task = asyncio.create_task(telegram_bot.start_bot())
+#     try:
+#         yield
+#     finally:
+#         if not bot_task.cancelled():
+#             await telegram_bot.stop_bot()
+#         bot_task.cancel()
+#         try:
+#             await bot_task
+#         except asyncio.CancelledError:
+#             pass
 
 
 
