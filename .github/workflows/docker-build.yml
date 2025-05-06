@@ -7,12 +7,14 @@ on:
       - 'backend/Dockerfile'
       - 'frontend/Dockerfile'
       - 'docker-compose.yml'
+      - '.github/workflows/docker-build.yml'
   pull_request:
     branches: [ main ]
     paths:
       - 'backend/Dockerfile'
       - 'frontend/Dockerfile'
       - 'docker-compose.yml'
+      - '.github/workflows/docker-build.yml'
 
 jobs:
   build-and-push:
