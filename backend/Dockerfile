@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM python:3.11-slim AS build
 
 WORKDIR /app
 
@@ -8,9 +8,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
-
-# Create non-root user
-RUN groupadd -r appuser && useradd -r -g appuser appuser
 
 # Copy requirements file
 COPY requirements.txt ./
@@ -25,12 +22,42 @@ COPY pyproject.toml .
 COPY pytest.ini .
 COPY .flake8 .
 
+# Runtime stage (smaller image)
+FROM python:3.11-slim
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+WORKDIR /app
+
+# Update packages and install only needed runtime dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get autoremove -y
+
+# Create non-root user with specific UID/GID
+RUN groupadd -r appuser -g 1001 && useradd -r -g appuser -u 1001 appuser
+
+# Copy dependencies from build stage
+COPY --from=build /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+COPY --from=build /usr/local/bin /usr/local/bin
+
+# Copy application code
+COPY --from=build /app/app ./app
+COPY --from=build /app/pyproject.toml .
+
 # Create a dummy .env file if needed
 RUN echo "SECRET_KEY=\${SECRET_KEY:-dummy_secret_key}" > .env \
     && echo "TELEGRAM_BOT_TOKEN=\${TELEGRAM_BOT_TOKEN:-dummy_token}" >> .env
 
-# Set ownership to non-root user
-RUN chown -R appuser:appuser /app
+# Create data directory and set permissions
+RUN mkdir -p /app/data && \
+    chown -R appuser:appuser /app
 
 # Switch to non-root user
 USER appuser

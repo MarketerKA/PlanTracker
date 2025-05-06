@@ -1,4 +1,4 @@
- # PlanTracker - https://marketerka.github.io/PlanTracker/
+# PlanTracker - https://marketerka.github.io/PlanTracker/
 
 A full-stack application for tracking and managing tasks and activities.
 
@@ -79,6 +79,16 @@ The frontend will be available at `http://localhost:3000`
 - Development server: `npm run dev`
 - Build: `npm run build`
 - Linting: `npm run lint`
+
+## Container Security
+
+This project implements multiple container security scanning tools in the CI/CD pipeline:
+
+- **Trivy:** Scans Docker configurations and images for vulnerabilities
+- **Snyk:** Detects vulnerabilities in container images and dependencies
+- **Docker Scout:** Provides comprehensive container scanning and security insights
+
+For setup details and usage instructions, see [CONTAINER_SCANNING.md](CONTAINER_SCANNING.md).
 
 ## Environment Variables
 

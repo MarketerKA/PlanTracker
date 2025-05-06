@@ -60,7 +60,9 @@ jobs:
     runs-on: ubuntu-latest
     continue-on-error: true  # Ensures the job completes even if skipped
     if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
-    
+    permissions:
+      security-events: write # Required for upload-sarif
+      
     steps:
     - uses: actions/checkout@v4
     
@@ -74,6 +76,41 @@ jobs:
         ignore-unfixed: true
         vuln-type: 'os,library'
         severity: 'CRITICAL,HIGH'
+        
+    - name: Build image for Snyk scanning
+      run: |
+        docker build -t backend-test-image:latest ./backend
+      
+    - name: Run Snyk container scanner
+      uses: snyk/actions/docker@master
+      continue-on-error: true  # Don't fail the build for vulnerabilities
+      env:
+        SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      with:
+        image: backend-test-image:latest
+        args: --file=backend/Dockerfile --severity-threshold=high
+        
+    - name: Docker Login
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+        
+    - name: Run Docker Scout scanner
+      uses: docker/scout-action@v1
+      with:
+        command: cves
+        image: backend-test-image:latest
+        only-severities: critical,high
+        sarif-file: backend-scout-results.sarif
+        summary: true
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Upload Docker Scout scan results
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+        sarif_file: backend-scout-results.sarif
+        category: docker-scout-backend
 
   build-and-push:
     needs: [test, scan]
