@@ -1,11 +1,13 @@
-FROM python:3.14-rc-alpine3.20 AS build
+FROM python:3.13.3-slim AS build
 
 WORKDIR /app
 
 # Install system dependencies 
-RUN apk add --no-cache \
-    build-base \
-    curl
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    curl \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements file
 COPY requirements.txt ./
@@ -21,7 +23,7 @@ COPY pytest.ini .
 COPY .flake8 .
 
 # Runtime stage (smaller image)
-FROM python:3.14-rc-alpine3.20
+FROM python:3.13.3-slim
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -31,14 +33,18 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# Install only needed runtime dependencies
-RUN apk add --no-cache curl
+# Update packages and install only needed runtime dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get autoremove -y
 
 # Create non-root user with specific UID/GID
-RUN addgroup -g 1001 appuser && adduser -u 1001 -G appuser -D appuser
+RUN groupadd -r appuser -g 1001 && useradd -r -g appuser -u 1001 appuser
 
 # Copy dependencies from build stage
-COPY --from=build /usr/local/lib/python3.14/site-packages /usr/local/lib/python3.14/site-packages
+COPY --from=build /usr/local/lib/python3.13/site-packages /usr/local/lib/python3.13/site-packages
 COPY --from=build /usr/local/bin /usr/local/bin
 
 # Copy application code
