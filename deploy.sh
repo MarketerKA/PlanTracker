@@ -49,8 +49,8 @@ rollback() {
   echo "Backend: $BACKEND"
   
   # Update .env file with the specific versions
-  sed -i "s|^FRONTEND_VERSION=.*|FRONTEND_VERSION=$FRONTEND|g" .env
-  sed -i "s|^BACKEND_VERSION=.*|BACKEND_VERSION=$BACKEND|g" .env
+  sed -i "s|^FRONTEND_VERSION=.*|FRONTEND_VERSION=$FRONTEND|g" backend/.env
+  sed -i "s|^BACKEND_VERSION=.*|BACKEND_VERSION=$BACKEND|g" backend/.env
   
   # Restart services
   docker-compose down
@@ -69,10 +69,10 @@ case "$MODE" in
     fi
     
     # Make sure .env has latest tags
-    grep -q "^FRONTEND_VERSION=" .env || echo "FRONTEND_VERSION=latest" >> .env
-    grep -q "^BACKEND_VERSION=" .env || echo "BACKEND_VERSION=latest" >> .env
-    sed -i "s|^FRONTEND_VERSION=.*|FRONTEND_VERSION=latest|g" .env
-    sed -i "s|^BACKEND_VERSION=.*|BACKEND_VERSION=latest|g" .env
+    grep -q "^FRONTEND_VERSION=" backend/.env || echo "FRONTEND_VERSION=latest" >> backend/.env
+    grep -q "^BACKEND_VERSION=" backend/.env || echo "BACKEND_VERSION=latest" >> backend/.env
+    sed -i "s|^FRONTEND_VERSION=.*|FRONTEND_VERSION=latest|g" backend/.env
+    sed -i "s|^BACKEND_VERSION=.*|BACKEND_VERSION=latest|g" backend/.env
     
     # Pull the latest images
     docker-compose pull
