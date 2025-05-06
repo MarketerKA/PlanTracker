@@ -9,38 +9,30 @@ RUN npm install --ignore-scripts
 # Copy source code (be more specific than ". .")
 COPY src/ ./src/
 COPY public/ ./public/
-COPY index.html tsconfig.json tsconfig.node.json vite.config.ts .eslintrc.cjs ./
+COPY index.html tsconfig.json tsconfig.node.json tsconfig.app.json vite.config.ts eslint.config.js ./
 
 # Build the application
 RUN npm run build
 
-# Production stage
-FROM nginx:stable-alpine
-
-# Create a non-root user for nginx
-RUN addgroup -g 101 -S nginx \
-    && adduser -S -D -H -u 101 -h /var/cache/nginx -s /sbin/nologin -G nginx -g nginx nginx \
-    && mkdir -p /var/cache/nginx /var/log/nginx \
-    && chown -R nginx:nginx /var/cache/nginx /var/log/nginx
-
-# Copy built files from build stage to nginx
-COPY --from=build /app/dist /usr/share/nginx/html
-
-# Create custom nginx configuration that runs as non-root
-RUN mkdir -p /etc/nginx/conf.d
-# Try to copy the nginx.conf file or create a default configuration
-RUN if [ ! -f /app/nginx.conf ]; then \
-    echo 'server { \
+# Create a default nginx configuration
+RUN echo 'server { \
     listen 8080; \
     root /usr/share/nginx/html; \
     index index.html; \
     server_name localhost; \
     location / { \
-    try_files $uri $uri/ /index.html; \
+        try_files $uri $uri/ /index.html; \
     } \
-    }' > /etc/nginx/conf.d/default.conf; \
-    fi
-COPY --from=build /app/nginx.conf /etc/nginx/conf.d/default.conf 2>/dev/null || true
+}' > nginx.conf
+
+# Production stage
+FROM nginx:stable-alpine
+
+# Copy built files from build stage to nginx
+COPY --from=build /app/dist /usr/share/nginx/html
+
+# Copy nginx configuration 
+COPY --from=build /app/nginx.conf /etc/nginx/conf.d/default.conf
 
 # Update permissions for nginx directories
 RUN chown -R nginx:nginx /usr/share/nginx/html && \

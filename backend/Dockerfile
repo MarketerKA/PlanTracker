@@ -8,26 +8,21 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Install poetry
-RUN pip install --no-cache-dir poetry==1.7.1
-
 # Create non-root user
 RUN groupadd -r appuser && useradd -r -g appuser appuser
 
-# Copy only poetry configuration files
-COPY pyproject.toml poetry.lock ./
-
-# Configure poetry to not create a virtual environment
-RUN poetry config virtualenvs.create false
+# Copy requirements file
+COPY requirements.txt ./
 
 # Install dependencies
-RUN poetry install --no-root --no-dev
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application code (more specific than ". .")
+# Copy application code
 COPY app/ ./app/
-COPY alembic/ ./alembic/
-COPY alembic.ini ./ 
-COPY migrations/ ./migrations/
+COPY tests/ ./tests/
+COPY pyproject.toml .
+COPY pytest.ini .
+COPY .flake8 .
 
 # Set ownership to non-root user
 RUN chown -R appuser:appuser /app
