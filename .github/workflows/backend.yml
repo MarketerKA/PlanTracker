@@ -74,9 +74,48 @@ jobs:
         ignore-unfixed: true
         vuln-type: 'os,library'
         severity: 'CRITICAL,HIGH'
-        
+
+  backend-anchore-scan:
+    needs: scan
+    runs-on: ubuntu-latest
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Log in to GitHub Container Registry
+      uses: docker/login-action@v2
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Install Syft
+      run: |
+        curl -sSfL https://raw.githubusercontent.com/anchore/syft/main/install.sh | sh -s -- -b /usr/local/bin
+    
+    - name: Install Grype
+      run: |
+        curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
+    
+    - name: Generate SBOM for backend
+      run: |
+        syft ghcr.io/${{ github.repository }}/backend:latest -o json > backend-sbom.json
+    
+    - name: Scan backend image
+      run: |
+        grype ghcr.io/${{ github.repository }}/backend:latest --fail-on high --output json > backend-vulns.json
+    
+    - name: Upload backend scan results
+      uses: actions/upload-artifact@v3
+      with:
+        name: backend-anchore-scan-results
+        path: |
+          backend-sbom.json
+          backend-vulns.json
+
   build-and-push:
-    needs: [test, scan]
+    needs: [backend-anchore-scan]
     runs-on: ubuntu-latest
     if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
     
