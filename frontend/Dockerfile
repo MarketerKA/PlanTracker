@@ -17,8 +17,8 @@ RUN npm run build
 # Production stage with specific NGINX version
 FROM nginx:1.25-alpine
 
-# Create non-root user
-RUN adduser -D -H -u 101 -s /sbin/nologin nginx-user
+# Create non-root user with a non-conflicting UID
+RUN adduser -D -H -u 1001 -s /sbin/nologin nginx-user
 
 # Copy built files from build stage to nginx 
 COPY --from=build /app/dist /usr/share/nginx/html
