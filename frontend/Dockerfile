@@ -14,8 +14,8 @@ COPY index.html tsconfig.json tsconfig.node.json tsconfig.app.json vite.config.t
 # Build the application
 RUN npm run build
 
-# Production stage with specific NGINX version
-FROM nginx:1.25-alpine
+# Production stage with latest nginx alpine image
+FROM nginx:1.27-alpine
 
 # Create non-root user with a non-conflicting UID
 RUN adduser -D -H -u 1001 -s /sbin/nologin nginx-user
@@ -46,6 +46,15 @@ RUN echo 'server { \
     } \
 }' > /etc/nginx/conf.d/default.conf
 
+# Update packages to fix vulnerabilities and remove unnecessary packages
+RUN apk update && \
+    apk upgrade --no-cache && \
+    # Install only required curl version with minimal dependencies
+    apk add --no-cache wget && \
+    # Remove unnecessary packages that might have vulnerabilities
+    apk del --no-cache curl && \
+    rm -rf /var/cache/apk/*
+
 # Create necessary directories with proper permissions
 RUN mkdir -p /var/cache/nginx /var/run/nginx && \
     chown -R nginx-user:nginx-user /var/cache/nginx /var/run/nginx /var/log/nginx /usr/share/nginx/html && \
@@ -54,7 +63,7 @@ RUN mkdir -p /var/cache/nginx /var/run/nginx && \
 # Use a non-privileged port
 EXPOSE 8080
 
-# Add healthcheck
+# Add healthcheck using wget instead of curl
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
     CMD wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
 
