@@ -28,15 +28,19 @@ COPY --from=build /app/dist /usr/share/nginx/html
 
 # Create custom nginx configuration that runs as non-root
 RUN mkdir -p /etc/nginx/conf.d
-COPY --from=build /app/nginx.conf /etc/nginx/conf.d/default.conf || echo 'server { \
+# Try to copy the nginx.conf file or create a default configuration
+RUN if [ ! -f /app/nginx.conf ]; then \
+    echo 'server { \
     listen 8080; \
     root /usr/share/nginx/html; \
     index index.html; \
     server_name localhost; \
     location / { \
-        try_files $uri $uri/ /index.html; \
+    try_files $uri $uri/ /index.html; \
     } \
-}' > /etc/nginx/conf.d/default.conf
+    }' > /etc/nginx/conf.d/default.conf; \
+    fi
+COPY --from=build /app/nginx.conf /etc/nginx/conf.d/default.conf 2>/dev/null || true
 
 # Update permissions for nginx directories
 RUN chown -R nginx:nginx /usr/share/nginx/html && \
