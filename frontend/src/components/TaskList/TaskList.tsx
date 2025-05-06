@@ -49,7 +49,11 @@ export const TaskList: FC<TaskListProps> = ({
             />
           ))
         ) : (
-          <div className={styles.emptyState}>No tasks</div>
+          <div className={styles.emptyState}>
+            {tasks.length > 0 
+              ? "No tasks match your current filters" 
+              : "No tasks, add some tasks to get started"}
+          </div>
         )}
       </div>
       

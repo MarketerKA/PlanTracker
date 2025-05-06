@@ -29,14 +29,34 @@ export const Todo: FC<TodoProps> = () => {
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [tagsLoading, setTagsLoading] = useState(false);
 
-  // Filtered tasks based on selected date
-  const filteredTasks = tasks.filter(task => {
-    // If no date selected, show all tasks
-    if (!selectedDate) return true;
-    
-    // Only show tasks with a due date that matches the selected date
-    return task.dueDate === selectedDate;
-  });
+  // Filtered and sorted tasks based on selected date
+  const filteredTasks = tasks
+    .filter(task => {
+      // If no date selected, show all tasks
+      if (!selectedDate) return true;
+      
+      // Only show tasks with a due date
+      if (!task.dueDate) return false;
+      
+      // Compare dates by converting both to YYYY-MM-DD format
+      // Handle both date and datetime strings
+      const taskDate = new Date(task.dueDate).toISOString().split('T')[0];
+      
+      return taskDate === selectedDate;
+    })
+    .sort((a, b) => {
+      // Sort by date if dates are available
+      if (a.dueDate && b.dueDate) {
+        return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+      }
+      
+      // If one task has a date and the other doesn't, prioritize the one with a date
+      if (a.dueDate && !b.dueDate) return -1;
+      if (!a.dueDate && b.dueDate) return 1;
+      
+      // Default sort by completion status (incomplete first)
+      return a.completed === b.completed ? 0 : a.completed ? 1 : -1;
+    });
 
   // Selected task
   const selectedTask = tasks.find(task => task.id === selectedTaskId);
@@ -140,7 +160,15 @@ export const Todo: FC<TodoProps> = () => {
 
   // Date selection handler for filtering
   const handleDateSelect = (date: string) => {
-    setSelectedDate(date);
+    // If date is empty string, clear the filter
+    if (!date) {
+      setSelectedDate('');
+      return;
+    }
+    
+    // Ensure date is in YYYY-MM-DD format
+    const formattedDate = date.split('T')[0];
+    setSelectedDate(formattedDate);
   };
 
   // Reset all filters
@@ -175,11 +203,13 @@ export const Todo: FC<TodoProps> = () => {
                   value={selectedDate}
                   onChange={(e) => handleDateSelect(e.target.value)}
                   className={styles.dateInput}
+                  aria-label="Filter tasks by date"
                 />
                 {selectedDate && (
                   <button 
                     className={styles.clearButton}
                     onClick={() => setSelectedDate('')}
+                    aria-label="Clear date filter"
                   >
                     ×
                   </button>

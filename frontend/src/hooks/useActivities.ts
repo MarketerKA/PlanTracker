@@ -9,6 +9,9 @@ const mapActivityToTask = (activity: ActivityDto): TaskType => {
   
   if (activity.description?.startsWith("DUE_DATE:")) {
     dueDate = activity.description.split("DUE_DATE:")[1].trim();
+  } else if (activity.scheduled_time) {
+    // Use scheduled_time if available
+    dueDate = new Date(activity.scheduled_time).toISOString().slice(0, 16);
   } else {
     // Fallback to the current date and time
     dueDate = new Date().toISOString().slice(0, 16);
@@ -16,6 +19,7 @@ const mapActivityToTask = (activity: ActivityDto): TaskType => {
 
   // Log for debugging
   console.log("API returned description:", activity.description);
+  console.log("API returned scheduled_time:", activity.scheduled_time);
   console.log("Final due date value:", dueDate);
 
   return {
@@ -34,7 +38,7 @@ const mapTaskToActivityCreate = (task: Omit<TaskType, 'id'>): ActivityCreateDto 
   const dueDatePrefix = "DUE_DATE:";
   const dueDate = task.dueDate || new Date().toISOString().slice(0, 16);
 
-  // scheduled_time в формате ISO (UTC)
+  // scheduled_time in ISO format (UTC)
   const scheduled_time = task.dueDate ? new Date(task.dueDate).toISOString() : undefined;
 
   return {
@@ -56,7 +60,7 @@ const mapTaskToActivityUpdate = (task: Partial<TaskType>, originalTask?: TaskTyp
   if (task.dueDate !== undefined) {
     const dueDatePrefix = "DUE_DATE:";
     updateDto.description = `${dueDatePrefix}${task.dueDate}`;
-    // scheduled_time в формате ISO (UTC)
+    // scheduled_time in ISO format (UTC)
     updateDto.scheduled_time = task.dueDate ? new Date(task.dueDate).toISOString() : undefined;
   }
 

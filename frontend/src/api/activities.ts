@@ -80,6 +80,7 @@ export interface ActivityDto {
   recorded_time: number;
   timer_status: string;
   last_timer_start?: string | null;
+  scheduled_time?: string | null;
   user_id: number;
   tags: { id: number; name: string }[];
 }
