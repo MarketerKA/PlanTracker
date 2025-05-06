@@ -15,8 +15,8 @@
 
 2. Create a deployment directory:
    ```
-   mkdir -p /opt/plantracker
-   cd /opt/plantracker
+   mkdir -p $HOME/PlanTracker
+   cd $HOME/PlanTracker
    ```
 
 3. Clone the repository (or create the files manually):
@@ -68,7 +68,7 @@ Add these secrets to your GitHub repository:
 
 If you need to manually deploy:
 ```
-cd /opt/plantracker
+cd $HOME/PlanTracker
 ./deploy.sh
 ```
 

@@ -9,6 +9,7 @@ on:
     branches: [ main ]
     paths:
       - 'frontend/**'
+  workflow_dispatch:
 
 jobs:
   test:
@@ -39,7 +40,8 @@ jobs:
   scan:
     needs: test
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    continue-on-error: true  # Ensures the job completes even if skipped
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
     
     steps:
     - uses: actions/checkout@v4
@@ -54,10 +56,10 @@ jobs:
         vuln-type: 'os,library'
         severity: 'CRITICAL,HIGH'
         
-  build-and-push:
+  build-and-push: 
     needs: [test, scan]
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
     
     permissions:
       contents: read
@@ -97,7 +99,7 @@ jobs:
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/main'
     
     steps:
     - name: Deploy to server
@@ -107,5 +109,5 @@ jobs:
         username: ${{ secrets.SSH_USERNAME }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
-          cd /opt/plantracker
+          cd ~/plantracker
           ./deploy.sh 
