@@ -109,5 +109,5 @@ jobs:
         username: ${{ secrets.SSH_USERNAME }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         script: |
-          cd ~/plantracker
+          cd ~/PlanTracker
           ./deploy.sh 
