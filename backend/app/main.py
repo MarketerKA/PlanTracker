@@ -1,16 +1,16 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 # from . import models, telegram_bot
-from .database import engine
-from contextlib import asynccontextmanager
-import asyncio
+# from .database import engine
+# from contextlib import asynccontextmanager
+# import asyncio
 from .routers.activity_router import activity_router
 from .routers.tag_router import tag_router
 from .routers.user_router import user_router
 
 
-# Create database tables
-models.Base.metadata.create_all(bind=engine)
+# # Create database tables
+# models.Base.metadata.create_all(bind=engine)
 
 
 # @asynccontextmanager
