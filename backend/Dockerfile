@@ -23,11 +23,8 @@ RUN poetry config virtualenvs.create false
 # Install dependencies
 RUN poetry install --no-root --no-dev
 
-# Copy application code (more specific than ". .")
+# Copy application code
 COPY app/ ./app/
-COPY alembic/ ./alembic/
-COPY alembic.ini ./ 
-COPY migrations/ ./migrations/
 
 # Set ownership to non-root user
 RUN chown -R appuser:appuser /app
