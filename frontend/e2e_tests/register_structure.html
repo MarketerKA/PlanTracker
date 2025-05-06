@@ -1,0 +1,1197 @@
+<html lang="en"><head>
+    <script type="module">import { injectIntoGlobalHook } from "/PlanTracker/@react-refresh"
+injectIntoGlobalHook(window);
+window.$RefreshReg$ = () => {};
+window.$RefreshSig$ = () => (type) => type;</script>
+
+    <script type="module" src="/PlanTracker/@vite/client"></script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlanTreker | Time Management</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⏱️</text></svg>">
+    <!-- GitHub Pages SPA support -->
+    <script type="text/javascript">
+      // Single Page Apps for GitHub Pages
+      // MIT License
+      // https://github.com/rafgraph/spa-github-pages
+      (function(l) {
+        if (l.search[1] === '/' ) {
+          var decoded = l.search.slice(1).split('&').map(function(s) { 
+            return s.replace(/~and~/g, '&')
+          }).join('?');
+          window.history.replaceState(null, null,
+              l.pathname.slice(0, -1) + decoded + l.hash
+          );
+        }
+      }(window.location))
+    </script>
+  <style type="text/css" data-vite-dev-id="C:/Users/karhi/WebstormProjects/PlanTracker/frontend/src/index.scss">:root {
+  --bg-primary: #121212;
+  --bg-secondary: #1e1e1e;
+  --bg-tertiary: #2c2c2c;
+  --element-primary: #1e1e1e;
+  --element-secondary: #2c2c2c;
+  --element-hover: #383838;
+  --element-active: #3f3f3f;
+  --border-color: rgba(255, 255, 255, 0.1);
+  --text-primary: #ffffff;
+  --text-secondary: #aaaaaa;
+  --text-muted: #777777;
+  --accent-primary: #8e96ff;
+  --accent-primary-hover: #7a82ea;
+  --priority-low: #4caf50;
+  --priority-low-bg: rgba(76, 175, 80, 0.15);
+  --priority-medium: #ff9800;
+  --priority-medium-bg: rgba(255, 152, 0, 0.15);
+  --priority-high: #f44336;
+  --priority-high-bg: rgba(244, 67, 54, 0.15);
+  --shadow-color: rgba(0, 0, 0, 0.3);
+  --shadow-small: 0 2px 5px var(--shadow-color);
+  --shadow-medium: 0 4px 10px var(--shadow-color);
+}
+
+:root {
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color-scheme: dark;
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+a {
+  text-decoration: none;
+  color: var(--accent-primary);
+  transition: color 0.2s ease;
+}
+a:hover {
+  color: var(--accent-primary-hover);
+}
+
+button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 600;
+  line-height: 1.2;
+}</style><style type="text/css" data-vite-dev-id="C:/Users/karhi/WebstormProjects/PlanTracker/frontend/src/pages/Login/Login.module.scss">._form_ou5mw_1 {
+  width: 100%;
+}
+
+._forgotPassword_ou5mw_5 {
+  display: flex;
+  justify-content: flex-end;
+  margin: -8px 0 24px;
+}
+
+._link_ou5mw_11 {
+  font-size: 13px;
+  color: var(--accent-primary);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+._link_ou5mw_11:hover {
+  color: var(--accent-primary-hover);
+  text-decoration: underline;
+}
+
+._submitButton_ou5mw_22 {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 20px;
+}
+._submitButton_ou5mw_22:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+._registerPrompt_ou5mw_34 {
+  text-align: center;
+  margin-top: 16px;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+._registerPrompt_ou5mw_34 span {
+  margin-right: 8px;
+}
+
+._registerLink_ou5mw_44 {
+  background: none;
+  border: none;
+  color: var(--accent-primary);
+  font-size: 14px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+._registerLink_ou5mw_44:hover {
+  color: var(--accent-primary-hover);
+  text-decoration: underline;
+}</style><style type="text/css" data-vite-dev-id="C:/Users/karhi/WebstormProjects/PlanTracker/frontend/src/components/Button/Button.module.scss">._button_xmbw2_1 {
+  padding: 0.5em 1em;
+  font-size: 0.9em;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+._button_xmbw2_1:hover {
+  opacity: 0.9;
+}
+._button_xmbw2_1:focus, ._button_xmbw2_1:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+._primary_xmbw2_19 {
+  background-color: var(--accent-primary);
+  color: var(--bg-primary);
+}
+
+._secondary_xmbw2_24 {
+  background-color: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+._secondary_xmbw2_24:hover {
+  border-color: var(--text-secondary);
+}</style><style type="text/css" data-vite-dev-id="C:/Users/karhi/WebstormProjects/PlanTracker/frontend/src/components/Header/Header.module.scss">._header_1k6cl_1 {
+  background-color: var(--element-primary);
+  border-bottom: 1px solid var(--border-color);
+  padding: 0.75rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-small);
+}
+
+._container_1k6cl_11 {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+._logo_1k6cl_20 {
+  cursor: pointer;
+}
+._logo_1k6cl_20 h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.5px;
+}
+._logo_1k6cl_20 h1 span {
+  color: var(--accent-primary);
+}
+
+._nav_1k6cl_33 ul {
+  display: flex;
+  list-style-type: none;
+  gap: 1.5rem;
+}
+._nav_1k6cl_33 ul li a {
+  text-decoration: none;
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-size: 0.95rem;
+  padding: 0.5rem 0;
+  position: relative;
+  transition: color 0.2s ease;
+}
+._nav_1k6cl_33 ul li a:hover {
+  color: var(--text-primary);
+}
+._nav_1k6cl_33 ul li a._active_1k6cl_50 {
+  color: var(--accent-primary);
+}
+._nav_1k6cl_33 ul li a._active_1k6cl_50::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: var(--accent-primary);
+}
+
+._actions_1k6cl_63 {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+._userEmail_1k6cl_69 {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-right: 0.5rem;
+}
+
+@media (max-width: 600px) {
+  ._nav_1k6cl_33 {
+    display: none;
+  }
+  ._userEmail_1k6cl_69 {
+    display: none;
+  }
+}</style><style type="text/css" data-vite-dev-id="C:/Users/karhi/WebstormProjects/PlanTracker/frontend/src/components/Task/Task.module.scss">._task_c1mtr_1 {
+  display: flex;
+  align-items: flex-start;
+  background-color: var(--element-primary);
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  box-shadow: var(--shadow-small);
+  transition: all 0.2s ease;
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+}
+._task_c1mtr_1:hover {
+  box-shadow: var(--shadow-medium);
+  background-color: var(--element-hover);
+}
+._task_c1mtr_1._completed_c1mtr_17 {
+  opacity: 0.6;
+}
+._task_c1mtr_1._completed_c1mtr_17 ._title_c1mtr_20 {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+._task_c1mtr_1._selected_c1mtr_24 {
+  border: 2px solid var(--accent-primary);
+  background-color: var(--element-hover);
+}
+
+._checkbox_c1mtr_29 {
+  margin-right: 12px;
+  padding-top: 2px;
+}
+._checkbox_c1mtr_29 input {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: var(--accent-primary);
+}
+
+._content_c1mtr_40 {
+  flex-grow: 1;
+}
+
+._header_c1mtr_44 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 3px;
+}
+
+._title_c1mtr_20 {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+._timerStatus_c1mtr_60 {
+  font-size: 10px;
+  padding: 1px 3px;
+  border-radius: 3px;
+}
+._timerStatus_c1mtr_60._running_c1mtr_65 {
+  color: var(--color-success, #38a169);
+}
+._timerStatus_c1mtr_60._paused_c1mtr_68 {
+  color: var(--color-warning, #dd6b20);
+}
+
+._recordedTime_c1mtr_72 {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--accent-primary);
+  font-family: monospace;
+}
+
+._details_c1mtr_79 {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 3px;
+}
+
+._dueDate_c1mtr_86 {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+._tags_c1mtr_91 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+
+._tag_c1mtr_91 {
+  font-size: 11px;
+  padding: 1px 6px;
+  border-radius: 10px;
+  background-color: var(--element-secondary);
+  color: var(--text-secondary);
+}
+
+._priority_c1mtr_105 {
+  padding: 3px 6px;
+  border-radius: 3px;
+  font-size: 11px;
+  margin-right: 12px;
+  text-transform: capitalize;
+}
+._priority_c1mtr_105._low_c1mtr_112 {
+  background-color: var(--priority-low-bg);
+  color: var(--priority-low);
+}
+._priority_c1mtr_105._medium_c1mtr_116 {
+  background-color: var(--priority-medium-bg);
+  color: var(--priority-medium);
+}
+._priority_c1mtr_105._high_c1mtr_120 {
+  background-color: var(--priority-high-bg);
+  color: var(--priority-high);
+}
+
+._deleteBtn_c1mtr_125 {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 3px 6px;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+._deleteBtn_c1mtr_125:hover {
+  opacity: 1;
+  color: var(--color-danger);
+}</style><style type="text/css" data-vite-dev-id="C:/Users/karhi/WebstormProjects/PlanTracker/frontend/src/components/ConfirmDialog/ConfirmDialog.module.scss">._overlay_z2i6t_1 {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+._dialog_z2i6t_15 {
+  background-color: var(--element-primary);
+  border-radius: 8px;
+  padding: 1.5rem;
+  min-width: 300px;
+  max-width: 90%;
+  box-shadow: var(--shadow-medium);
+  border: 1px solid var(--border-color);
+}
+._dialog_z2i6t_15._warning_z2i6t_24 {
+  border-top: 4px solid var(--priority-medium);
+}
+._dialog_z2i6t_15._danger_z2i6t_27 {
+  border-top: 4px solid var(--priority-high);
+}
+._dialog_z2i6t_15._info_z2i6t_30 {
+  border-top: 4px solid var(--accent-primary);
+}
+
+._title_z2i6t_34 {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+}
+
+._message_z2i6t_40 {
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+._actions_z2i6t_46 {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}</style><style type="text/css" data-vite-dev-id="C:/Users/karhi/WebstormProjects/PlanTracker/frontend/src/components/TaskForm/TaskForm.module.scss">._form_dg8be_1 {
+  background-color: var(--element-primary);
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-small);
+  border: 1px solid var(--border-color);
+  transition: max-height 0.3s ease;
+}
+
+._formRow_dg8be_11 {
+  display: flex;
+  gap: 16px;
+  margin-top: 16px;
+}
+@media (max-width: 600px) {
+  ._formRow_dg8be_11 {
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+
+._inputGroup_dg8be_23 {
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+._label_dg8be_28 {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+._input_dg8be_23 {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: var(--element-secondary);
+  color: var(--text-primary);
+  transition: border-color 0.2s ease;
+}
+._input_dg8be_23:focus {
+  border-color: var(--accent-primary);
+  outline: none;
+}
+
+._textarea_dg8be_51 {
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
+  line-height: 1.5;
+}
+
+._select_dg8be_58 {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: var(--element-secondary);
+  color: var(--text-primary);
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23aaaaaa' d='M6 8.825l-4.6-4.6 1.4-1.4L6 6.025l3.2-3.2 1.4 1.4z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+}
+._select_dg8be_58:focus {
+  border-color: var(--accent-primary);
+  outline: none;
+}
+
+._submitButton_dg8be_77 {
+  display: inline-block;
+  margin-top: 16px;
+  padding: 10px 16px;
+  background-color: var(--accent-primary);
+  color: var(--text-primary);
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+._submitButton_dg8be_77:hover {
+  background-color: var(--accent-primary-hover);
+}
+
+._tagsInput_dg8be_94 {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+._addTagButton_dg8be_100 {
+  padding: 0 12px;
+  background-color: var(--color-success, #4CAF50);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+._addTagButton_dg8be_100:hover {
+  background-color: var(--color-success-hover, #45a049);
+}
+
+._tagsList_dg8be_112 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+._tag_dg8be_94 {
+  background-color: var(--element-secondary);
+  padding: 4px 8px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+._tag_dg8be_94 ._removeTag_dg8be_129 {
+  background: none;
+  border: none;
+  padding: 0 2px;
+  cursor: pointer;
+  font-size: 16px;
+  color: var(--text-muted);
+}
+._tag_dg8be_94 ._removeTag_dg8be_129:hover {
+  color: var(--color-error, #ff4444);
+}</style><style type="text/css" data-vite-dev-id="C:/Users/karhi/WebstormProjects/PlanTracker/frontend/src/components/TaskList/TaskList.module.scss">._taskList_1tf87_1 {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+._list_1tf87_6 {
+  margin-bottom: 16px;
+}
+
+._emptyState_1tf87_10 {
+  background-color: var(--element-secondary);
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 14px;
+  border: 1px solid var(--border-color);
+}
+
+._pagination_1tf87_20 {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 16px;
+}
+
+._pageButton_1tf87_27 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 6px;
+  border-radius: 4px;
+  background-color: var(--element-secondary);
+  border: 1px solid var(--border-color);
+  font-size: 13px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+._pageButton_1tf87_27:hover:not(:disabled) {
+  background-color: var(--element-hover);
+  color: var(--text-primary);
+}
+._pageButton_1tf87_27:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+._pageButton_1tf87_27._active_1tf87_50 {
+  background-color: var(--accent-primary);
+  color: var(--text-primary);
+  border-color: var(--accent-primary);
+}</style><style type="text/css" data-vite-dev-id="C:/Users/karhi/WebstormProjects/PlanTracker/frontend/src/components/InputField/InputField.module.scss">._inputContainer_iy38q_1 {
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+._label_iy38q_6 {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+._inputWrapper_iy38q_14 {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background-color: var(--element-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+._inputWrapper_iy38q_14._focused_iy38q_23 {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 2px rgba(142, 150, 255, 0.15);
+}
+._inputWrapper_iy38q_14._error_iy38q_27 {
+  border-color: var(--priority-high);
+}
+
+._input_iy38q_1 {
+  flex: 1;
+  width: 100%;
+  padding: 12px 16px;
+  background-color: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-size: 14px;
+  outline: none;
+}
+._input_iy38q_1::placeholder {
+  color: var(--text-muted);
+}
+
+._iconLeft_iy38q_45, ._iconRight_iy38q_45 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 12px;
+  color: var(--text-secondary);
+}
+
+._iconRight_iy38q_45 {
+  cursor: pointer;
+}
+._iconRight_iy38q_45:hover {
+  color: var(--accent-primary);
+}
+
+._errorMessage_iy38q_60 {
+  margin-top: 6px;
+  color: var(--priority-high);
+  font-size: 12px;
+}</style><style type="text/css" data-vite-dev-id="C:/Users/karhi/WebstormProjects/PlanTracker/frontend/src/components/AuthLayout/AuthLayout.module.scss">._authLayout_m99wc_1 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: calc(100vh - 70px);
+  padding: 40px 16px;
+  background-color: var(--bg-primary);
+}
+
+._authContainer_m99wc_10 {
+  width: 100%;
+  max-width: 420px;
+  background-color: var(--element-primary);
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: var(--shadow-medium);
+  border: 1px solid var(--border-color);
+}
+
+._header_m99wc_20 {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+._title_m99wc_25 {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+}
+
+._subtitle_m99wc_32 {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}</style><style type="text/css" data-vite-dev-id="C:/Users/karhi/WebstormProjects/PlanTracker/frontend/src/components/Timer/Timer.module.scss">._timer_wrfdf_1 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+  background-color: var(--element-secondary);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-small);
+}
+._timer_wrfdf_1 ._taskTitle_wrfdf_13 {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  text-align: center;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+._timer_wrfdf_1 ._display_wrfdf_23 {
+  font-size: 3rem;
+  font-weight: bold;
+  font-family: monospace;
+  color: var(--accent-primary);
+}
+._timer_wrfdf_1 ._controls_wrfdf_29 {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+._timer_wrfdf_1 ._controls_wrfdf_29 button {
+  padding: 0.5rem 1.25rem;
+  border-radius: 4px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+._timer_wrfdf_1 ._controls_wrfdf_29 button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+._timer_wrfdf_1 ._controls_wrfdf_29 button:hover:not(:disabled) {
+  background-color: #0056b3;
+}</style><style type="text/css" data-vite-dev-id="C:/Users/karhi/WebstormProjects/PlanTracker/frontend/src/components/Todo/Todo.module.scss">@charset "UTF-8";
+._todoWrapper_14zt8_2 {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+._errorMessage_14zt8_8 {
+  background-color: var(--color-danger-bg);
+  color: var(--color-danger);
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+._errorMessage_14zt8_8::before {
+  content: "⚠️";
+}
+
+._content_14zt8_22 {
+  background-color: var(--element-primary);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: var(--shadow-medium);
+}
+
+._loading_14zt8_29 {
+  padding: 20px 0;
+  text-align: center;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+._filters_14zt8_36 {
+  background-color: var(--element-secondary);
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: var(--shadow-small);
+  margin-bottom: 16px;
+  border: 1px solid var(--border-color);
+}
+
+._filterRow_14zt8_45 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+._filterSection_14zt8_52 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+._filterLabel_14zt8_58 {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+._tagsList_14zt8_65 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+
+._tagButton_14zt8_72 {
+  background-color: var(--element-secondary);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+._tagButton_14zt8_72:hover {
+  background-color: var(--element-hover);
+}
+._tagButton_14zt8_72._active_14zt8_85 {
+  background-color: var(--accent-primary);
+  color: white;
+  border-color: var(--accent-primary);
+}
+
+._tagsSkeleton_14zt8_91 {
+  color: var(--text-secondary);
+  font-style: italic;
+  font-size: 12px;
+}
+
+._dateFilter_14zt8_97 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+._dateInput_14zt8_103 {
+  padding: 4px 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  font-size: 12px;
+  background-color: var(--element-secondary);
+  color: var(--text-primary);
+}
+._dateInput_14zt8_103:focus {
+  border-color: var(--accent-primary);
+  outline: none;
+}
+
+._clearButton_14zt8_116 {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+}
+._clearButton_14zt8_116:hover {
+  color: var(--color-danger);
+}
+
+._resetButton_14zt8_131 {
+  background-color: var(--element-secondary);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-left: auto;
+}
+._resetButton_14zt8_131:hover {
+  background-color: var(--color-danger-bg);
+  color: var(--color-danger);
+}</style><style type="text/css" data-vite-dev-id="C:/Users/karhi/WebstormProjects/PlanTracker/frontend/src/components/TaskStats/TaskStats.module.scss">._statsWrapper_sxf39_1 {
+  background-color: var(--element-primary);
+  border-radius: 10px;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-medium);
+  border: 1px solid var(--border-color);
+}
+
+._statsHeader_sxf39_9 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+._statsTitle_sxf39_16 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+._completionCircle_sxf39_22 {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+._progressCircle_sxf39_31 {
+  transform: rotate(-90deg);
+}
+
+._progressBackground_sxf39_35 {
+  stroke: var(--element-secondary);
+}
+
+._progressForeground_sxf39_39 {
+  stroke: var(--accent-primary);
+  transition: stroke-dashoffset 0.5s ease;
+}
+
+._completionText_sxf39_44 {
+  position: absolute;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--accent-primary);
+}
+
+._statsGrid_sxf39_51 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+@media (max-width: 768px) {
+  ._statsGrid_sxf39_51 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+._statItem_sxf39_63 {
+  text-align: center;
+  padding: 0.75rem;
+  background-color: var(--element-secondary);
+  border-radius: 8px;
+}
+
+._statValue_sxf39_70 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+._statLabel_sxf39_77 {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+._progressBars_sxf39_82 {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+._progressItem_sxf39_88 {
+  width: 100%;
+}
+
+._progressLabel_sxf39_92 {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+._progressBar_sxf39_82 {
+  height: 0.5rem;
+  background-color: var(--element-secondary);
+  border-radius: 1rem;
+  overflow: hidden;
+}
+
+._progressFill_sxf39_107 {
+  height: 100%;
+  background-color: var(--accent-primary);
+  border-radius: 1rem;
+  transition: width 0.5s ease;
+}
+._progressFill_sxf39_107._inProgress_sxf39_113 {
+  background-color: var(--color-warning, #dd6b20);
+}</style><style type="text/css" data-vite-dev-id="C:/Users/karhi/WebstormProjects/PlanTracker/frontend/src/pages/Register/Register.module.scss">._form_1v302_1 {
+  width: 100%;
+}
+
+._serverError_1v302_5 {
+  padding: 12px;
+  margin-bottom: 16px;
+  background-color: var(--error-light);
+  color: var(--error);
+  border-radius: 8px;
+  font-size: 14px;
+  text-align: center;
+}
+
+._submitButton_1v302_15 {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 16px;
+  font-weight: 500;
+  margin: 10px 0 20px;
+}
+._submitButton_1v302_15:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+._loginPrompt_1v302_27 {
+  text-align: center;
+  margin-top: 16px;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+._loginPrompt_1v302_27 span {
+  margin-right: 8px;
+}
+
+._loginLink_1v302_37 {
+  background: none;
+  border: none;
+  color: var(--accent-primary);
+  font-size: 14px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+._loginLink_1v302_37:hover {
+  color: var(--accent-primary-hover);
+  text-decoration: underline;
+}</style><style type="text/css" data-vite-dev-id="C:/Users/karhi/WebstormProjects/PlanTracker/frontend/src/pages/Tasks/Tasks.module.scss">._pageWrapper_190ek_1 {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+._main_190ek_7 {
+  flex-grow: 1;
+  padding: 2rem 1rem;
+  background-color: var(--background-primary);
+}
+
+._container_190ek_13 {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+._tasksHeader_190ek_18 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+@media (max-width: 600px) {
+  ._tasksHeader_190ek_18 {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+}
+
+._title_190ek_32 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+._tabsContainer_190ek_38 {
+  display: flex;
+  gap: 1rem;
+}
+@media (max-width: 600px) {
+  ._tabsContainer_190ek_38 {
+    width: 100%;
+  }
+}
+
+._tabButton_190ek_48 {
+  padding: 0.5rem 1.25rem;
+  border: none;
+  background-color: var(--element-secondary);
+  color: var(--text-secondary);
+  font-weight: 500;
+  font-size: 0.95rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+._tabButton_190ek_48:hover {
+  background-color: var(--element-hover);
+}
+._tabButton_190ek_48._active_190ek_62 {
+  background-color: var(--accent-primary);
+  color: var(--text-on-accent, white);
+}
+@media (max-width: 600px) {
+  ._tabButton_190ek_48 {
+    flex: 1;
+  }
+}
+
+._statsContainer_190ek_72 {
+  margin-top: 1rem;
+}
+
+._loading_190ek_76 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem 0;
+  color: var(--text-secondary);
+  font-size: 1rem;
+}
+._loading_190ek_76::after {
+  content: "";
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-left: 0.75rem;
+  border: 2px solid var(--border-color);
+  border-radius: 50%;
+  border-top-color: var(--accent-primary);
+  animation: _spin_190ek_1 1s linear infinite;
+}
+
+@keyframes _spin_190ek_1 {
+  to {
+    transform: rotate(360deg);
+  }
+}</style></head>
+  <body>
+    <div id="root"><div class="_authLayout_m99wc_1"><div class="_authContainer_m99wc_10"><div class="_header_m99wc_20"><h1 class="_title_m99wc_25">Registration</h1><p class="_subtitle_m99wc_32">Create an account to access the service</p></div><div><form class="_form_1v302_1"><div class="_inputContainer_iy38q_1"><label class="_label_iy38q_6">Email</label><div class="_inputWrapper_iy38q_14  "><div class="_iconLeft_iy38q_45"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg></div><input class="_input_iy38q_1" placeholder="your@email.com" required="" type="email" value=""></div></div><div class="_inputContainer_iy38q_1"><label class="_label_iy38q_6">Password</label><div class="_inputWrapper_iy38q_14  "><div class="_iconLeft_iy38q_45"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></div><input class="_input_iy38q_1" placeholder="Minimum 8 characters" required="" type="password" value=""><div class="_iconRight_iy38q_45" role="button"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></div></div></div><div class="_inputContainer_iy38q_1"><label class="_label_iy38q_6">Confirm Password</label><div class="_inputWrapper_iy38q_14  "><div class="_iconLeft_iy38q_45"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></div><input class="_input_iy38q_1" placeholder="Repeat password" required="" type="password" value=""><div class="_iconRight_iy38q_45" role="button"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg></div></div></div><button class="_button_xmbw2_1 _primary_xmbw2_19 _submitButton_1v302_15" type="submit">Register</button><div class="_loginPrompt_1v302_27"><span>Already have an account?</span><button type="button" class="_loginLink_1v302_37">Log in</button></div></form></div></div></div></div>
+    <script type="module" src="/PlanTracker/src/main.tsx"></script>
+  
+
+</body></html>
