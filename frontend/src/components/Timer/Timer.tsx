@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from 'react';
+import { FC, useEffect, useState, useCallback } from 'react';
 import styles from './Timer.module.scss';
 import { ConfirmDialog } from '../ConfirmDialog';
 
@@ -8,12 +8,33 @@ export interface TimerProps {
     onPause: () => void;
     onStop: () => void;
     selectedTaskTitle: string | undefined;
+    recordedTime?: number;
+    lastTimerStart?: string; // UTC ISO string from server
 }
 
-export const Timer: FC<TimerProps> = ({ isRunning, onStart, onPause, onStop, selectedTaskTitle }) => {
-    const [time, setTime] = useState(0);
+export const Timer: FC<TimerProps> = ({ 
+    isRunning, 
+    onStart, 
+    onPause, 
+    onStop, 
+    selectedTaskTitle,
+    recordedTime = 0,
+    lastTimerStart
+}) => {
+    // Calculate initial time including elapsed time if timer is running
+    const calculateInitialTime = useCallback(() => {
+        return recordedTime;
+    }, [isRunning, lastTimerStart, recordedTime]);
+
+    const [time, setTime] = useState(calculateInitialTime());
     const [showStopConfirm, setShowStopConfirm] = useState(false);
 
+    // Reset time when task changes or timer state changes
+    useEffect(() => {
+        setTime(calculateInitialTime());
+    }, [calculateInitialTime]);
+
+    // Update time when timer is running
     useEffect(() => {
         let interval: ReturnType<typeof setInterval>;
 
@@ -27,9 +48,10 @@ export const Timer: FC<TimerProps> = ({ isRunning, onStart, onPause, onStop, sel
     }, [isRunning]);
 
     const formatTime = (seconds: number) => {
-        const mins = Math.floor(seconds / 60);
+        const hrs = Math.floor(seconds / 3600);
+        const mins = Math.floor((seconds % 3600) / 60);
         const secs = seconds % 60;
-        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     };
 
     const handleStopClick = () => {
@@ -38,7 +60,6 @@ export const Timer: FC<TimerProps> = ({ isRunning, onStart, onPause, onStop, sel
 
     const handleStopConfirm = () => {
         onStop();
-        setTime(0);
         setShowStopConfirm(false);
     };
 
@@ -52,7 +73,7 @@ export const Timer: FC<TimerProps> = ({ isRunning, onStart, onPause, onStop, sel
                 <div className={styles.controls}>
                     <button onClick={onStart} disabled={isRunning || !selectedTaskTitle}>Start</button>
                     <button onClick={onPause} disabled={!isRunning}>Pause</button>
-                    <button onClick={handleStopClick} disabled={!selectedTaskTitle}>Stop</button>
+                    <button onClick={handleStopClick} disabled={!selectedTaskTitle}>Finish</button>
                 </div>
             </div>
 

@@ -25,11 +25,12 @@ const mapActivityToTask = (activity: ActivityDto): TaskType => {
   return {
     id: activity.id.toString(),
     title: activity.title,
-    completed: Boolean(activity.end_time),  // If end_time exists, consider the task completed
+    completed: Boolean(activity.timer_status === 'stopped'),  // If end_time exists, consider the task completed
     tags: activity.tags.map(tag => tag.name),
     dueDate,
     recordedTime: activity.recorded_time,
     timerStatus: activity.timer_status,
+    lastTimerStart: activity.last_timer_start ?? undefined
   };
 };
 

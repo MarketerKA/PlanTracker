@@ -1,4 +1,4 @@
-import { FC, useState, useEffect } from 'react';
+import { FC, useState, useEffect, useRef } from 'react';
 import styles from './Todo.module.scss';
 import { TaskForm, TaskList, Timer } from '../../components';
 import { useActivities } from '../../hooks/useActivities';
@@ -22,12 +22,28 @@ export const Todo: FC<TodoProps> = () => {
     fetchTasks
   } = useActivities();
 
-  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  // Track if initial task restoration has been done
+  const initializedRef = useRef(false);
+
+  // Initialize selected task from localStorage if available
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(() => {
+    const savedTaskId = localStorage.getItem('selectedTaskId');
+    return savedTaskId || null;
+  });
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [availableTags, setAvailableTags] = useState<TagDto[]>([]);
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<string>('');
   const [tagsLoading, setTagsLoading] = useState(false);
+
+  // Save selected task ID to localStorage whenever it changes
+  useEffect(() => {
+    if (selectedTaskId) {
+      localStorage.setItem('selectedTaskId', selectedTaskId);
+    } else {
+      localStorage.removeItem('selectedTaskId');
+    }
+  }, [selectedTaskId]);
 
   // Filtered and sorted tasks based on selected date
   const filteredTasks = tasks
@@ -60,6 +76,44 @@ export const Todo: FC<TodoProps> = () => {
 
   // Selected task
   const selectedTask = tasks.find(task => task.id === selectedTaskId);
+
+  // Keep timer running state in sync with selected task
+  useEffect(() => {
+    if (selectedTask) {
+      setIsTimerRunning(selectedTask.timerStatus === 'running');
+    }
+  }, [selectedTask]);
+
+  // Force refresh tasks on component mount to ensure fresh timer data
+  useEffect(() => {
+    // Only perform the initialization once
+    if (initializedRef.current) return;
+    
+    // Refresh tasks on mount to get the most up-to-date timer data
+    const refreshData = async () => {
+      await fetchTasks();
+      
+      // After tasks are loaded, check if we have a saved task ID
+      const savedTaskId = localStorage.getItem('selectedTaskId');
+      if (savedTaskId && tasks.length > 0) {
+        // Find the task in the loaded tasks
+        const savedTask = tasks.find(task => task.id === savedTaskId);
+        if (savedTask) {
+          // If the task is found, restore its selection
+          setSelectedTaskId(savedTaskId);
+          // Set the timer running state based on the saved task's status
+          setIsTimerRunning(savedTask.timerStatus === 'running');
+        } else {
+          // If the saved task is not found (maybe deleted), clear localStorage
+          localStorage.removeItem('selectedTaskId');
+        }
+      }
+      
+      initializedRef.current = true;
+    };
+    
+    refreshData();
+  }, [fetchTasks, tasks]);
 
   // Loading tags
   useEffect(() => {
@@ -148,7 +202,16 @@ export const Todo: FC<TodoProps> = () => {
   // Task selection handler
   const handleTaskSelect = (taskId: string) => {
     if (!isTimerRunning) {
-      setSelectedTaskId(prevId => prevId === taskId ? null : taskId);
+      const newSelectedTaskId = selectedTaskId === taskId ? null : taskId;
+      setSelectedTaskId(newSelectedTaskId);
+      
+      // Update timer running state based on the selected task's timer status
+      if (newSelectedTaskId) {
+        const task = tasks.find(t => t.id === newSelectedTaskId);
+        setIsTimerRunning(task?.timerStatus === 'running');
+      } else {
+        setIsTimerRunning(false);
+      }
     }
   };
 
@@ -189,6 +252,8 @@ export const Todo: FC<TodoProps> = () => {
           onPause={handleTimerPause} 
           onStop={handleTimerStop}
           selectedTaskTitle={selectedTask?.title}
+          recordedTime={selectedTask?.recordedTime}
+          lastTimerStart={selectedTask?.lastTimerStart}
         />
         
         <TaskForm onAddTask={handleAddTask} />

@@ -6,4 +6,5 @@ export interface TaskType {
   tags: string[];
   recordedTime?: number;
   timerStatus?: string;
+  lastTimerStart?: string;
 }
