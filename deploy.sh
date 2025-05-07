@@ -81,10 +81,7 @@ case "$MODE" in
       sed -i "s|^GITHUB_REPOSITORY=.*|GITHUB_REPOSITORY=$GITHUB_REPOSITORY_LOWER|g" .env
     fi
     
-    # Pull the latest images
-    docker-compose pull
-    
-    # Restart the services
+    # Restart the services without pulling
     docker-compose down
     docker-compose up -d
     

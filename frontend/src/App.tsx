@@ -17,7 +17,7 @@ export const App: FC = () => {
 
   return (
     <Provider store={store}>
-      <BrowserRouter basename="/PlanTracker">
+      <BrowserRouter>
         <AppRoutes />
       </BrowserRouter>
     </Provider>

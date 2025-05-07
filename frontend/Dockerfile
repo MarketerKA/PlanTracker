@@ -38,6 +38,18 @@ RUN echo 'server { \
     \
     location / { \
         try_files $uri $uri/ /index.html; \
+        add_header Cache-Control "no-cache, no-store, must-revalidate"; \
+        add_header Pragma "no-cache"; \
+        add_header Expires "0"; \
+    } \
+    \
+    location /assets/ { \
+        try_files $uri =404; \
+        expires 1y; \
+        add_header Cache-Control "public, no-transform"; \
+        add_header X-Content-Type-Options "nosniff"; \
+        add_header X-Frame-Options "DENY"; \
+        add_header X-XSS-Protection "1; mode=block"; \
     } \
     \
     location /health { \
@@ -58,7 +70,12 @@ RUN apk update && \
 # Create necessary directories with proper permissions
 RUN mkdir -p /var/cache/nginx /var/run/nginx && \
     chown -R nginx-user:nginx-user /var/cache/nginx /var/run/nginx /var/log/nginx /usr/share/nginx/html && \
-    chmod -R 755 /var/cache/nginx /var/run/nginx /var/log/nginx /usr/share/nginx/html
+    chmod -R 755 /var/cache/nginx /var/run/nginx /var/log/nginx /usr/share/nginx/html && \
+    # Remove default nginx.pid and create a new one with correct permissions
+    rm -f /var/run/nginx.pid && \
+    touch /var/run/nginx.pid && \
+    chown nginx-user:nginx-user /var/run/nginx.pid && \
+    chmod 644 /var/run/nginx.pid
 
 # Use a non-privileged port
 EXPOSE 8080
