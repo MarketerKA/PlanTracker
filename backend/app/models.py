@@ -36,14 +36,12 @@ class Activity(Base):
     title = Column(String, index=True)
     description = Column(String, nullable=True)
     start_time = Column(DateTime(timezone=True), server_default=func.now())
-    end_time = Column(DateTime(timezone=True), nullable=True)
-    duration = Column(Integer, nullable=True)  # Duration in seconds
 
     # Timer related fields
     # Total recorded time in seconds
     recorded_time = Column(Integer, default=0)
     # stopped, running, paused
-    timer_status = Column(String, default="stopped")
+    timer_status = Column(String, default="initial")
     last_timer_start = Column(
         DateTime(timezone=True), nullable=True
     )  # When timer was last started

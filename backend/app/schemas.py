@@ -42,7 +42,6 @@ class ActivityBase(BaseModel):
 class ActivityCreate(ActivityBase):
     title: str
     description: Optional[str] = None
-    duration: Optional[int] = None
     scheduled_time: Optional[datetime] = None
     tags: List[str] = []
 
@@ -56,7 +55,6 @@ class ActivityCreate(ActivityBase):
 class ActivityUpdate(ActivityBase):
     title: Optional[str] = None
     description: Optional[str] = None
-    duration: Optional[int] = None
     scheduled_time: Optional[datetime] = None
     tags: Optional[List[str]] = None
 
@@ -77,8 +75,6 @@ class TimerAction(BaseModel):
 class Activity(ActivityBase):
     id: int
     start_time: datetime
-    end_time: Optional[datetime] = None
-    duration: Optional[int] = None
     recorded_time: int
     timer_status: str
     last_timer_start: Optional[datetime] = None
