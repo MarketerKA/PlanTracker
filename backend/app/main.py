@@ -43,7 +43,7 @@ app.include_router(tag_router)
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["https://158.160.23.164", "http://158.160.23.164"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

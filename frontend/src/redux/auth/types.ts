@@ -25,6 +25,7 @@ export interface AuthResponse {
 export interface AuthState {
   user: User | null;
   token: string | null;
+  tokenType: string;
   isAuthenticated: boolean;
   loading: boolean;
   error: string | null;

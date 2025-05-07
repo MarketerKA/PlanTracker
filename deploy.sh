@@ -68,6 +68,17 @@ case "$MODE" in
       save_deployment_state
     fi
     
+    # Pull latest images from GitHub Container Registry
+    if [ -f ".env" ]; then
+      source .env
+      GITHUB_REPOSITORY_LOWER=$(echo "$GITHUB_REPOSITORY" | tr '[:upper:]' '[:lower:]')
+      docker pull ghcr.io/$GITHUB_REPOSITORY_LOWER/frontend:latest
+      docker pull ghcr.io/$GITHUB_REPOSITORY_LOWER/backend:latest
+    else
+      echo "Error: .env file not found. Cannot determine repository name."
+      exit 1
+    fi
+    
     # Make sure .env has latest tags
     grep -q "^FRONTEND_VERSION=" backend/.env || echo "FRONTEND_VERSION=latest" >> backend/.env
     grep -q "^BACKEND_VERSION=" backend/.env || echo "BACKEND_VERSION=latest" >> backend/.env
@@ -81,7 +92,7 @@ case "$MODE" in
       sed -i "s|^GITHUB_REPOSITORY=.*|GITHUB_REPOSITORY=$GITHUB_REPOSITORY_LOWER|g" .env
     fi
     
-    # Restart the services without pulling
+    # Restart the services
     docker-compose down
     docker-compose up -d
     

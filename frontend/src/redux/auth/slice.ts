@@ -12,6 +12,7 @@ import {
 const initialState: AuthState = {
   user: null,
   token: authDto.getStoredToken(),
+  tokenType: '',
   isAuthenticated: authDto.hasToken(),
   loading: false,
   error: null,
@@ -28,7 +29,7 @@ export const login = createAsyncThunk(
       // After login, request user data
       const user = await authApi.getCurrentUser();
       
-      return { token, user };
+      return { token, tokenType: response.token_type, user };
     } catch (error) {
       if (error instanceof Error) {
         return rejectWithValue(error.message);
@@ -110,10 +111,11 @@ const authSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(login.fulfilled, (state, action: PayloadAction<{ token: string; user: User }>) => {
+      .addCase(login.fulfilled, (state, action: PayloadAction<{ token: string; tokenType: string; user: User }>) => {
         state.loading = false;
         state.isAuthenticated = true;
         state.token = action.payload.token;
+        state.tokenType = action.payload.tokenType;
         state.user = action.payload.user;
       })
       .addCase(login.rejected, (state, action) => {
@@ -152,6 +154,7 @@ const authSlice = createSlice({
         // If getting user failed, reset state
         state.isAuthenticated = false;
         state.token = null;
+        state.tokenType = '';
         localStorage.removeItem('token');
       })
       
@@ -159,6 +162,7 @@ const authSlice = createSlice({
       .addCase(logout.fulfilled, (state) => {
         state.user = null;
         state.token = null;
+        state.tokenType = '';
         state.isAuthenticated = false;
       });
   },
