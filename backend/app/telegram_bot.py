@@ -23,14 +23,17 @@ logger = logging.getLogger(__name__)
 application: Optional[Application] = None
 task_checker: Optional[asyncio.Task] = None
 
+
 def get_main_keyboard():
     """Create the main keyboard menu."""
     keyboard = [
-        [KeyboardButton(text="🔗 Link Account"), KeyboardButton(text="⏱️ Current Activity")],
+        [KeyboardButton(text="🔗 Link Account"),
+         KeyboardButton(text="⏱️ Current Activity")],
         [KeyboardButton(text="❓ Help"), KeyboardButton(text="🏠 Start")],
         [KeyboardButton(text="🔓 Unlink Account")]
     ]
     return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Send a message when the command /start is issued."""
@@ -43,6 +46,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "/help - Show help message",
         reply_markup=get_main_keyboard(),
     )
+
 
 async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Show help message."""
@@ -57,6 +61,7 @@ async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_markup=get_main_keyboard(),
     )
 
+
 async def link_account(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Start the account linking process."""
     await update.message.reply_text(
@@ -65,12 +70,15 @@ async def link_account(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
     context.user_data['state'] = 'waiting_for_email'
 
+
 async def unlink_account(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Unlink the user's Telegram account."""
     telegram_id = str(update.effective_user.id)
     db = next(get_db())
     try:
-        user = db.query(models.User).filter(models.User.telegram_chat_id == telegram_id).first()
+        user = db.query(
+            models.User).filter(
+            models.User.telegram_chat_id == telegram_id).first()
         if not user:
             await update.message.reply_text(
                 "Your account is not linked to Telegram.",
@@ -81,7 +89,7 @@ async def unlink_account(update: Update, context: ContextTypes.DEFAULT_TYPE):
         user.telegram_chat_id = None
         db.commit()
         logger.info(f"Successfully unlinked account for user: {user.email}")
-        
+
         await update.message.reply_text(
             "Your account has been unlinked from Telegram. You will no longer receive notifications.",
             reply_markup=get_main_keyboard(),
@@ -95,6 +103,7 @@ async def unlink_account(update: Update, context: ContextTypes.DEFAULT_TYPE):
     finally:
         db.close()
 
+
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle incoming messages based on the current state."""
     message_text = update.message.text
@@ -102,7 +111,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     logger.info(f"Handling message: '{message_text}' in state: {state}")
 
     # Handle button clicks first
-    if message_text in ["🔗 Link Account", "⏱️ Current Activity", "❓ Help", "🏠 Start", "🔓 Unlink Account"]:
+    if message_text in ["🔗 Link Account", "⏱️ Current Activity",
+                        "❓ Help", "🏠 Start", "🔓 Unlink Account"]:
         await handle_buttons(update, context)
         return
 
@@ -155,7 +165,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         password = message_text.strip()
         email = context.user_data.get('email')
         logger.info(f"Processing password for email: {email}")
-        
+
         if not email:
             logger.error("Email not found in context")
             await update.message.reply_text(
@@ -164,7 +174,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
             )
             context.user_data.clear()
             return
-        
+
         db = next(get_db())
         try:
             user = auth.authenticate_user(db, email, password)
@@ -194,12 +204,15 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         finally:
             db.close()
 
+
 async def current_activity(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Show current activity with timer."""
     telegram_id = str(update.effective_user.id)
     db = next(get_db())
     try:
-        user = db.query(models.User).filter(models.User.telegram_chat_id == telegram_id).first()
+        user = db.query(
+            models.User).filter(
+            models.User.telegram_chat_id == telegram_id).first()
         if not user:
             await update.message.reply_text(
                 "Please link your account first using the '🔗 Link Account' button.",
@@ -249,11 +262,12 @@ async def current_activity(update: Update, context: ContextTypes.DEFAULT_TYPE):
     finally:
         db.close()
 
+
 async def handle_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle button clicks."""
     message_text = update.message.text
     logger.info(f"Handling button click: {message_text}")
-    
+
     if message_text == "🔗 Link Account":
         await link_account(update, context)
     elif message_text == "⏱️ Current Activity":
@@ -265,6 +279,7 @@ async def handle_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     elif message_text == "🔓 Unlink Account":
         await unlink_account(update, context)
 
+
 async def check_upcoming_tasks():
     """Check for tasks that are scheduled to start in 10 minutes and send notifications."""
     while True:
@@ -272,14 +287,14 @@ async def check_upcoming_tasks():
             db = next(get_db())
             now = datetime.now(timezone.utc)
             ten_minutes_from_now = now + timedelta(minutes=10)
-            
+
             upcoming_tasks = (
                 db.query(models.Activity)
                 .filter(
                     models.Activity.scheduled_time >= now,
                     models.Activity.scheduled_time <= ten_minutes_from_now,
                     models.Activity.timer_status == "stopped",
-                    models.Activity.notified == False
+                    models.Activity.notified is False
                 )
                 .all()
             )
@@ -297,12 +312,13 @@ async def check_upcoming_tasks():
             logger.error(f"Error in check_upcoming_tasks: {str(e)}")
             await asyncio.sleep(60)
 
+
 async def send_notification(user_id: int, message: str):
     """Send a notification to a user."""
     if not application:
         logger.error("Telegram bot not initialized")
         return False
-    
+
     try:
         db = next(get_db())
         user = db.query(models.User).filter(models.User.id == user_id).first()
@@ -316,12 +332,14 @@ async def send_notification(user_id: int, message: str):
     finally:
         db.close()
 
+
 def format_time(seconds):
     """Format seconds into HH:MM:SS."""
     hours = seconds // 3600
     minutes = (seconds % 3600) // 60
     secs = seconds % 60
     return f"{hours:02d}:{minutes:02d}:{secs:02d}"
+
 
 async def start_bot():
     """Start the Telegram bot."""
@@ -334,32 +352,33 @@ async def start_bot():
 
         # Create the application
         application = Application.builder().token(token).build()
-        
+
         # Add command handlers
         application.add_handler(CommandHandler("start", start))
         application.add_handler(CommandHandler("help", help_command))
         application.add_handler(CommandHandler("link", link_account))
         application.add_handler(CommandHandler("unlink", unlink_account))
         application.add_handler(CommandHandler("current", current_activity))
-        
+
         # Add a single message handler for all text messages
         application.add_handler(MessageHandler(
             filters.TEXT & ~filters.COMMAND,
             handle_message
         ))
-        
+
         # Start the background task for checking upcoming tasks
         task_checker = asyncio.create_task(check_upcoming_tasks())
-        
+
         # Start the bot without blocking
         await application.initialize()
         await application.start()
         await application.updater.start_polling()
-        
+
         logger.info("Telegram bot started successfully")
     except Exception as e:
         logger.error(f"Error starting bot: {str(e)}")
         raise
+
 
 async def stop_bot():
     """Stop the Telegram bot."""

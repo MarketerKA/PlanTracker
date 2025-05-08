@@ -3,7 +3,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from . import models, telegram_bot
 from .database import engine
 from contextlib import asynccontextmanager
-import asyncio
 from .routers.activity_router import activity_router
 from .routers.tag_router import tag_router
 from .routers.user_router import user_router
@@ -26,7 +25,7 @@ async def lifespan(app: FastAPI):
 
 
 # Initialize FastAPI app
-app = FastAPI(title="PlanTracker API", lifespan=lifespan)   
+app = FastAPI(title="PlanTracker API", lifespan=lifespan)
 
 
 # Add health check endpoint
@@ -43,7 +42,10 @@ app.include_router(tag_router)
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://158.160.23.164", "http://158.160.23.164", "http://localhost:5173"],
+    allow_origins=[
+        "https://158.160.23.164",
+        "http://158.160.23.164",
+        "http://localhost:5173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

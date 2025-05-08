@@ -258,7 +258,11 @@ def test_delete_activity_unauthorized(client):
 
 def test_timer_action_invalid_id(client, auth_headers):
     """Test timer action with invalid activity id"""
-    response = client.post("/activities/9999/timer", json={"action": "start"}, headers=auth_headers)
+    response = client.post(
+        "/activities/9999/timer",
+        json={
+            "action": "start"},
+        headers=auth_headers)
     assert response.status_code == 404
     assert "Activity not found" in response.json()["detail"]
 
@@ -276,7 +280,11 @@ def test_timer_action_invalid_action(client, auth_headers, test_activity):
 
 def test_timer_start(client, auth_headers, test_activity):
     """Test starting a timer"""
-    response = client.post(f"/activities/{test_activity['id']}/timer", json={"action": "start"}, headers=auth_headers)
+    response = client.post(
+        f"/activities/{test_activity['id']}/timer",
+        json={
+            "action": "start"},
+        headers=auth_headers)
     assert response.status_code == 200
     assert response.json()["timer_status"] == "running"
 
@@ -284,8 +292,16 @@ def test_timer_start(client, auth_headers, test_activity):
 def test_timer_pause(client, auth_headers, test_activity):
     """Test pausing a timer"""
     # Start timer first
-    client.post(f"/activities/{test_activity['id']}/timer", json={"action": "start"}, headers=auth_headers)
-    response = client.post(f"/activities/{test_activity['id']}/timer", json={"action": "pause"}, headers=auth_headers)
+    client.post(
+        f"/activities/{test_activity['id']}/timer",
+        json={
+            "action": "start"},
+        headers=auth_headers)
+    response = client.post(
+        f"/activities/{test_activity['id']}/timer",
+        json={
+            "action": "pause"},
+        headers=auth_headers)
     assert response.status_code == 200
     assert response.json()["timer_status"] == "paused"
 
@@ -293,8 +309,16 @@ def test_timer_pause(client, auth_headers, test_activity):
 def test_timer_stop(client, auth_headers, test_activity):
     """Test stopping a timer"""
     # Start timer first
-    client.post(f"/activities/{test_activity['id']}/timer", json={"action": "start"}, headers=auth_headers)
-    response = client.post(f"/activities/{test_activity['id']}/timer", json={"action": "stop"}, headers=auth_headers)
+    client.post(
+        f"/activities/{test_activity['id']}/timer",
+        json={
+            "action": "start"},
+        headers=auth_headers)
+    response = client.post(
+        f"/activities/{test_activity['id']}/timer",
+        json={
+            "action": "stop"},
+        headers=auth_headers)
     assert response.status_code == 200
     assert response.json()["timer_status"] == "stopped"
 
@@ -302,8 +326,16 @@ def test_timer_stop(client, auth_headers, test_activity):
 def test_timer_save(client, auth_headers, test_activity):
     """Test saving a timer"""
     # Start timer first
-    client.post(f"/activities/{test_activity['id']}/timer", json={"action": "start"}, headers=auth_headers)
-    response = client.post(f"/activities/{test_activity['id']}/timer", json={"action": "save"}, headers=auth_headers)
+    client.post(
+        f"/activities/{test_activity['id']}/timer",
+        json={
+            "action": "start"},
+        headers=auth_headers)
+    response = client.post(
+        f"/activities/{test_activity['id']}/timer",
+        json={
+            "action": "save"},
+        headers=auth_headers)
     assert response.status_code == 200
     assert response.json()["timer_status"] == "running"
 
@@ -311,21 +343,37 @@ def test_timer_save(client, auth_headers, test_activity):
 def test_timer_already_running(client, auth_headers, test_activity):
     """Test starting a timer that is already running"""
     # Start timer first
-    client.post(f"/activities/{test_activity['id']}/timer", json={"action": "start"}, headers=auth_headers)
-    response = client.post(f"/activities/{test_activity['id']}/timer", json={"action": "start"}, headers=auth_headers)
+    client.post(
+        f"/activities/{test_activity['id']}/timer",
+        json={
+            "action": "start"},
+        headers=auth_headers)
+    response = client.post(
+        f"/activities/{test_activity['id']}/timer",
+        json={
+            "action": "start"},
+        headers=auth_headers)
     assert response.status_code == 200
     assert response.json()["timer_status"] == "running"
 
 
 def test_timer_not_running(client, auth_headers, test_activity):
     """Test pausing a timer that is not running"""
-    response = client.post(f"/activities/{test_activity['id']}/timer", json={"action": "pause"}, headers=auth_headers)
+    response = client.post(
+        f"/activities/{test_activity['id']}/timer",
+        json={
+            "action": "pause"},
+        headers=auth_headers)
     assert response.status_code == 400
     assert "Timer not running" in response.json()["detail"]
 
 
 def test_timer_already_stopped(client, auth_headers, test_activity):
     """Test stopping a timer that is already stopped"""
-    response = client.post(f"/activities/{test_activity['id']}/timer", json={"action": "stop"}, headers=auth_headers)
+    response = client.post(
+        f"/activities/{test_activity['id']}/timer",
+        json={
+            "action": "stop"},
+        headers=auth_headers)
     assert response.status_code == 200
     assert response.json()["timer_status"] == "stopped"
