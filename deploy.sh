@@ -68,17 +68,6 @@ case "$MODE" in
       save_deployment_state
     fi
     
-    # Pull latest images from GitHub Container Registry
-    if [ -f ".env" ]; then
-      source .env
-      GITHUB_REPOSITORY_LOWER=$(echo "$GITHUB_REPOSITORY" | tr '[:upper:]' '[:lower:]')
-      docker pull ghcr.io/$GITHUB_REPOSITORY_LOWER/frontend:latest
-      docker pull ghcr.io/$GITHUB_REPOSITORY_LOWER/backend:latest
-    else
-      echo "Error: .env file not found. Cannot determine repository name."
-      exit 1
-    fi
-    
     # Make sure .env has latest tags
     grep -q "^FRONTEND_VERSION=" backend/.env || echo "FRONTEND_VERSION=latest" >> backend/.env
     grep -q "^BACKEND_VERSION=" backend/.env || echo "BACKEND_VERSION=latest" >> backend/.env
@@ -93,8 +82,18 @@ case "$MODE" in
     fi
     
     # Restart the services
+    echo "Stopping current services..."
     docker-compose down
+    
+    echo "Starting services with new images..."
     docker-compose up -d
+    
+    # Verify services are running with new images
+    echo "Verifying deployed images..."
+    FRONTEND_RUNNING=$(docker inspect plantracker-frontend --format='{{.Config.Image}}')
+    BACKEND_RUNNING=$(docker inspect plantracker-backend --format='{{.Config.Image}}')
+    echo "Running frontend image: $FRONTEND_RUNNING"
+    echo "Running backend image: $BACKEND_RUNNING"
     
     # Clean up old images
     docker image prune -af --filter "until=24h"
