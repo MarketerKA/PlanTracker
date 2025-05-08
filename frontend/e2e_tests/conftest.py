@@ -21,6 +21,13 @@ def driver():
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--window-size=1920,1080")  # Set window size
     
+    # Ignore SSL/certificate errors and security warnings
+    chrome_options.add_argument("--ignore-certificate-errors")
+    chrome_options.add_argument("--allow-insecure-localhost")
+    chrome_options.add_argument("--allow-running-insecure-content")
+    chrome_options.add_argument("--disable-web-security")
+    chrome_options.add_argument("--disable-features=IsolateOrigins,site-per-process")
+    
     try:
         # Try creating the driver without specifying a service
         driver = webdriver.Chrome(options=chrome_options)
