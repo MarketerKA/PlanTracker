@@ -1,112 +1,109 @@
-# PlanTracker - https://marketerka.github.io/PlanTracker/
+# PlanTracker
 
-A full-stack application for tracking and managing tasks and activities.
+A full-stack web application for tracking and managing tasks and activities.
 
-## Project Structure
+**Live Demo:** [http://158.160.23.164/](http://158.160.23.164/)
+
+---
+
+## Project Overview
+
+- **Frontend:** React + TypeScript
+- **Backend:** FastAPI (Python)
 
 ```
 PlanTracker/
-├── frontend/          # React + TypeScript frontend
-│   ├── src/          # Source code
-│   ├── public/       # Static files
-│   └── package.json  # Frontend dependencies
-│
-└── backend/          # FastAPI backend
-    ├── app/          # Application code
-    ├── tests/        # Test files
-    └── pyproject.toml # Backend dependencies
+├── frontend/   # React + TypeScript app
+├── backend/    # FastAPI app
 ```
 
-## Prerequisites
+---
 
-- Node.js (v16 or higher)
-- Python 3.9 or higher
+## Prerequisites
+- Node.js v16+
+- Python 3.9+
 - Poetry (Python package manager)
 - Git
 
-## Setup Instructions
+---
 
-### Backend Setup
+## Getting Started
 
-1. Navigate to the backend directory:
-```bash
-cd backend
-```
-
+### Backend
+1. Go to the backend directory:
+   ```bash
+   cd backend
+   ```
 2. Install dependencies:
-```bash
-poetry install
-```
+   ```bash
+   poetry install
+   ```
+3. Copy `.env.example` to `.env` and update as needed.
+4. Start the backend server:
+   ```bash
+   poetry run uvicorn app.main:app --reload
+   ```
+   - API: [http://localhost:8000](http://localhost:8000)
+   - Docs: [http://localhost:8000/docs](http://localhost:8000/docs)
 
-3. Create a `.env` using `.env.example` file.
-
-4. Run the backend server:
-```bash
-poetry run uvicorn app.main:app --reload
-```
-
-The backend will be available at `http://localhost:8000`
-
-### Frontend Setup
-
-1. Navigate to the frontend directory:
-```bash
-cd frontend
-```
-
+### Frontend
+1. Go to the frontend directory:
+   ```bash
+   cd frontend
+   ```
 2. Install dependencies:
-```bash
-npm install
-```
+   ```bash
+   npm install
+   ```
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
+   - App: [http://localhost:3000](http://localhost:3000)
 
-3. Run the development server:
-```bash
-npm run dev
-```
+---
 
-The frontend will be available at `http://localhost:3000`
+## Development & Testing
 
-## Development
-
-### Backend Development
-
-- API Documentation: `http://localhost:8000/docs`
+### Backend
 - Run tests: `poetry run pytest`
-- Linting: `poetry run flake8`
+- Lint: `poetry run flake8`
 
-### Frontend Development
-
-- Development server: `npm run dev`
+### Frontend
+- Lint: `npm run lint`
 - Build: `npm run build`
-- Linting: `npm run lint`
 
-## Container Security
-
-This project implements multiple container security scanning tools in the CI/CD pipeline:
-
-- **Trivy:** Scans Docker configurations and images for vulnerabilities
-- **Snyk:** Detects vulnerabilities in container images and dependencies
-- **Docker Scout:** Provides comprehensive container scanning and security insights
-
-For setup details and usage instructions, see [CONTAINER_SCANNING.md](CONTAINER_SCANNING.md).
+---
 
 ## Environment Variables
 
-### Backend (.env)
+### Backend (`.env`)
 - `SECRET_KEY`: JWT secret key
-- `TELEGRAM_BOT_TOKEN`: Token for Telegram bot
+- `TELEGRAM_BOT_TOKEN`: Telegram bot token
 
-### Frontend (.env)
+### Frontend (`.env`)
 - `VITE_API_URL`: Backend API URL (default: http://localhost:8000)
 
-## Contributing
+---
 
-1. Fork the repository
+## Container Security
+
+Container security scanning is integrated in CI/CD:
+- **Trivy**: Docker/image vulnerability scanning
+- **Snyk**: Dependency and image scanning
+- **Docker Scout**: Security insights
+
+See [CONTAINER_SCANNING.md](CONTAINER_SCANNING.md) for details.
+
+---
+
+## Contributing
+1. Fork the repo
 2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
+3. Commit and push your changes
+4. Open a Pull Request
+
+---
 
 ## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
+MIT License. See `LICENSE` for details.
