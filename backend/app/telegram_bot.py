@@ -1,290 +1,384 @@
-import logging
-from aiogram import Bot, Dispatcher, types
-from aiogram.filters import Command
-from aiogram.fsm.storage.memory import MemoryStorage
-from aiogram.fsm.context import FSMContext
-from aiogram.fsm.state import State, StatesGroup
-from datetime import datetime, timedelta, timezone
+from telegram import Update, ReplyKeyboardMarkup, KeyboardButton
+from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
+from .database import get_db
+from . import models, auth
 import os
+import logging
+from dotenv import load_dotenv
+from datetime import datetime, timezone, timedelta
 import asyncio
-from . import models, database, auth
+from typing import Optional
 
-logging.basicConfig(level=logging.INFO)
+# Load environment variables
+load_dotenv()
+
+# Configure logging
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=logging.INFO
+)
 logger = logging.getLogger(__name__)
 
-
-class LinkStates(StatesGroup):
-    waiting_for_email = State()
-    waiting_for_password = State()
-
-
-BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-bot = None
-storage = None
-dp = None
-
-if BOT_TOKEN:
-    try:
-        bot = Bot(token=BOT_TOKEN)
-        storage = MemoryStorage()
-        dp = Dispatcher(storage=storage)
-    except Exception as e:
-        logger.error(f"Failed to initialize Telegram bot: {e}")
-        bot = None
-        storage = None
-        dp = None
-
-# Create keyboard menu
-
+# Global variables
+application: Optional[Application] = None
+task_checker: Optional[asyncio.Task] = None
 
 def get_main_keyboard():
-    keyboard = types.ReplyKeyboardMarkup(
-        keyboard=[
-            [
-                types.KeyboardButton(text="🔗 Link Account"),
-                types.KeyboardButton(text="⏱️ Current Activity"),
-            ],
-            [
-                types.KeyboardButton(text="❓ Help"),
-                types.KeyboardButton(text="🏠 Start"),
-            ],
-        ],
-        resize_keyboard=True,
-    )
-    return keyboard
+    """Create the main keyboard menu."""
+    keyboard = [
+        [KeyboardButton(text="🔗 Link Account"), KeyboardButton(text="⏱️ Current Activity")],
+        [KeyboardButton(text="❓ Help"), KeyboardButton(text="🏠 Start")],
+        [KeyboardButton(text="🔓 Unlink Account")]
+    ]
+    return ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
 
-
-@dp.message(Command("start"))
-async def cmd_start(message: types.Message, state: FSMContext):
-    await message.answer(
-        "Hello there! I am a PlanTracker bot.\n"
-        "To connect an account with Telegram, use the command /link\n"
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Send a message when the command /start is issued."""
+    await update.message.reply_text(
+        "Welcome to PlanTracker Bot!\n\n"
         "Available commands:\n"
-        "/help - help\n"
-        "/link - link account\n"
-        "/current - current activity",
+        "/link - Link your account\n"
+        "/unlink - Unlink your account\n"
+        "/current - Show current activity\n"
+        "/help - Show help message",
         reply_markup=get_main_keyboard(),
     )
 
-
-@dp.message(Command("help"))
-async def cmd_help(message: types.Message):
-    await message.answer(
+async def help_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Show help message."""
+    await update.message.reply_text(
         "PlanTracker Bot Commands:\n\n"
-        "/start - Start the bot and see available commands\n"
+        "/start - Start the bot\n"
         "/help - Show this help message\n"
-        "/link - Link your PlanTracker account with Telegram\n"
-        "/current - Show your current activity with timer\n"
-        "\n"
-        "To link your account:\n"
-        "1. Use /link command\n"
-        "2. Enter your email\n"
-        "3. Enter your password\n"
-        "\n"
-        "After linking, you'll receive notifications about your activities.",
+        "/link - Link your account\n"
+        "/unlink - Unlink your account\n"
+        "/current - Show current activity\n\n"
+        "You can use the buttons below to send these commands.",
         reply_markup=get_main_keyboard(),
     )
 
-
-@dp.message(Command("link"))
-async def cmd_link(message: types.Message, state: FSMContext):
-    await state.set_state(LinkStates.waiting_for_email)
-    await message.answer(
-        "Enter the email address of your PlanTracker account:",
-        reply_markup=types.ReplyKeyboardRemove(),
+async def link_account(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Start the account linking process."""
+    await update.message.reply_text(
+        "Please enter your PlanTracker account email:",
+        reply_markup=ReplyKeyboardMarkup([[]], resize_keyboard=True),
     )
+    context.user_data['state'] = 'waiting_for_email'
 
+async def unlink_account(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Unlink the user's Telegram account."""
+    telegram_id = str(update.effective_user.id)
+    db = next(get_db())
+    try:
+        user = db.query(models.User).filter(models.User.telegram_chat_id == telegram_id).first()
+        if not user:
+            await update.message.reply_text(
+                "Your account is not linked to Telegram.",
+                reply_markup=get_main_keyboard(),
+            )
+            return
 
-@dp.message(LinkStates.waiting_for_email)
-async def process_email(message: types.Message, state: FSMContext):
-    email = message.text.strip()
-
-    db = next(database.get_db())
-    user = db.query(models.User).filter(models.User.email == email).first()
-
-    if not user:
-        await message.answer(
-            "The user with this email was not found. Try again:",
-            reply_markup=types.ReplyKeyboardRemove(),
-        )
-        return
-
-    await state.update_data(email=email)
-    await state.set_state(LinkStates.waiting_for_password)
-    await message.answer(
-        "Enter your password:", reply_markup=types.ReplyKeyboardRemove()
-    )
-
-
-@dp.message(LinkStates.waiting_for_password)
-async def process_password(message: types.Message, state: FSMContext):
-    password = message.text.strip()
-    data = await state.get_data()
-    email = data.get("email")
-
-    db = next(database.get_db())
-    user = auth.authenticate_user(db, email, password)
-
-    if not user:
-        await message.answer(
-            "Invalid password. Try again:", reply_markup=types.ReplyKeyboardRemove()
-        )
-        return
-
-    user.telegram_chat_id = str(message.from_user.id)
-    db.commit()
-
-    await state.clear()
-    await message.answer(
-        "The account has been successfully linked! You will now receive notifications.",
-        reply_markup=get_main_keyboard(),
-    )
-
-
-@dp.message(Command("current"))
-async def cmd_current(message: types.Message):
-    telegram_id = str(message.from_user.id)
-    db = next(database.get_db())
-
-    user = (
-        db.query(models.User)
-        .filter(models.User.telegram_chat_id == telegram_id)
-        .first()
-    )
-    if not user:
-        await message.answer(
-            "First, link the account with the /link command",
+        user.telegram_chat_id = None
+        db.commit()
+        logger.info(f"Successfully unlinked account for user: {user.email}")
+        
+        await update.message.reply_text(
+            "Your account has been unlinked from Telegram. You will no longer receive notifications.",
             reply_markup=get_main_keyboard(),
         )
-        return
-
-    current_activity = (
-        db.query(models.Activity)
-        .filter(
-            models.Activity.user_id == user.id,
-            models.Activity.timer_status == "running",
-        )
-        .first()
-    )
-
-    if not current_activity:
-        await message.answer(
-            "There are no active tasks with the timer running",
+    except Exception as e:
+        logger.error(f"Error unlinking account: {str(e)}")
+        await update.message.reply_text(
+            "An error occurred while unlinking your account. Please try again later.",
             reply_markup=get_main_keyboard(),
         )
+    finally:
+        db.close()
+
+async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handle incoming messages based on the current state."""
+    message_text = update.message.text
+    state = context.user_data.get('state')
+    logger.info(f"Handling message: '{message_text}' in state: {state}")
+
+    # Handle button clicks first
+    if message_text in ["🔗 Link Account", "⏱️ Current Activity", "❓ Help", "🏠 Start", "🔓 Unlink Account"]:
+        await handle_buttons(update, context)
         return
 
-    elapsed_time = 0
-    if current_activity.last_timer_start:
-        elapsed = datetime.now(timezone.utc) - current_activity.last_timer_start
-        elapsed_time = int(elapsed.total_seconds())
-
-    total_time = current_activity.recorded_time + elapsed_time
-
-    await message.answer(
-        f"Current activity: {current_activity.title}\n"
-        f"Time: {format_time(total_time)}\n"
-        f"Timer status: ▶️ Running",
-        reply_markup=get_main_keyboard(),
-    )
-
-
-# Handle button clicks
-
-
-@dp.message(
-    lambda message: message.text
-    in ["🔗 Link Account", "⏱️ Current Activity", "❓ Help", "🏠 Start"]
-)
-async def handle_buttons(message: types.Message, state: FSMContext):
-    if message.text == "🔗 Link Account":
-        await cmd_link(message, state)
-    elif message.text == "⏱️ Current Activity":
-        await cmd_current(message)
-    elif message.text == "❓ Help":
-        await cmd_help(message)
-    elif message.text == "🏠 Start":
-        await cmd_start(message, state)
-
-
-def format_time(seconds):
-    hours = seconds // 3600
-    minutes = (seconds % 3600) // 60
-    secs = seconds % 60
-    return f"{hours:02d}:{minutes:02d}:{secs:02d}"
-
-
-async def send_notification(user_id: int, message: str):
-    if not bot:
-        logger.warning("Telegram bot not initialized, skipping notification")
+    # If no state is set, ignore the message
+    if not state:
+        logger.info("No state set, ignoring message")
         return
-    db = next(database.get_db())
-    user = db.query(models.User).filter(models.User.id == user_id).first()
 
-    if user and user.telegram_chat_id:
+    if state == 'waiting_for_email':
+        email = message_text.strip()
+        logger.info(f"Processing email: {email}")
+        db = next(get_db())
         try:
-            await bot.send_message(user.telegram_chat_id, message)
-        except Exception as e:
-            logger.error(f"Failed to send notification to user {user_id}: {e}")
+            user = db.query(models.User).filter(models.User.email == email).first()
+            if not user:
+                logger.info(f"User not found for email: {email}")
+                await update.message.reply_text(
+                    "User not found. Please check your email and try again:",
+                    reply_markup=ReplyKeyboardMarkup([[]], resize_keyboard=True),
+                )
+                return
 
+            if user.telegram_chat_id:
+                logger.info(f"Account already linked for email: {email}")
+                await update.message.reply_text(
+                    "This account is already linked to a Telegram account.\n"
+                    "Please unlink it first through the web interface or use the '🔓 Unlink Account' button.",
+                    reply_markup=get_main_keyboard(),
+                )
+                context.user_data.clear()
+                return
+
+            context.user_data['email'] = email
+            context.user_data['state'] = 'waiting_for_password'
+            logger.info(f"Email verified, waiting for password for: {email}")
+            await update.message.reply_text(
+                "Email verified! Please enter your password:",
+                reply_markup=ReplyKeyboardMarkup([[]], resize_keyboard=True),
+            )
+        except Exception as e:
+            logger.error(f"Error in email verification: {str(e)}")
+            await update.message.reply_text(
+                "An error occurred. Please try again later.",
+                reply_markup=get_main_keyboard(),
+            )
+        finally:
+            db.close()
+
+    elif state == 'waiting_for_password':
+        password = message_text.strip()
+        email = context.user_data.get('email')
+        logger.info(f"Processing password for email: {email}")
+        
+        if not email:
+            logger.error("Email not found in context")
+            await update.message.reply_text(
+                "An error occurred. Please start the linking process again.",
+                reply_markup=get_main_keyboard(),
+            )
+            context.user_data.clear()
+            return
+        
+        db = next(get_db())
+        try:
+            user = auth.authenticate_user(db, email, password)
+            if not user:
+                logger.info(f"Invalid password for email: {email}")
+                await update.message.reply_text(
+                    "Invalid password. Please try again:",
+                    reply_markup=ReplyKeyboardMarkup([[]], resize_keyboard=True),
+                )
+                return
+
+            user.telegram_chat_id = str(update.effective_user.id)
+            db.commit()
+            logger.info(f"Successfully linked account for email: {email}")
+
+            context.user_data.clear()
+            await update.message.reply_text(
+                "Account successfully linked! You will now receive notifications about your activities.",
+                reply_markup=get_main_keyboard(),
+            )
+        except Exception as e:
+            logger.error(f"Error in password verification: {str(e)}")
+            await update.message.reply_text(
+                "An error occurred. Please try again later.",
+                reply_markup=get_main_keyboard(),
+            )
+        finally:
+            db.close()
+
+async def current_activity(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Show current activity with timer."""
+    telegram_id = str(update.effective_user.id)
+    db = next(get_db())
+    try:
+        user = db.query(models.User).filter(models.User.telegram_chat_id == telegram_id).first()
+        if not user:
+            await update.message.reply_text(
+                "Please link your account first using the '🔗 Link Account' button.",
+                reply_markup=get_main_keyboard(),
+            )
+            return
+
+        current_activity = (
+            db.query(models.Activity)
+            .filter(
+                models.Activity.user_id == user.id,
+                models.Activity.timer_status == "running",
+            )
+            .first()
+        )
+
+        if not current_activity:
+            await update.message.reply_text(
+                "No active timer running.\n"
+                "Use the web interface to start tracking an activity.",
+                reply_markup=get_main_keyboard(),
+            )
+            return
+
+        elapsed_time = 0
+        if current_activity.last_timer_start:
+            # Ensure both datetimes are timezone-aware
+            now = datetime.now(timezone.utc)
+            last_start = current_activity.last_timer_start.replace(tzinfo=timezone.utc)
+            elapsed = now - last_start
+            elapsed_time = int(elapsed.total_seconds())
+
+        total_time = current_activity.recorded_time + elapsed_time
+
+        await update.message.reply_text(
+            f"Current activity: {current_activity.title}\n"
+            f"Time: {format_time(total_time)}\n"
+            f"Status: Running",
+            reply_markup=get_main_keyboard(),
+        )
+    except Exception as e:
+        logger.error(f"Error getting current activity: {str(e)}")
+        await update.message.reply_text(
+            "An error occurred while getting current activity.",
+            reply_markup=get_main_keyboard(),
+        )
+    finally:
+        db.close()
+
+async def handle_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    """Handle button clicks."""
+    message_text = update.message.text
+    logger.info(f"Handling button click: {message_text}")
+    
+    if message_text == "🔗 Link Account":
+        await link_account(update, context)
+    elif message_text == "⏱️ Current Activity":
+        await current_activity(update, context)
+    elif message_text == "❓ Help":
+        await help_command(update, context)
+    elif message_text == "🏠 Start":
+        await start(update, context)
+    elif message_text == "🔓 Unlink Account":
+        await unlink_account(update, context)
 
 async def check_upcoming_tasks():
     """Check for tasks that are scheduled to start in 10 minutes and send notifications."""
-    if not bot:
-        logger.warning("Telegram bot not initialized, skipping task check")
-        return
     while True:
         try:
-            db = next(database.get_db())
+            db = next(get_db())
             now = datetime.now(timezone.utc)
             ten_minutes_from_now = now + timedelta(minutes=10)
-            logger.info(f"[NOTIFY] Now: {now.isoformat()}, 10min from now: {ten_minutes_from_now.isoformat()}")
-
-            # Find tasks scheduled to start in the next 10 minutes
+            
             upcoming_tasks = (
                 db.query(models.Activity)
                 .filter(
                     models.Activity.scheduled_time >= now,
                     models.Activity.scheduled_time <= ten_minutes_from_now,
                     models.Activity.timer_status == "stopped",
-                    models.Activity.notified is False
+                    models.Activity.notified == False
                 )
                 .all()
             )
-            logger.info(f"[NOTIFY] Found {len(upcoming_tasks)} upcoming tasks")
 
             for task in upcoming_tasks:
-                logger.info(f"[NOTIFY] Task id={task.id}, title='{task.title}',\
-                            scheduled_time={task.scheduled_time}, timer_status={task.timer_status}")
                 await send_notification(
                     task.user_id,
-                    f"🔔 Reminder: Task '{task.title}' is scheduled to start in 10 minutes!"
+                    f"Reminder: Task '{task.title}' is scheduled to start in 10 minutes!"
                 )
-                task.notified = True  # Mark that we've sent the notification
+                task.notified = True
                 db.commit()
 
-            # Sleep for 1 minute before checking again
+            await asyncio.sleep(60)
+        except Exception as e:
+            logger.error(f"Error in check_upcoming_tasks: {str(e)}")
             await asyncio.sleep(60)
 
-        except Exception as e:
-            logger.error(f"Error in check_upcoming_tasks: {e}")
-            await asyncio.sleep(60)  # Sleep for 1 minute before retrying
+async def send_notification(user_id: int, message: str):
+    """Send a notification to a user."""
+    if not application:
+        logger.error("Telegram bot not initialized")
+        return False
+    
+    try:
+        db = next(get_db())
+        user = db.query(models.User).filter(models.User.id == user_id).first()
+        if user and user.telegram_chat_id:
+            await application.bot.send_message(chat_id=user.telegram_chat_id, text=message)
+            return True
+        return False
+    except Exception as e:
+        logger.error(f"Error sending notification: {str(e)}")
+        return False
+    finally:
+        db.close()
 
+def format_time(seconds):
+    """Format seconds into HH:MM:SS."""
+    hours = seconds // 3600
+    minutes = (seconds % 3600) // 60
+    secs = seconds % 60
+    return f"{hours:02d}:{minutes:02d}:{secs:02d}"
 
 async def start_bot():
-    if not bot or not dp:
-        logger.warning("Telegram bot not initialized, skipping start")
-        return
-    logger.info("Starting telegram bot...")
-    # Start the background task for checking upcoming tasks
-    asyncio.create_task(check_upcoming_tasks())
-    await dp.start_polling(bot)
+    """Start the Telegram bot."""
+    global application, task_checker
+    try:
+        token = os.getenv("TELEGRAM_BOT_TOKEN")
+        if not token:
+            logger.error("TELEGRAM_BOT_TOKEN not found in environment variables")
+            return
 
+        # Create the application
+        application = Application.builder().token(token).build()
+        
+        # Add command handlers
+        application.add_handler(CommandHandler("start", start))
+        application.add_handler(CommandHandler("help", help_command))
+        application.add_handler(CommandHandler("link", link_account))
+        application.add_handler(CommandHandler("unlink", unlink_account))
+        application.add_handler(CommandHandler("current", current_activity))
+        
+        # Add a single message handler for all text messages
+        application.add_handler(MessageHandler(
+            filters.TEXT & ~filters.COMMAND,
+            handle_message
+        ))
+        
+        # Start the background task for checking upcoming tasks
+        task_checker = asyncio.create_task(check_upcoming_tasks())
+        
+        # Start the bot without blocking
+        await application.initialize()
+        await application.start()
+        await application.updater.start_polling()
+        
+        logger.info("Telegram bot started successfully")
+    except Exception as e:
+        logger.error(f"Error starting bot: {str(e)}")
+        raise
 
 async def stop_bot():
-    if not bot or not dp:
-        logger.warning("Telegram bot not initialized, skipping stop")
-        return
-    logger.info("Stopping telegram bot...")
-    await dp.stop_polling()
-    await bot.session.close()
+    """Stop the Telegram bot."""
+    global application, task_checker
+    try:
+        if task_checker:
+            task_checker.cancel()
+            try:
+                await task_checker
+            except asyncio.CancelledError:
+                pass
+            task_checker = None
+
+        if application:
+            await application.updater.stop()
+            await application.stop()
+            await application.shutdown()
+            application = None
+            logger.info("Telegram bot stopped successfully")
+    except Exception as e:
+        logger.error(f"Error stopping bot: {str(e)}")
+        raise

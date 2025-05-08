@@ -83,3 +83,37 @@ def test_unlink_telegram(client, auth_headers):
     assert response.status_code == 400
     assert "detail" in response.json()
     assert "Telegram account not linked" in response.json()["detail"]
+
+
+def test_unlink_telegram_success(client, auth_headers, db_session, test_user):
+    """Test successfully unlinking telegram account"""
+    from app import models
+    # Set telegram_chat_id for the user
+    user = db_session.query(models.User).filter_by(email=test_user["email"]).first()
+    user.telegram_chat_id = "123456789"
+    db_session.commit()
+
+    response = client.delete("/users/me/telegram", headers=auth_headers)
+    assert response.status_code == 200
+    data = response.json()
+    assert "message" in data
+    assert "unlinked" in data["message"].lower()
+
+    # Check in DB
+    user = db_session.query(models.User).filter_by(email=test_user["email"]).first()
+    assert user.telegram_chat_id is None
+
+
+def test_get_telegram_status_linked(client, auth_headers, db_session, test_user):
+    """Test getting telegram status when linked"""
+    from app import models
+    # Set telegram_chat_id for the user
+    user = db_session.query(models.User).filter_by(email=test_user["email"]).first()
+    user.telegram_chat_id = "123456789"
+    db_session.commit()
+
+    response = client.get("/users/me/telegram-status", headers=auth_headers)
+    assert response.status_code == 200
+    data = response.json()
+    assert data["is_linked"] is True
+    assert data["telegram_chat_id"] == "123456789"
