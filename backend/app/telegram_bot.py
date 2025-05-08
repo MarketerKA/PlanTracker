@@ -19,9 +19,20 @@ class LinkStates(StatesGroup):
 
 
 BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-bot = Bot(token=BOT_TOKEN)
-storage = MemoryStorage()
-dp = Dispatcher(storage=storage)
+bot = None
+storage = None
+dp = None
+
+if BOT_TOKEN:
+    try:
+        bot = Bot(token=BOT_TOKEN)
+        storage = MemoryStorage()
+        dp = Dispatcher(storage=storage)
+    except Exception as e:
+        logger.error(f"Failed to initialize Telegram bot: {e}")
+        bot = None
+        storage = None
+        dp = None
 
 # Create keyboard menu
 
@@ -204,6 +215,9 @@ def format_time(seconds):
 
 
 async def send_notification(user_id: int, message: str):
+    if not bot:
+        logger.warning("Telegram bot not initialized, skipping notification")
+        return
     db = next(database.get_db())
     user = db.query(models.User).filter(models.User.id == user_id).first()
 
@@ -216,6 +230,9 @@ async def send_notification(user_id: int, message: str):
 
 async def check_upcoming_tasks():
     """Check for tasks that are scheduled to start in 10 minutes and send notifications."""
+    if not bot:
+        logger.warning("Telegram bot not initialized, skipping task check")
+        return
     while True:
         try:
             db = next(database.get_db())
@@ -224,7 +241,6 @@ async def check_upcoming_tasks():
             logger.info(f"[NOTIFY] Now: {now.isoformat()}, 10min from now: {ten_minutes_from_now.isoformat()}")
 
             # Find tasks scheduled to start in the next 10 minutes
-
             upcoming_tasks = (
                 db.query(models.Activity)
                 .filter(
@@ -256,6 +272,9 @@ async def check_upcoming_tasks():
 
 
 async def start_bot():
+    if not bot or not dp:
+        logger.warning("Telegram bot not initialized, skipping start")
+        return
     logger.info("Starting telegram bot...")
     # Start the background task for checking upcoming tasks
     asyncio.create_task(check_upcoming_tasks())
@@ -263,6 +282,9 @@ async def start_bot():
 
 
 async def stop_bot():
+    if not bot or not dp:
+        logger.warning("Telegram bot not initialized, skipping stop")
+        return
     logger.info("Stopping telegram bot...")
     await dp.stop_polling()
     await bot.session.close()
