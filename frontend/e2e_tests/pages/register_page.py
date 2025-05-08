@@ -1,77 +1,134 @@
 from selenium.webdriver.common.by import By
-from .base_page import BasePage
+from selenium.webdriver.remote.webdriver import WebDriver
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import UnexpectedAlertPresentException, NoAlertPresentException
+import sys
+import os
+import time
 
-class RegisterPage(BasePage):
-    """Page Object для страницы регистрации"""
+# Add the parent directory to the path to enable imports
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from conftest import BASE_URL
+
+class RegisterPage:
+    # URL
+    URL = f"{BASE_URL}/register"
     
-    # Упрощенные локаторы элементов
-    EMAIL_INPUT = (By.CSS_SELECTOR, "input[type='email']")
-    PASSWORD_INPUT = (By.XPATH, "(//input[@type='password'])[1]")
-    CONFIRM_PASSWORD_INPUT = (By.XPATH, "(//input[@type='password'])[2]")
-    REGISTER_BUTTON = (By.XPATH, "//button[contains(text(), 'Register')]")
-    LOGIN_LINK = (By.XPATH, "//button[contains(text(), 'Log in')]")
-    ERROR_MESSAGE = (By.CLASS_NAME, "_serverError_1v302_7")
+    # Locators
+    EMAIL_FIELD = (By.CSS_SELECTOR, "input[type='email']")
+    PASSWORD_FIELD = (By.CSS_SELECTOR, "input[placeholder='Minimum 8 characters']")
+    CONFIRM_PASSWORD_FIELD = (By.CSS_SELECTOR, "input[placeholder='Repeat password']")
+    REGISTER_BUTTON = (By.CSS_SELECTOR, "button[type='submit']")
+    LOGIN_LINK = (By.CSS_SELECTOR, ".loginLink")
+    SERVER_ERROR = (By.CSS_SELECTOR, ".serverError")
     
-    def __init__(self, driver, base_url):
-        super().__init__(driver, base_url)
+    # Error message locators
+    EMAIL_ERROR = (By.XPATH, "//label[text()='Email']/following-sibling::div/following-sibling::div[contains(@class, 'errorMessage')]")
+    CONFIRM_PASSWORD_ERROR = (By.XPATH, "//label[text()='Confirm Password']/following-sibling::div/following-sibling::div[contains(@class, 'errorMessage')]")
     
-    def open_register_page(self):
-        """Открыть страницу регистрации"""
-        return self.open("register")
-    
-    def enter_email(self, email):
-        """Ввести email"""
-        self.type_text(self.EMAIL_INPUT, email)
-        return self
-    
-    def enter_password(self, password):
-        """Ввести пароль"""
-        self.type_text(self.PASSWORD_INPUT, password)
-        return self
-    
-    def enter_confirm_password(self, password):
-        """Ввести подтверждение пароля"""
-        self.type_text(self.CONFIRM_PASSWORD_INPUT, password)
-        return self
-    
-    def click_register_button(self):
-        """Нажать кнопку регистрации"""
-        self.click(self.REGISTER_BUTTON)
-        return self
-    
-    def click_login_link(self):
-        """Нажать на ссылку входа"""
-        self.click(self.LOGIN_LINK)
-        return self
-    
-    def get_error_message(self):
-        """Получить текст сообщения об ошибке"""
-        if self.is_element_present(self.ERROR_MESSAGE):
-            return self.get_text(self.ERROR_MESSAGE)
-        return None
-    
-    def register(self, email, password, confirm_password=None):
-        """
-        Выполнить полный процесс регистрации
+    def __init__(self, driver: WebDriver):
+        self.driver = driver
+        self.alert_text = None
         
-        Args:
-            email: Email пользователя
-            password: Пароль пользователя
-            confirm_password: Подтверждение пароля (если None, используется password)
-            
-        Returns:
-            bool: True, если перенаправлен на домашнюю страницу
-        """
-        if confirm_password is None:
-            confirm_password = password
-            
-        self.enter_email(email)
-        self.enter_password(password)
-        self.enter_confirm_password(confirm_password)
-        self.click_register_button()
+    def navigate(self):
+        """Navigate to the registration page"""
+        self.driver.get(self.URL)
+        return self
         
-        # Ждем перенаправления на домашнюю страницу (если успешно)
+    def set_email(self, email: str):
+        """Set the email input field"""
+        email_field = self.driver.find_element(*self.EMAIL_FIELD)
+        email_field.clear()
+        email_field.send_keys(email)
+        return self
+        
+    def set_password(self, password: str):
+        """Set the password input field"""
+        password_field = self.driver.find_element(*self.PASSWORD_FIELD)
+        password_field.clear()
+        password_field.send_keys(password)
+        return self
+        
+    def set_confirm_password(self, confirm_password: str):
+        """Set the confirm password input field"""
+        confirm_field = self.driver.find_element(*self.CONFIRM_PASSWORD_FIELD)
+        confirm_field.clear()
+        confirm_field.send_keys(confirm_password)
+        return self
+        
+    def click_register(self):
+        """Click the register button and handle any alerts"""
         try:
-            return self.wait_for_url_to_contain("home")
+            self.driver.find_element(*self.REGISTER_BUTTON).click()
+            # Short pause to allow for form submission or alert to appear
+            time.sleep(1)
+        except UnexpectedAlertPresentException as e:
+            # Store the alert text for later assertions
+            self.alert_text = e.alert_text
+            print(f"Alert captured: {self.alert_text}")
+            
+        # Try to handle any alert that might be present
+        try:
+            alert = self.driver.switch_to.alert
+            self.alert_text = alert.text
+            print(f"Alert present: {self.alert_text}")
+            # Accept the alert to dismiss it and continue with the test
+            alert.accept()
+        except NoAlertPresentException:
+            # No alert present, continue with the test
+            pass
+        
+        return self
+        
+    def click_login_link(self):
+        """Click the login link"""
+        self.driver.find_element(*self.LOGIN_LINK).click()
+        return self
+    
+    def register(self, email: str, password: str, confirm_password: str):
+        """Complete the entire registration process"""
+        self.set_email(email)
+        self.set_password(password)
+        self.set_confirm_password(confirm_password)
+        self.click_register()
+        return self
+    
+    def get_email_error(self):
+        """Get the email field error message if present"""
+        try:
+            return self.driver.find_element(*self.EMAIL_ERROR).text
         except:
-            return False 
+            return None
+            
+    def get_confirm_password_error(self):
+        """Get the confirm password field error message if present"""
+        try:
+            return self.driver.find_element(*self.CONFIRM_PASSWORD_ERROR).text
+        except:
+            return None
+            
+    def get_server_error(self):
+        """Get the server error message if present"""
+        try:
+            return self.driver.find_element(*self.SERVER_ERROR).text
+        except:
+            return None
+    
+    def is_at_register_page(self):
+        """Check if we're at the register page"""
+        return "/register" in self.driver.current_url
+    
+    def wait_for_redirection(self, timeout=10):
+        """Wait for redirection after successful registration"""
+        try:
+            WebDriverWait(self.driver, timeout).until(
+                lambda driver: "/register" not in driver.current_url
+            )
+            return True
+        except:
+            return False
+    
+    def get_alert_text(self):
+        """Get the stored alert text if any"""
+        return self.alert_text 

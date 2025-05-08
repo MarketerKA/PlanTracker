@@ -1,65 +1,125 @@
 from selenium.webdriver.common.by import By
-from .base_page import BasePage
+from selenium.webdriver.remote.webdriver import WebDriver
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import UnexpectedAlertPresentException, NoAlertPresentException
+import sys
+import os
+import time
 
-class LoginPage(BasePage):
-    """Page Object для страницы логина"""
+# Add the parent directory to the path to enable imports
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from conftest import BASE_URL
+
+class LoginPage:
+    # URL
+    URL = f"{BASE_URL}/login"
     
-    # Локаторы элементов, обновленные в соответствии с реальной структурой страницы
-    EMAIL_INPUT = (By.CSS_SELECTOR, "input[type='email']")
-    PASSWORD_INPUT = (By.CSS_SELECTOR, "input[type='password']")
-    LOGIN_BUTTON = (By.CSS_SELECTOR, "button._button_xmbw2_1._primary_xmbw2_19._submitButton_ou5mw_22")
-    REGISTER_LINK = (By.CSS_SELECTOR, "button._registerLink_ou5mw_44")
-    FORGOT_PASSWORD_LINK = (By.XPATH, "//a[contains(text(), 'Forgot password?')]")
-    ERROR_MESSAGE = (By.CLASS_NAME, "error-message")  # предполагаемый класс
+    # Locators
+    EMAIL_FIELD = (By.CSS_SELECTOR, "input[type='email']")
+    PASSWORD_FIELD = (By.CSS_SELECTOR, "input[placeholder='Enter password']")
+    LOGIN_BUTTON = (By.CSS_SELECTOR, "button[type='submit']")
+    REGISTER_LINK = (By.CSS_SELECTOR, "button[type='button']")
+    SERVER_ERROR = (By.CSS_SELECTOR, ".serverError")
     
-    def __init__(self, driver, base_url):
-        super().__init__(driver, base_url)
+    # Error message locators
+    EMAIL_ERROR = (By.XPATH, "//label[text()='Email']/following-sibling::div/following-sibling::div[contains(@class, 'errorMessage')]")
+    PASSWORD_ERROR = (By.XPATH, "//label[text()='Password']/following-sibling::div/following-sibling::div[contains(@class, 'errorMessage')]")
     
-    def open_login_page(self):
-        """Открыть страницу логина"""
-        # Открывать путь login относительно базового URL
-        return self.open("login")
-    
-    def enter_email(self, email):
-        """Ввести email"""
-        self.type_text(self.EMAIL_INPUT, email)
-        return self
-    
-    def enter_password(self, password):
-        """Ввести пароль"""
-        self.type_text(self.PASSWORD_INPUT, password)
-        return self
-    
-    def click_login_button(self):
-        """Нажать кнопку входа"""
-        self.click(self.LOGIN_BUTTON)
-        return self
-    
-    def click_register_link(self):
-        """Нажать на кнопку регистрации"""
-        self.click(self.REGISTER_LINK)
-        return self
-    
-    def click_forgot_password_link(self):
-        """Нажать на ссылку восстановления пароля"""
-        self.click(self.FORGOT_PASSWORD_LINK)
-        return self
-    
-    def get_error_message(self):
-        """Получить текст сообщения об ошибке"""
-        if self.is_element_present(self.ERROR_MESSAGE):
-            return self.get_text(self.ERROR_MESSAGE)
-        return None
-    
-    def login(self, email, password):
-        """
-        Выполнить полный процесс логина
-        Возвращает True, если перенаправлен на страницу после успешного логина
-        """
-        self.enter_email(email)
-        self.enter_password(password)
-        self.click_login_button()
+    def __init__(self, driver: WebDriver):
+        self.driver = driver
+        self.alert_text = None
         
-        # Проверяем, что мы перенаправлены на главную страницу после успешного логина
-        # Предполагается, что URL содержит "/tasks" после успешного логина
-        return self.wait_for_url_to_contain("/tasks") 
+    def navigate(self):
+        """Navigate to the login page"""
+        self.driver.get(self.URL)
+        return self
+        
+    def set_email(self, email: str):
+        """Set the email input field"""
+        email_field = self.driver.find_element(*self.EMAIL_FIELD)
+        email_field.clear()
+        email_field.send_keys(email)
+        return self
+        
+    def set_password(self, password: str):
+        """Set the password input field"""
+        password_field = self.driver.find_element(*self.PASSWORD_FIELD)
+        password_field.clear()
+        password_field.send_keys(password)
+        return self
+        
+    def click_login(self):
+        """Click the login button and handle any alerts"""
+        try:
+            self.driver.find_element(*self.LOGIN_BUTTON).click()
+            # Short pause to allow for form submission or alert to appear
+            time.sleep(1)
+        except UnexpectedAlertPresentException as e:
+            # Store the alert text for later assertions
+            self.alert_text = e.alert_text
+            print(f"Alert captured: {self.alert_text}")
+            
+        # Try to handle any alert that might be present
+        try:
+            alert = self.driver.switch_to.alert
+            self.alert_text = alert.text
+            print(f"Alert present: {self.alert_text}")
+            # Accept the alert to dismiss it and continue with the test
+            alert.accept()
+        except NoAlertPresentException:
+            # No alert present, continue with the test
+            pass
+        
+        return self
+        
+    def click_register_link(self):
+        """Click the register link"""
+        self.driver.find_element(*self.REGISTER_LINK).click()
+        return self
+    
+    def login(self, email: str, password: str):
+        """Complete the entire login process"""
+        self.set_email(email)
+        self.set_password(password)
+        self.click_login()
+        return self
+    
+    def get_email_error(self):
+        """Get the email field error message if present"""
+        try:
+            return self.driver.find_element(*self.EMAIL_ERROR).text
+        except:
+            return None
+            
+    def get_password_error(self):
+        """Get the password field error message if present"""
+        try:
+            return self.driver.find_element(*self.PASSWORD_ERROR).text
+        except:
+            return None
+            
+    def get_server_error(self):
+        """Get the server error message if present"""
+        try:
+            return self.driver.find_element(*self.SERVER_ERROR).text
+        except:
+            return None
+    
+    def is_at_login_page(self):
+        """Check if we're at the login page"""
+        return "/login" in self.driver.current_url
+    
+    def wait_for_redirection(self, timeout=10):
+        """Wait for redirection after successful login"""
+        try:
+            WebDriverWait(self.driver, timeout).until(
+                lambda driver: "/login" not in driver.current_url
+            )
+            return True
+        except:
+            return False
+    
+    def get_alert_text(self):
+        """Get the stored alert text if any"""
+        return self.alert_text 

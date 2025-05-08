@@ -1,14 +1,25 @@
-.env
-.env.local
-.env.development
-.env.production
-.env.test
-.env.test.local
+# Poetry
+.venv/
+dist/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.pytest_cache/
+htmlcov/
+.coverage
+.coverage.*
 
-*.html
-*.png
-*.log
-*.json
-*.txt
-*.xml
-*.yaml
+# Environment
+.env
+
+# Selenium
+geckodriver.log
+chromedriver.log
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo 

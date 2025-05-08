@@ -1,75 +1,39 @@
 import pytest
 from selenium import webdriver
-from selenium.webdriver.chrome.service import Service as ChromeService
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.firefox.service import Service as FirefoxService
-from webdriver_manager.firefox import GeckoDriverManager
-from selenium.webdriver.edge.service import Service as EdgeService
-from webdriver_manager.microsoft import EdgeChromiumDriverManager
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+import os
+import time
 
-# Конфигурация для всех тестов
-def pytest_addoption(parser):
-    parser.addoption(
-        "--browser", 
-        action="store", 
-        default="chrome", 
-        help="Browser to run tests: chrome, firefox, or edge"
-    )
-    parser.addoption(
-        "--headless", 
-        action="store_true", 
-        default=False, 
-        help="Run browser in headless mode"
-    )
-    parser.addoption(
-        "--base-url", 
-        action="store", 
-        default="http://localhost:5173/PlanTracker", 
-        help="Base URL for the application"
-    )
-
-@pytest.fixture(scope="session")
-def base_url(request):
-    """Получение базового URL приложения"""
-    return request.config.getoption("--base-url")
+# Base URL for the application
+BASE_URL = os.environ.get("APP_URL", "http://localhost:5173")
 
 @pytest.fixture(scope="function")
-def driver(request):
-    """Инициализация и настройка WebDriver"""
-    browser_name = request.config.getoption("--browser").lower()
-    headless = request.config.getoption("--headless")
+def driver():
+    """
+    Setup and teardown for the WebDriver.
+    This fixture provides a configured Chrome WebDriver for each test function.
+    """
+    # Setup Chrome options
+    chrome_options = Options()
+    # chrome_options.add_argument("--headless")  # Run in headless mode (no GUI)
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--window-size=1920,1080")  # Set window size
     
-    # Настройка опций для выбранного браузера
-    if browser_name == "chrome":
-        options = webdriver.ChromeOptions()
-        if headless:
-            options.add_argument("--headless")
-        options.add_argument("--window-size=1920,1080")
-        options.add_argument("--no-sandbox")
-        options.add_argument("--disable-dev-shm-usage")
-        driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=options)
+    try:
+        # Try creating the driver without specifying a service
+        driver = webdriver.Chrome(options=chrome_options)
+    except:
+        # If that fails, try with default ChromeDriver
+        print("Warning: Using default Chrome driver initialization. If this fails, please download "
+              "the appropriate ChromeDriver for your Chrome version and specify its path.")
+        driver = webdriver.Chrome(options=chrome_options)
     
-    elif browser_name == "firefox":
-        options = webdriver.FirefoxOptions()
-        if headless:
-            options.add_argument("--headless")
-        driver = webdriver.Firefox(service=FirefoxService(GeckoDriverManager().install()), options=options)
+    driver.implicitly_wait(10)  # Wait up to 10 seconds for elements to appear
     
-    elif browser_name == "edge":
-        options = webdriver.EdgeOptions()
-        if headless:
-            options.add_argument("--headless")
-        driver = webdriver.Edge(service=EdgeService(EdgeChromiumDriverManager().install()), options=options)
-    
-    else:
-        raise ValueError(f"Unsupported browser: {browser_name}")
-    
-    # Установка таймаутов
-    driver.implicitly_wait(10)
-    driver.set_page_load_timeout(30)
-    
-    # Передача драйвера в тест
+    # Return the WebDriver instance to the test
     yield driver
     
-    # Завершение работы драйвера после теста
+    # Teardown - close the browser
     driver.quit() 

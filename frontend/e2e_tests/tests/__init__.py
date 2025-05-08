@@ -1,1 +1,1 @@
-# Package for test modules 
+# Make tests directory a Python package 

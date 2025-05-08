@@ -1,1 +1,1 @@
-# Package for page objects 
+# Make pages directory a Python package 
