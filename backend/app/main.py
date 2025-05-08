@@ -45,6 +45,8 @@ app.add_middleware(
     allow_origins=[
         "https://158.160.23.164",
         "http://158.160.23.164",
+        "https://158.160.23.164/api",
+        "http://158.160.23.164/api",
         "http://localhost:5173"],
     allow_credentials=True,
     allow_methods=["*"],
