@@ -12,8 +12,8 @@ services:
     restart: unless-stopped
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/plantracker
-      - SECRET_KEY=your-secret-key
-      - TELEGRAM_BOT_TOKEN=7962725619:AAFeeG_ChPGvcxAggyKvEMDzF62iyGUd06c
+      - SECRET_KEY=${SECRET_KEY}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
       - ALLOWED_HOSTS=158.160.23.164
       - CORS_ALLOWED_ORIGINS=https://158.160.23.164
     volumes:

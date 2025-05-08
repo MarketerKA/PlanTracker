@@ -32,6 +32,8 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="PlanTracker API", lifespan=lifespan)
 
 # Add health check endpoint
+
+
 @app.get("/health")
 async def health_check():
     return {"status": "healthy"}
