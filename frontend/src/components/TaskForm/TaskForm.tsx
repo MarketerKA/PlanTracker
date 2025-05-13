@@ -68,7 +68,7 @@ export const TaskForm: FC<TaskFormProps> = ({ onAddTask }) => {
           <div className={styles.formRow}>
             <div className={styles.inputGroup}>
               <label className={styles.label}>
-                Due Date (required)
+                Due Date (required){' '}
                 <input
                   type="datetime-local"
                   value={dueDate}
