@@ -261,9 +261,10 @@ export const Todo: FC<TodoProps> = () => {
         <div className={styles.filters}>
           <div className={styles.filterRow}>
             <div className={styles.filterSection}>
-              <label className={styles.filterLabel}>Date:</label>
+              <label htmlFor="date-filter" className={styles.filterLabel}>Date:</label>
               <div className={styles.dateFilter}>
                 <input
+                  id="date-filter"
                   type="date"
                   value={selectedDate}
                   onChange={(e) => handleDateSelect(e.target.value)}
@@ -283,8 +284,8 @@ export const Todo: FC<TodoProps> = () => {
             </div>
             
             <div className={styles.filterSection}>
-              <label className={styles.filterLabel}>Tags:</label>
-              <div className={styles.tagsList}>
+              <label htmlFor="tags-filter" className={styles.filterLabel}>Tags:</label>
+              <div id="tags-filter" className={styles.tagsList} role="group" aria-label="Filter tasks by tags">
                 <button 
                   className={`${styles.tagButton} ${selectedTag === null ? styles.active : ''}`}
                   onClick={() => handleTagSelect(null)}

@@ -1,4 +1,4 @@
-import { FC, useState, InputHTMLAttributes, ReactNode } from 'react';
+import { FC, useState, InputHTMLAttributes, ReactNode, KeyboardEvent } from 'react';
 import styles from './InputField.module.scss';
 
 export interface InputFieldProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'className'> {
@@ -31,6 +31,13 @@ export const InputField: FC<InputFieldProps> = ({
     }
   };
 
+  const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onRightIconClick?.();
+    }
+  };
+
   return (
     <div className={styles.inputContainer}>
       <label className={styles.label}>{label}</label>
@@ -49,7 +56,10 @@ export const InputField: FC<InputFieldProps> = ({
           <div 
             className={styles.iconRight} 
             onClick={onRightIconClick}
+            onKeyDown={handleKeyDown}
             role="button"
+            tabIndex={0}
+            aria-label={`${label} button`}
           >
             {rightIcon}
           </div>

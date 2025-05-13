@@ -67,6 +67,9 @@ RUN apk update && \
     apk del --no-cache curl && \
     rm -rf /var/cache/apk/*
 
+# Copy healthcheck script
+COPY healthcheck.sh /usr/local/bin/healthcheck.sh
+
 # Create necessary directories with proper permissions
 RUN mkdir -p /var/cache/nginx /var/run/nginx && \
     chown -R nginx-user:nginx-user /var/cache/nginx /var/run/nginx /var/log/nginx /usr/share/nginx/html && \
@@ -75,14 +78,17 @@ RUN mkdir -p /var/cache/nginx /var/run/nginx && \
     rm -f /var/run/nginx.pid && \
     touch /var/run/nginx.pid && \
     chown nginx-user:nginx-user /var/run/nginx.pid && \
-    chmod 644 /var/run/nginx.pid
+    chmod 644 /var/run/nginx.pid && \
+    # Set permissions for healthcheck script
+    chmod +x /usr/local/bin/healthcheck.sh && \
+    chown nginx-user:nginx-user /usr/local/bin/healthcheck.sh
 
 # Use a non-privileged port
 EXPOSE 8080
 
-# Add healthcheck using wget instead of curl
+# Add healthcheck using the script with exec form
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:8080/health || exit 1
+    CMD ["/usr/local/bin/healthcheck.sh"]
 
 # Switch to non-root user
 USER nginx-user
