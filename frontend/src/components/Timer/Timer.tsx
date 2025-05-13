@@ -24,7 +24,7 @@ export const Timer: FC<TimerProps> = ({
     // Calculate initial time including elapsed time if timer is running
     const calculateInitialTime = useCallback(() => {
         return recordedTime;
-    }, [isRunning, lastTimerStart, recordedTime]);
+    }, [isRunning, lastTimerStart, recordedTime]); // eslint-disable-line
 
     const [time, setTime] = useState(calculateInitialTime());
     const [showStopConfirm, setShowStopConfirm] = useState(false);
