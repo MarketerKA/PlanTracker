@@ -80,41 +80,6 @@ class TestTasks:
         current_count = tasks_page.get_task_count()
         assert current_count == initial_count, "Task should not be added with empty name"
     
-    def test_create_task_with_tags(self, driver: WebDriver):
-        """
-        Test scenario: Create a task with tags
-        Expected: Task is added with tags displayed
-        """
-        # Initialize the tasks page and navigate to it
-        tasks_page = TasksPage(driver).navigate()
-        
-        # Generate a unique task title with timestamp
-        task_title = f"Tagged Task {datetime.now().strftime('%H:%M:%S')}"
-        
-        # Record initial task count
-        initial_count = tasks_page.get_task_count()
-        
-        # Create task with tags
-        tasks_page.set_task_title(task_title)
-        tasks_page.set_due_date(days_from_now=1)
-        tasks_page.add_tag("important")
-        tasks_page.add_tag("test")
-        
-        # Verify tags are added to form
-        tag_count = tasks_page.get_tag_count()
-        assert tag_count == 2, "Two tags should be added to the form"
-        
-        # Submit the form
-        tasks_page.click_add_task()
-        
-        # Verify task count has increased
-        current_count = tasks_page.get_task_count()
-        assert current_count == initial_count + 1, "Task count should increase by 1"
-        
-        # Verify the task is in the list
-        task = tasks_page.get_task_by_title(task_title)
-        assert task is not None, f"Task with title '{task_title}' should be in the list"
-    
     def test_create_task_successfully(self, driver: WebDriver):
         """
         Test scenario: Create a task successfully

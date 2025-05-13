@@ -27,43 +27,41 @@ class TasksPage:
     
     # Task Form Locators
     TASK_TITLE_INPUT = (By.CSS_SELECTOR, "input[placeholder='Add new task...']._input_dg8be_23")
-    # Fallback selectors in case the class name changes
     TASK_TITLE_INPUT_ALT1 = (By.CSS_SELECTOR, "input[placeholder='Add new task...']")
-    TASK_TITLE_INPUT_ALT2 = (By.XPATH, "//input[@placeholder='Add new task...']")
     
     # Due date input with fallbacks
-    DUE_DATE_INPUT = (By.CSS_SELECTOR, "input[type='datetime-local']")
-    DUE_DATE_INPUT_ALT = (By.XPATH, "//label[contains(text(), 'Due Date')]//input")
+    DUE_DATE_INPUT = (By.CSS_SELECTOR, "input[type='datetime-local']._input_dg8be_23")
+    DUE_DATE_INPUT_ALT = (By.CSS_SELECTOR, "label._label_dg8be_28 input")
     
     # Tag inputs with fallbacks
     TAG_INPUT = (By.CSS_SELECTOR, "#tag-input")
-    TAG_INPUT_ALT = (By.XPATH, "//input[@placeholder='Add tag...']")
-    ADD_TAG_BUTTON = (By.CSS_SELECTOR, "button.addTagButton")
-    ADD_TAG_BUTTON_ALT = (By.XPATH, "//div[contains(@class, 'tagInput')]//button[text()='+']")
+    TAG_INPUT_ALT = (By.CSS_SELECTOR, "input[placeholder='Add tag...']")
+    ADD_TAG_BUTTON = (By.CSS_SELECTOR, "button._addTagButton_dg8be_100")
+    ADD_TAG_BUTTON_ALT = (By.CSS_SELECTOR, "button[type='button']")
     
     # Submit button with fallbacks
-    SUBMIT_BUTTON = (By.CSS_SELECTOR, "button.submitButton")
-    SUBMIT_BUTTON_ALT1 = (By.XPATH, "//button[text()='Add Task']")
-    SUBMIT_BUTTON_ALT2 = (By.CSS_SELECTOR, "button[type='submit']")
+    SUBMIT_BUTTON = (By.CSS_SELECTOR, "button._submitButton_dg8be_77")
+    SUBMIT_BUTTON_ALT1 = (By.CSS_SELECTOR, "button[type='submit']")
     
-    TAGS_CONTAINER = (By.CSS_SELECTOR, ".tagsContainer")
-    TAG = (By.CSS_SELECTOR, ".tag")
+    # Tags container and tag elements
+    TAGS_CONTAINER = (By.CSS_SELECTOR, "div._tagsList_14zt8_65")
+    TAG = (By.CSS_SELECTOR, "button._tagButton_14zt8_72")
     
     # Task List Locators
-    TASK_ITEMS = (By.CSS_SELECTOR, "div[role='button']")
-    TASK_TITLE = (By.CSS_SELECTOR, ".title")
+    TASK_ITEMS = (By.CSS_SELECTOR, "div._task_c1mtr_1")
+    TASK_TITLE = (By.CSS_SELECTOR, "div._title_c1mtr_20")
     TASK_CHECKBOX = (By.CSS_SELECTOR, "input[type='checkbox']")
-    DELETE_BUTTON = (By.CSS_SELECTOR, ".deleteBtn")
-    TASK_TAGS = (By.CSS_SELECTOR, ".tags .tag")
+    DELETE_BUTTON = (By.CSS_SELECTOR, "button._deleteBtn_c1mtr_125")
+    TASK_TAGS = (By.CSS_SELECTOR, "div._tags_c1mtr_93 ._tag_c1mtr_97")
     
     # Page identification elements
-    MAIN_TITLE = (By.CSS_SELECTOR, "h1.title")
+    MAIN_TITLE = (By.CSS_SELECTOR, "div._taskTitle_wrfdf_13")
     
     # Timer Locators
-    TIMER_DISPLAY = (By.CSS_SELECTOR, ".display")
-    TIMER_START_BUTTON = (By.XPATH, "//div[contains(@class, 'timer')]//button[contains(text(), 'Start')]")
-    TIMER_PAUSE_BUTTON = (By.XPATH, "//div[contains(@class, 'timer')]//button[contains(text(), 'Pause')]")
-    TIMER_FINISH_BUTTON = (By.XPATH, "//div[contains(@class, 'timer')]//button[contains(text(), 'Finish')]")
+    TIMER_DISPLAY = (By.CSS_SELECTOR, "div._display_wrfdf_23")
+    TIMER_START_BUTTON = (By.CSS_SELECTOR, "div._controls_wrfdf_29 button:nth-child(1)")
+    TIMER_PAUSE_BUTTON = (By.CSS_SELECTOR, "div._controls_wrfdf_29 button:nth-child(2)")
+    TIMER_FINISH_BUTTON = (By.CSS_SELECTOR, "div._controls_wrfdf_29 button:nth-child(3)")
     
     # Dialog Locators
     CONFIRM_DIALOG = (By.CSS_SELECTOR, "div[role='dialog']")
