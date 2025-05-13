@@ -16,7 +16,7 @@ export const TaskList: FC<TaskListProps> = ({
   tasks, 
   onToggleComplete, 
   onDelete,
-  itemsPerPage = 5,
+  itemsPerPage = 15,
   selectedTaskId,
   onTaskSelect
 }) => {

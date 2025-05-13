@@ -326,7 +326,7 @@ export const Todo: FC<TodoProps> = () => {
             tasks={filteredTasks} 
             onToggleComplete={handleToggleComplete} 
             onDelete={handleDeleteTask}
-            itemsPerPage={5}
+            itemsPerPage={15}
             selectedTaskId={selectedTaskId}
             onTaskSelect={handleTaskSelect}
           />
